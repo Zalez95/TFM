@@ -28,6 +28,7 @@ Para las reuniones Jueves a las 18:30
 
 
 08/03/2022
+pip install instaLooter
 Uso de instalooter para descargar imagenes y metadatos con hashtag "mane6":
 ```
 instalooter login
@@ -115,32 +116,48 @@ mirar github pro -> student
 mirar tfm previos formato
 MAP-review trabajos previos, criterios para seleccionar trabajos
 
-* Descargamos el cliente de gcloud para python
+* github pro hecho, y creado repo privado para el TFM
+
+* Buscador de hashtags:
+  * https://postcron.com/es/blog/landings/buscador-de-hashtags/#page-block-he6t7wyxoh
+  * https://keywordtool.io/search/keywords/instagram/26108664?category&keyword=valladolid&country=GLB&language=en#hashtags
+  Lo hace en base a las sugerencias de instagram
+
+* Subir datos a google cloud:
+  * Descargamos el cliente de gcloud para python
+  ```
+  source testvisualenv/bin/activate
+  ./testvisualenv/bin/pip install google-cloud-storage
+  export GOOGLE_APPLICATION_CREDENTIALS="../testvisualenv/indigo-pod-344620-5cee76b95a93.json"
+  ```
+  * Creamos un script para subir un fichero happy.jpg
+  ```
+  from google.cloud import storage
+
+  source_file_name = "happy.jpg"
+  destination_blob_name = source_file_name
+
+  storage_client = storage.Client()
+  bucket = storage_client.bucket("indigo-pod-344620")
+  blob = bucket.blob(destination_blob_name)
+
+  blob.upload_from_filename(source_file_name)
+
+  print(
+      "File {} uploaded to {}.".format(
+          source_file_name, destination_blob_name
+      )
+  )
+  ```
+  * Ejecutamos el script desde ese directorio con "./bin/python mitest.py"
+
+* Google Cloud CLI:
+* Descargar cliente con:
 ```
- source testvisualenv/bin/activate
-./testvisualenv/bin/pip install google-cloud-storage
-export GOOGLE_APPLICATION_CREDENTIALS="../testvisualenv/indigo-pod-344620-5cee76b95a93.json"
+curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-379.0.0-linux-x86_64.tar.gz
 ```
+* Descomprimir y ejecutar ./google-cloud-sdk/install.sh
+* Hacer gcloud init y logearse
 
-* Creamos un script para subir un fichero happy.jpg
-```
-from google.cloud import storage
 
-source_file_name = "happy.jpg"
-destination_blob_name = source_file_name
-
-storage_client = storage.Client()
-bucket = storage_client.bucket("indigo-pod-344620")
-blob = bucket.blob(destination_blob_name)
-
-blob.upload_from_filename(source_file_name)
-
-print(
-    "File {} uploaded to {}.".format(
-        source_file_name, destination_blob_name
-    )
-)
-```
-
-Ejecutamos el script desde ese directorio con "./bin/python mitest.py"
-
+Notas: el cliente instalooter permite descargar imagenes nuevas comprobando las ya descargadas, para evitar que se repiten hay que descargar imagenes si o si. Se puede enviar la url a google vision api, pero teniendo en cuenta que ya las tenemos descargadas en local, y que posiblemente haya imágenes a las que google clooud no tenga acceso sin estar logeado, lo mejor es subirlas directamente a google cloud y procesarlas allí
