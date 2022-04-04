@@ -24,7 +24,7 @@ def main(argv):
 	user = argv[1]
 	password = argv[2]
 	hashtag = argv[3]
-	'''
+
 	looter = HashtagLooter(hashtag, jobs=12)
 	looter.login(user, password)
 	looter.download_pictures(directory, media_count=50, new_only=True)
@@ -35,7 +35,7 @@ def main(argv):
 				f.write("{}\n".format(link))
 
 	looter.logout()
-	'''
+
 	storage_client = storage.Client()
 	bucket = storage_client.bucket("indigo-pod-344620")
 	for filename in os.listdir(directory):

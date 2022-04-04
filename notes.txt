@@ -26,15 +26,14 @@ Objetivo: Tratar de recomendar sitios de valladolid de x edad en base a imagenes
 Para las reuniones Jueves a las 18:30
 
 
-
 08/03/2022
 pip install instaLooter
-Uso de instalooter para descargar imagenes y metadatos con hashtag "mane6":
+Uso de instalooter para descargar imagenes y metadatos con hashtag "valladolid":
 ```
 instalooter login
 mkdir output
-instalooter hashtag mane6 output -D
-instalooter hashtag mane6 output
+instalooter hashtag valladolid output -D
+instalooter hashtag valladolid output
 instalooter logout
 ```
 En este caso usé mi cuenta personal de instagram para descargar imágenes, posiblemente tenga que crearme una nueva para este proyecto
@@ -161,3 +160,9 @@ curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-
 
 
 Notas: el cliente instalooter permite descargar imagenes nuevas comprobando las ya descargadas, para evitar que se repiten hay que descargar imagenes si o si. Se puede enviar la url a google vision api, pero teniendo en cuenta que ya las tenemos descargadas en local, y que posiblemente haya imágenes a las que google clooud no tenga acceso sin estar logeado, lo mejor es subirlas directamente a google cloud y procesarlas allí
+
+
+04/04/2022
+pool estatico de hashtags
+am-guerrero
+mapreview
