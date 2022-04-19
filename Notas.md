@@ -164,3 +164,15 @@ Se ha añadido al repo la memoria y conectado con overleaf, también se ha añad
 * Proceso de busqueda -> generar unbos strings de busqueda. palabras clave obtenidas mediante la estrategia PICOC. Una vez obtenidos los strings filtrar tambien por fechas (ej: 2015-2019) y que el acceso sea libre/gratuito
 * Seleccion de muestras -> Proceso: 1. eliminar duplicados, 2. eliminar tras leer el abstract basandise en criterios de inclusion y de exclusion (si cumple algun criterio de exclusion o no cumple ningun criterio de inclusion descartar). 3. Leer por completo los articulos y decidir si son relevantes en base a un cuestionario (¿6? preguntas si -1 punto- o no -0 puntos- y sacar minimo un 4) para obtener proximadamente ¿10? muestras
 * Extraccion de informacion: Definir que se quieres sacar de los articulos. ej: algoritmo usado, resultados obtenidos, dataset empleado, etc.
+
+
+# 20/04/2022
+Abstraction de google storage para usar como si fuera un objeto filesystem2 de python https://github.com/Othoz/gcsfs
+Uso:
+```
+source testvisualenv/bin/activate
+./testvisualenv/bin/pip install fs-gcsfs
+cd scripts
+export GOOGLE_APPLICATION_CREDENTIALS="../testvisualenv/indigo-pod-344620-5cee76b95a93.json"
+../testvisualenv/bin/python3 gcsfstest.py
+```
