@@ -176,3 +176,9 @@ cd scripts
 export GOOGLE_APPLICATION_CREDENTIALS="../testvisualenv/indigo-pod-344620-5cee76b95a93.json"
 ../testvisualenv/bin/python3 gcsfstest.py
 ```
+
+# 21/04/2022
+* 4 pags de trabajos relacionados
+* 2 programas:
+  * Descargar imágen y sacar con cloud vision: sexo, edad, likelyhood de sentimiento. Lo guarda en una base de datos que mapea lugares y atributos edad, sexo, etc. Usar mariadb? Usar mongodb (se mete el json directamente sin procesar)?
+  * introduciendo edad y sexo, el programa analizaria las imagenes con esas caracteristicas. Usar django para la interfaz?
