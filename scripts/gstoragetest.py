@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from google.cloud import storage
 
 source_file_name = "happy.jpg"

@@ -2,6 +2,8 @@
 
 from instalooter.looters import HashtagLooter
 from instalooter.pbar import ProgressBar
+from fs_gcsfs import GCSFS
+from fs import errors
 import sys
 
 
@@ -40,13 +42,22 @@ def main(argv):
     password = input("Password: ")
     hashtag = argv[1]
 
+    gcsfs = None
+    try:
+        gcsfs = GCSFS(bucket_name="indigo-pod-344620")
+    except errors.CreateFailed:
+        print("Failed to connect with Cloud Storage")
+        return
+
+    print(gcsfs.listdir(""))
+
     try:
         looter = HashtagLooter(hashtag, jobs=12)
         looter.login(user, password)
 
         print("Logged in? " + str(looter.logged_in()))
         mediaCount = looter.download_pictures(
-            './output', media_count=50, new_only=True, dlpbar_cls=InstaProgressBar)
+            gcsfs, media_count=50, new_only=True, dlpbar_cls=InstaProgressBar)
         print("Finished! Downloaded " + str(mediaCount) + " pictures")
 
         looter.logout()

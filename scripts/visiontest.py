@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from google.cloud import vision
 
 client = vision.ImageAnnotatorClient()
@@ -8,4 +10,3 @@ response = client.annotate_image({
 
 print("response:")
 print(response)
-

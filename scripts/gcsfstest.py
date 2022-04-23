@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from fs_gcsfs import GCSFS
 
 gcsfs = GCSFS(bucket_name="indigo-pod-344620")
