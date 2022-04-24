@@ -280,6 +280,36 @@ Finished! Downloaded 1 pictures
 Con esto se podría concluir que estos scripts se pueden ejecutar ya sin problemas en las maquinas virtuales del Compute Engine
 
 # 24/04/2022
-Revisando las opciones de la API de Google Vision parece que no es posible extraer información como edad o género ya que han debido de eliminar esa capacidad hace no demasiado. He encontrado la siguiente historia https://web.archive.org/web/20200902214144/https://diversity.google/story/ethics-in-action-removing-gender-labels-from-clouds-vision-api/ en The Wayback Machine (ahora mismo no es accesible, creo que lo han borrado) de los motivos por lo que eliminaron esta capacidad. Revisando alternativas parece Microsoft Azure tiene también una API de Computer Vision que si que extrae ese tipo de características junto con las emociones de acuerdo a su documentación https://docs.microsoft.com/es-es/azure/cognitive-services/face/concepts/face-detection. Parece que Azure ofrece 200 USD para llevar a cabo pruebas en plataforma durante 12 meses, 300 si se demuestra que es estudiante, y he comprobado que existe una librería para Python fs-azureblob para usar su almacenamiento en la nube del mismo modo que con gcsfs. No sé si conviene hacer el cambio o no.
+Revisando las opciones de la API de Google Vision parece que no es posible extraer información como edad o género ya que han debido de eliminar esa capacidad hace no demasiado. He encontrado la siguiente historia https://web.archive.org/web/20200902214144/https://diversity.google/story/ethics-in-action-removing-gender-labels-from-clouds-vision-api/ en The Wayback Machine (ahora mismo no es accesible, creo que lo han borrado) de los motivos por lo que eliminaron esta capacidad. Revisando alternativas parece Microsoft Azure tiene también una API de Computer Vision que si que extrae ese tipo de características junto con las emociones de acuerdo a su documentación https://docs.microsoft.com/es-es/azure/cognitive-services/face/concepts/face-detection. Parece que Azure ofrece 200 USD para llevar a cabo pruebas en plataforma durante 1 mes, 100 más durante un año si se demuestra que es estudiante. Además:
+* Máquina virtual con Linux durante 750 horas
+* Azure Database for PostgreSQL durante 750 horas 32 GBs
+* Computer Vision durante 5000 transacciones al mes
+* Face 30.000 transacciones al mes -> Computer vision que necesitamos?
+* Azure Blob Storage 5 GBs
+* Azure File Storage 5 GBs
+He comprobado que existe una librería para Python fs-azureblob para usar su almacenamiento en la nube del mismo modo que con gcsfs. No sé si conviene hacer el cambio o no.
 
 También existe la alternativa Amazon AWS, mirando su página web https://aws.amazon.com/es/blogs/aws/aws-educate-credits-training-content-and-collaboration-for-students-educators/ parece que ofrece 35 USD de forma gratuita a los estudiantes, aunque no pone durante cuanto tiempo y como la página es antigua puede que esto haya cambiado. Amazon AWS tiene también una API de Computer Vision que permite obtener edad, género y emociones Tambien existe una librería de python https://github.com/PyFilesystem/s3fs para acceder a su sistema de almacenamiento como gcsfs.
+
+Probando con Azure:
+* Yendo a Inicio > Servicios Gratuitos > Máquina Virtual con Linux
+* Configuracion:
+  * Nombre VM: VallTourismInsta
+  * Ubuntu Server 16.04 LTS Gen 1
+  * Ubicación: West Europe
+  * Seguridad: Estándar
+  * Sin redundancia
+  * Autenticación: Clave pública SSH
+  * Nombre Usuario: daniel
+  * Nombre par claves SSH: azure_pubkey
+  * Puerto de acceso: SSH 22
+
+La Máquina virtual ha de ser B1S para que sea gratuita, pero parece que nodeja seleccionarla dando un error "Tamaño no disponible
+
+Este tamaño no está disponible actualmente en eastus para la suscripción NotAvailableForSubscription."
+
+Segun la respuesta a una duda puede que sea un problema de disponibilidad del servicio
+https://docs.microsoft.com/en-us/answers/questions/793359/vm-size-b1s-not-available-in-multiple-regions.html
+
+Se va a intentar probar con Amazon AWS ya que parece que es un problema que sucede habitualmente a ver si esta plataforma es más fiable.
+
