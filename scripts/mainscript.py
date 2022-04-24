@@ -1,57 +1,82 @@
 #!/usr/bin/env python3
 
-from instalooter.looters import HashtagLooter
-from google.cloud import storage
 from google.cloud import vision
+from instalooter.looters import HashtagLooter
+from instalooter.pbar import ProgressBar
+from fs_gcsfs import GCSFS
+from fs import errors
 import sys
-import os
 
-def links(media, looter):
-	if media.get('__typename') == "GraphSidecar":
-		media = looter.get_post_info(media['shortcode'])
-		nodes = [e['node'] for e in media['edge_sidecar_to_children']['edges']]
-		return [n.get('display_url') for n in nodes]
-	else:
-		return [media['display_url']]
+
+class InstaProgressBar(ProgressBar):
+    def __init__(self, it, *args, **kwargs):
+        self.count = 0
+        self.maximum = 0
+        ProgressBar.__init__(self, it)
+        print()
+
+    def update(self):
+        self.count += 1
+        self.printCurrent()
+
+    def set_maximum(self, maximum):
+        self.maximum = maximum
+
+    def finish(self):
+        self.printCurrent()
+        print("")
+
+    def printCurrent(self):
+        perc = 0
+        if self.maximum > 0:
+            perc = 100.0 * self.count / float(self.maximum)
+        print("\r\033[KDownloaded:\t" + str(self.count) + "/" + str(self.maximum)
+            + "\t" + '{:.3f}'.format(perc) + "%", end="")
 
 
 def main(argv):
-	if len(argv) < 4:
-		print("Error: usage " + argv[0] + " <user> <pass> <hashtag>")
-		sys.exit()
+    if len(argv) < 2:
+        print("Error: usage " + argv[0] + " <hashtag>")
+        sys.exit()
 
-	directory = './output/'
-	user = argv[1]
-	password = argv[2]
-	hashtag = argv[3]
+    user = input("User: ")
+    password = input("Password: ")
+    hashtag = argv[1]
 
-	looter = HashtagLooter(hashtag, jobs=12)
-	looter.login(user, password)
-	looter.download_pictures(directory, media_count=50, new_only=True)
+    gcsfs = None
+    try:
+        gcsfs = GCSFS(bucket_name="indigo-pod-344620")
+    except errors.CreateFailed:
+        print("Failed to connect with Cloud Storage")
+        return
 
-	with open(hashtag + ".txt", "w") as f:
-		for media in looter.medias():
-			for link in links(media, looter):
-				f.write("{}\n".format(link))
+    try:
+        looter = HashtagLooter(hashtag, jobs=12)
+        looter.login(user, password)
 
-	looter.logout()
+        print("Logged in? " + str(looter.logged_in()))
+        mediaCount = looter.download_pictures(
+            gcsfs, media_count=50, new_only=True, dlpbar_cls=InstaProgressBar)
+        print("Finished! Downloaded " + str(mediaCount) + " pictures")
 
-	storage_client = storage.Client()
-	bucket = storage_client.bucket("indigo-pod-344620")
-	for filename in os.listdir(directory):
-		source_file_name = directory + filename
-		destination_blob_name = filename
-		blob = bucket.blob(destination_blob_name)
-		blob.upload_from_filename(source_file_name)
+        looter.logout()
+    except (SystemError, ValueError, IOError):
+        print("Failed to connect with Instagram")
+        if (looter.logged_in()):
+            looter.logout()
+        return
 
-	image_client = vision.ImageAnnotatorClient()
-	for filename in os.listdir(directory):
-		response = image_client.annotate_image({
-			'image': {'source': {'image_uri': 'gs://indigo-pod-344620/' + filename}},
-			'features': [{'type_': vision.Feature.Type.FACE_DETECTION}]
-		})
+    image_client = vision.ImageAnnotatorClient()
+    for filename in gcsfs.listdir(""):
+        response = image_client.annotate_image({
+            'image': {'source': {'image_uri': 'gs://indigo-pod-344620/' + filename}},
+            'features': [
+                {'type_': vision.Feature.Type.OBJECT_LOCALIZATION},
+                {'type_': vision.Feature.Type.FACE_DETECTION}
+            ]
+        })
 
-		print(filename + ": " + str(response))
+        print(filename + ": " + str(response))
 
 
 if __name__ == "__main__":
