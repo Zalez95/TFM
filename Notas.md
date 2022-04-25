@@ -313,3 +313,69 @@ https://docs.microsoft.com/en-us/answers/questions/793359/vm-size-b1s-not-availa
 
 Se va a intentar probar con Amazon AWS ya que parece que es un problema que sucede habitualmente a ver si esta plataforma es más fiable.
 
+# 25/04/2022
+Una vez registrado en AWS, creamos unas credenciales de acceso desde el menu de cuenta superior derecha > credenciales de seguridad > claves de acceso > Crear clave de acceso, y damos a descargar.
+
+Después vamos a crear una VM. Para ello en la pantalla inicial se da a "Lance una máquina virtual con EC2", la llamamos VallTourismInsta y elegimos Debian 10 de 64 bits, por defecto se emplea 1 CPU y 1GB de RAM qeue es la opción gratuita. Creamos claves de acceso "valltourisminsta" de tipo RSA .pem y 30 GBs de almacenamiento SSD (el máximo gratuito) y le damos a crear instancia.
+
+"Nivel gratuito: El primer año incluye 750 horas de uso de instancias t2.micro (o t3.micro en las regiones en las que t2.micro no esté disponible) en las AMI del nivel gratuito al mes, 30 GiB de almacenamiento de EBS, 2 millones de E/S, 1 GB de instantáneas y 100 GB de ancho de banda a Internet"
+
+Nos metemos con ssh mediante
+```
+sudo chmod 600 valltourisminsta.pem
+ssh -i "valltourisminsta.pem" admin@ec2-35-173-128-55.compute-1.amazonaws.com
+```
+
+Procedemos a instalar librerías:
+```
+sudo apt update
+sudo apt install python3 python3-dev python3-venv
+sudo apt-get install wget
+wget https://bootstrap.pypa.io/get-pip.py
+sudo python3 get-pip.py
+sudo apt-get install virtualenv
+virtualenv --python=python3 testvisual
+source testvisual/bin/activate
+pip3 install instaLooter
+sudo apt-get install firefox-esr
+sudo apt-get install xauth x11-apps
+```
+Las de google no puesto que tenemos que usar las de AWS:
+```
+pip3 install boto3
+pip install fs-s3fs
+```
+
+Creamos un bucket de almacenamiento desde Servicios > Almacenamiento > S3, desde hay damos a crear bucket
+* Nombre: valltourisminstabucket
+* Región: UE west-1 (Irlanda)
+* ACL deshabilitadas
+* Sin control de version
+* Sin cifrar
+
+"Al registrarse, los clientes nuevos de AWS reciben 5 GB de almacenamiento de Amazon S3 en la clase de almacenamiento S3 Standard, 20 000 solicitudes GET, 2000 solicitudes PUT, COPY, POST o LIST y 100 GB de transferencia de datos de salida al mes."
+
+Probamos que funciona instalooter, para ello hay que conectarse con "ssh -Y" para poder logearnos por primera vez en instagram y solventar el problema ya visto en google cloud de la pantalla de cookies y del acceso inusual. Una vez logeado por primera vez, probamos todos los scripts creados que reemplazan los servicios de google por los de amazon, y parece que el resultado es satisfactorio:
+```
+(testvisual) admin@ip-172-31-21-254:~$ ./instalooters3fstest.py valladolid
+Insta User: zalez_95
+Insta Password: yLPf3O0NuyXa
+AWS Access Key ID: AKIA2BIQPL3AKI53QO5K
+AWS Access Key Secret: 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
+['happy.jpg']
+Logged in? True
+
+Downloaded:	50/50	100.000%
+Finished! Downloaded 50 pictures
+
+(testvisual) admin@ip-172-31-21-254:~$ ./mainScriptAWS.py mane6
+Insta User: zalez_95
+Insta Password: yLPf3O0NuyXa
+AWS Access Key ID: AKIA2BIQPL3AKI53QO5K
+AWS Access Key Secret: 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
+Logged in? True
+
+Downloaded:	50/50	100.000%
+Finished! Downloaded 50 pictures
+2822652856770135681.jpg: {'FaceDetails': [], 'ResponseMetadata': {'RequestId': '167b1fc0-1879-4c38-822c-7bf9642221ba', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amzn-requestid': '167b1fc0-1879-4c38-822c-7bf9642221ba', 'content-type': 'application/x-amz-json-1.1', 'content-length': '18', 'date': 'Mon, 25 Apr 2022 20:31:49 GMT'}, 'RetryAttempts': 0}}
+```
