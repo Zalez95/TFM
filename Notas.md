@@ -379,3 +379,14 @@ Downloaded:	50/50	100.000%
 Finished! Downloaded 50 pictures
 2822652856770135681.jpg: {'FaceDetails': [], 'ResponseMetadata': {'RequestId': '167b1fc0-1879-4c38-822c-7bf9642221ba', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amzn-requestid': '167b1fc0-1879-4c38-822c-7bf9642221ba', 'content-type': 'application/x-amz-json-1.1', 'content-length': '18', 'date': 'Mon, 25 Apr 2022 20:31:49 GMT'}, 'RetryAttempts': 0}}
 ```
+
+# 27/04/2022
+Almacenamiento. alternativas:
+* SQL -> parsear JSON y guardar los resultados en alguna tabla
+* NoSQL -> guardar el JSON en la base de datos y procesarlo durante la lectura
+
+Ventajas NoSQL -> rendimiento y escalabilidad con grandes conjuntos de datos
+
+En Google Cloud se pueden crear bases de datos SQL con motor de base de datos MySQL, PostgreSQL y SQL Server. Para NoSQL se dispone de bases de datos documentales como Cloud Datastore, Cloud Firestore (siguiente generación de Datastore), MongoDB (varias versiones), Bigtable...
+
+En Amazon AWS se pueden crear bases de datos SQL en RDS (750 horas gratis al mes con la cuenta gratuita) con motor de base de datos MySQL, MariaDB, Oracle, PostgreSQL, SQL Server y Amazon Aurora. Para NoSQL se disponde de DynamoDB (25 GB gratuitos) y DocumentDB (compatible con MongoDB, solo se disponde de 1 mes de prueba).
