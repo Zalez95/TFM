@@ -390,3 +390,13 @@ Ventajas NoSQL -> rendimiento y escalabilidad con grandes conjuntos de datos
 En Google Cloud se pueden crear bases de datos SQL con motor de base de datos MySQL, PostgreSQL y SQL Server. Para NoSQL se dispone de bases de datos documentales como Cloud Datastore, Cloud Firestore (siguiente generación de Datastore), MongoDB (varias versiones), Bigtable...
 
 En Amazon AWS se pueden crear bases de datos SQL en RDS (750 horas gratis al mes con la cuenta gratuita) con motor de base de datos MySQL, MariaDB, Oracle, PostgreSQL, SQL Server y Amazon Aurora. Para NoSQL se disponde de DynamoDB (25 GB gratuitos) y DocumentDB (compatible con MongoDB, solo se disponde de 1 mes de prueba).
+
+# 30/04/2022
+Prueba MongoDB:
+* En Google Cloud parece que no es gratuito, y pagar excedería el presupuesto que da Google Cloud de forma gratuita inicialmente. Esto se haría desde > servicios de google > "MongoDB Virtual Machine". La alternativa gratuita que da Google es emplear Firestore, pero parece que solo da 1 GB de almacenamiento gratuito, lo cual parece muy escaso, aunque para hacer pruebas podría servir teniendo en cuenta que solo almacenaríamos objetos JSON.
+* En Amazon AWS como se comentó anteriormente habría que emplear DocumentDB, que parece que es compatible con MongoDB, ya que segun su página web
+"Amazon DocumentDB implementa la API de MongoDB 3.6 y 4.0 de código abierto de Apache 2.0 emulando las respuestas que un cliente de MongoDB espera de un servidor de MongoDB"
+El problema es que Amazon solo permite usarlo de forma gratuita durante 750 horas el primer mes. La otra base de datos NoSQL que tiene es DynamoDB, que nos da 25GBs "para siempre", pero no es MongoDB. En caso de usar SQL se disponde 20 GBs de almacenamiento durante 12 meses con 750 horas al mes.
+* En Microsoft Azure se disponde de MongoDB Atlas. La capa gratuita permite usarlo durante un año pero está limitada a 512MBs. Tambien está la opción "Azure Cosmos DB", donde se puede escoger la API de Mongo DB, pero no me queda claro si está limitado a 1 mes o no. De todos modos a día de hoy sigo sin poder crear una de las MVs gratuitas.
+
+Otra alternativa sería instalarlo directamente en las VMs creadas, pero el almacenamiento en ellas también es bastante limitado.
