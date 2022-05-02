@@ -400,3 +400,35 @@ El problema es que Amazon solo permite usarlo de forma gratuita durante 750 hora
 * En Microsoft Azure se disponde de MongoDB Atlas. La capa gratuita permite usarlo durante un año pero está limitada a 512MBs. Tambien está la opción "Azure Cosmos DB", donde se puede escoger la API de Mongo DB, pero no me queda claro si está limitado a 1 mes o no. De todos modos a día de hoy sigo sin poder crear una de las MVs gratuitas.
 
 Otra alternativa sería instalarlo directamente en las VMs creadas, pero el almacenamiento en ellas también es bastante limitado.
+
+# 01/05/2022
+Trabajos relacionados. Strings de búsqueda:
+* (Sentiment Analysis OR Emotion Recognition) AND Social Media AND Tourism
+* (Sentiment Analysis OR Emotion Recognition) AND Images AND Recommendation System
+Otros filtros: acceso público y entre 2015 y 2022
+
+Resultados:
+| String Búsqueda | Título | Fecha Publicación | URL | Abs Redes Sociales | Abs Análisis Sentimientos | Abs Sis. Recomendación Turismo | No gratuito | No EN/ES | Abs Recopilación | Abs No análisis sentimientos | Abs fuente no redes sociales |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | Sentiment Analysis in TripAdvisor | 17/08/2017 | https://ieeexplore.ieee.org/abstract/document/8012330 | N | S | N | N | N | N | N | S |
+| 1 | Using Social Media in Tourist Sentiment Analysis: A Case Study of Andalusia during the Covid-19 Pandemic | 2021 | https://www.mdpi.com/2071-1050/13/7/3836 | S | S | N | N | N | N | N | N |
+| 1 | Sentiment analysis in hospitality and tourism: a thematic and methodological review | 11/10/2021 | https://www.emerald.com/insight/content/doi/10.1108/IJCHM-02-2021-0132/full/html?utm_source=rss&utm_medium=feed&utm_campaign=rss_journalLatest | N | S | N | S | N | S | N | S |
+| 1 | Sentiment Analysis to Measure Quality and Build Sustainability in Tourism Destinations | 26/05/2021 | https://www.mdpi.com/2071-1050/13/11/6015 | S | S | N | N | N | N | N | N |
+| 1 | Sentiment analysis of foreign tourists to Bangkok using data mining through online social network | 2017 | https://ieeexplore.ieee.org/abstract/document/8104921 | S | S | N | S | N | N | N | N |
+| 1 | A Survey of Sentiment Analysis from Social Media Data | 04/2020 | https://ieeexplore.ieee.org/abstract/document/8951256 | S | S | N | S | N | S | N | N |
+| 1 | Multimodal Event-Aware Network for Sentiment Analysis in Tourism | 11/05/2021 | https://ieeexplore.ieee.org/abstract/document/9428534 | S | S | N | S | N | N | N | N |
+| 1 | Tourism destination management using sentiment analysis and geo-location information: a deep learning approach | 2021 | https://link.springer.com/article/10.1007/s40558-021-00196-4 | S | S | N | N | N | N | N | N |
+| 1 | Multi-Language Sentiment Analysis for Hotel Reviews | 2016 | https://www.matec-conferences.org/articles/matecconf/abs/2016/38/matecconf_icmie2016_03002/matecconf_icmie2016_03002.html | N | N | N | N | N | N | S | S |
+| 1 | A survey on sentiment analysis in tourism | 06/2021 | https://journals.ekb.eg/article_106309.html | N | S | N | N | N | S | N | N |
+| 1 | A Recommendation Mechanism for Under-Emphasized Tourist Spots Using Topic Modeling and Sentiment Analysis | 34/12/2019 | https://www.mdpi.com/2071-1050/12/1/320 | S | S | S | N | N | N | N | N |
+| 1 | Personalized Travel Recommendation Based on Sentiment-Aware Multimodal Topic Model | 13/08/2019 | https://ieeexplore.ieee.org/document/8796367 | S | S | S | N | N | N | N | N |
+| 2 | Tourist Recommender Systems Based on Emotion Recognition—A Scientometric Review | 24/12/2020 | https://www.mdpi.com/1999-5903/13/1/2 | N | S | S | N | N | S | N | S |
+| 2 | Integrating contextual sentiment analysis in collaborative recommender systems | 22/03/2021 | https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0248695 | N | S | N | N | N | N | N | S |
+| 2 | Emotion and Sentiment Analysis using Machine Learning | 2021 | https://www.annalsofrscb.ro/index.php/journal/article/view/307 | N | S | N | N | N | N | N | S |
+| 2 | A Sentiment Analysis based Approach to Facebook User Recommendation | ? | https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.682.7321&rep=rep1&type=pdf | S | S | N | N | N | N | N | N |
+| 2 | Tweets Classification and Sentiment Analysis for Personalized Tweets Recommendation | 17/12/2020 | https://www.hindawi.com/journals/complexity/2020/8892552/ | S | S | N | N | N | N | N | N |
+| 2 | Text-based Emotion Aware Recommender | 2020 | https://arxiv.org/abs/2007.01455 | N | S | N | N | N | N | N | S |
+| 2 | IPARS: An Image-based Personalized Advertisement Recommendation System on Social Networks | 2022 | https://www.sciencedirect.com/science/article/pii/S187705092200463X | S | N | N | N | N | N | S | N |
+| 2 | Deep Learning based sentiment analysis for recommender system | ? | https://anale-informatica.tibiscus.ro/download/lucrari/16-2-23-P.pdf | N | S | N | N | N | N | N | S |
+| 2 | Human Sentiment Analysis on Social Media through Naïve Bayes Classifier | 2022 | https://bhu.ac.in/research_pub/jsr/Volumes/JSR_66_01_2022/37.pdf | S | S | N | N | N | N | N | N |
+| 2 | Emotion and Sentiment Analysis from Twitter Text | 11/2018 | https://prism.ucalgary.ca/handle/1880/107533 | S | S | N | N | N | N | N | N |
