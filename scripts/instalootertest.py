@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from instalooter.looters import HashtagLooter
+from instalooter.looters import ProfileLooter
 from instalooter.pbar import ProgressBar
 import sys
 
@@ -32,28 +33,47 @@ class InstaProgressBar(ProgressBar):
 
 
 def main(argv):
-    if len(argv) < 2:
-        print("Error: usage " + argv[0] + " <hashtag>")
+    if len(argv) < 3:
+        print("Error: usage " + argv[0] + " <-h(ashtag)|-p(rofile)> <name>")
         sys.exit()
 
     user = input("User: ")
     password = input("Password: ")
-    hashtag = argv[1]
+    option = argv[1]
+    name = argv[2]
 
-    try:
-        looter = HashtagLooter(hashtag, jobs=12)
-        looter.login(user, password)
+    if (option == "-h"):
+        try:
+            looter = HashtagLooter(name, jobs=12)
+            looter.login(user, password)
 
-        print("Logged in? " + str(looter.logged_in()))
-        mediaCount = looter.download_pictures(
-            './output', media_count=50, new_only=True, dlpbar_cls=InstaProgressBar)
-        print("Finished! Downloaded " + str(mediaCount) + " pictures")
+            print("Logged in? " + str(looter.logged_in()))
+            mediaCount = looter.download_pictures(
+                './output', media_count=50, new_only=True, dlpbar_cls=InstaProgressBar)
+            print("Finished! Downloaded " + str(mediaCount) + " pictures")
 
-        looter.logout()
-    except (SystemError, ValueError, IOError):
-        print("Failed to connect with Instagram")
-        if (looter.logged_in()):
             looter.logout()
+        except (SystemError, ValueError, IOError):
+            print("Failed to connect with Instagram")
+            if (looter.logged_in()):
+                looter.logout()
+    elif (option == "-p"):
+        try:
+            looter = ProfileLooter(name, jobs=12)
+            looter.login(user, password)
+
+            print("Logged in? " + str(looter.logged_in()))
+            mediaCount = looter.download_pictures(
+                './output', media_count=50, new_only=True, dlpbar_cls=InstaProgressBar)
+            print("Finished! Downloaded " + str(mediaCount) + " pictures")
+
+            looter.logout()
+        except (SystemError, ValueError, IOError):
+            print("Failed to connect with Instagram")
+            if (looter.logged_in()):
+                looter.logout()
+    else:
+        print("Error: Wrong argument: " + option)
 
 
 if __name__ == "__main__":

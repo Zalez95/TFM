@@ -440,5 +440,14 @@ Reunión:
 * Sacar unos cuantos hashtags como:
     #Valladolid #ValladolidEspaña #ValladolidSpain #ValladolidenFotos #PicoftheDay #IgersValladolid #Estaes_Valladolid #MeGustaValladolid #MeGustaPucela #Pucela #CatedralValladolid
 * Almacenar el json de instalooter y rekognition
-* Recomenadar la publicacion filtrando por genero, edad y sentimiento positivo
-* Mira en base al perfil que informacion se puede sacar: edad, genero y puede que más cosas
+* Recomendar la publicacion filtrando por genero, edad y sentimiento positivo
+* Mirar en base al perfil que informacion se puede sacar: edad, genero y puede que más cosas
+
+# 14/05/2022
+Sobre sacar la información del usuario: Parece que instalooter no puede sacar ese tipo de metadatos, tal vez esa información sea privada, cuando entras en el perfil de instagram del alguien no puedes ver su edad/genero. Tal vez puedan analizarse las ultimas X fotos del perfil del usuario y analizarlas con rekognition, sacando la moda del genero de las fotos y edad y tirar con eso. Problema: probando parece que instalooter peta, parece que en github le pasa a mas gente, posiblemente porque la web haya cambiado. Tal vez se podría hacer un fork para corregirlo si fuese necesario.
+
+Sobre Dynamo DB: es servicio de base de datos NoSQL escalable horizontalmente de Amazon AWS. De acuerdo con ¿Amazon? un servicio de alta disponibilidad. Es ideal para ciertos patrones de acceso. El documento "Dynamo: Amazon’s Highly Available Key-value Store" explica los motivos y las características de DynamoDB, interesante lectura para la memoria.
+
+Para usar DynamoDB existe un cliente python al igual que con el resto de servicios, un ejemplo de uso se encuentra en: https://docs.aws.amazon.com/es_es/amazondynamodb/latest/developerguide/GettingStarted.Python.01.html
+
+Se ha creado un ejemplo que crea una tabla e introduce un item con un json entero
