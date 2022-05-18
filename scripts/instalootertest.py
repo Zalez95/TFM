@@ -34,17 +34,21 @@ class InstaProgressBar(ProgressBar):
 
 def main(argv):
     if len(argv) < 3:
-        print("Error: usage " + argv[0] + " <-h(ashtag)|-p(rofile)> <name>")
+        print("Error: usage " + argv[0] + " <-h(ashtag)|-p(rofile)> <name> <-j(optional, dump json)>")
         sys.exit()
+
+    option1 = argv[1]
+    name = argv[2]
+    dumpJson = False
+    if (len(argv) > 3) and (argv[3] == "-j"):
+        dumpJson = True
 
     user = input("User: ")
     password = input("Password: ")
-    option = argv[1]
-    name = argv[2]
 
-    if (option == "-h"):
+    if (option1 == "-h"):
         try:
-            looter = HashtagLooter(name, jobs=12)
+            looter = HashtagLooter(name, jobs=12, dump_json=dumpJson)
             looter.login(user, password)
 
             print("Logged in? " + str(looter.logged_in()))
@@ -57,9 +61,9 @@ def main(argv):
             print("Failed to connect with Instagram")
             if (looter.logged_in()):
                 looter.logout()
-    elif (option == "-p"):
+    elif (option1 == "-p"):
         try:
-            looter = ProfileLooter(name, jobs=12)
+            looter = ProfileLooter(name, jobs=12, dump_json=dumpJson)
             looter.login(user, password)
 
             print("Logged in? " + str(looter.logged_in()))
