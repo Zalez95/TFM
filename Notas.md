@@ -317,6 +317,7 @@ Se va a intentar probar con Amazon AWS ya que parece que es un problema que suce
 Una vez registrado en AWS, creamos unas credenciales de acceso desde el menu de cuenta superior derecha > credenciales de seguridad > claves de acceso > Crear clave de acceso, y damos a descargar.
 
 Después vamos a crear una VM. Para ello en la pantalla inicial se da a "Lance una máquina virtual con EC2", la llamamos VallTourismInsta y elegimos Debian 10 de 64 bits, por defecto se emplea 1 CPU y 1GB de RAM que es la opción gratuita. Creamos claves de acceso "valltourisminsta" de tipo RSA .pem y 30 GBs de almacenamiento SSD (el máximo gratuito) y le damos a crear instancia.
+> Nota: La VM está en us-east-1 (Virginia del Norte, EEUU)
 
 "Nivel gratuito: El primer año incluye 750 horas de uso de instancias t2.micro (o t3.micro en las regiones en las que t2.micro no esté disponible) en las AMI del nivel gratuito al mes, 30 GiB de almacenamiento de EBS, 2 millones de E/S, 1 GB de instantáneas y 100 GB de ancho de banda a Internet"
 
@@ -455,3 +456,11 @@ Se ha creado un ejemplo que crea una tabla e introduce un item con un json enter
 # 18/05/2022
 Hashtags posibles:
 Naturaleza_valladolid, estaes_valladolid, valladolidturismooficial, turismovalladolid, valladolidturismo, turismovalladolid, valladolidspain, valladolidfotos, valladolidenfotos, valladolid, todo_valladolid, total_valladolid, igersvalladolid, igervalladolid, catedraldevalladolid, paseandoporvalladolid, valladolidgram, instavalladolid, valladolidlove, valladolidlife, valladolidmola, megustavalladolid, fotosdevalladolid, valladolidhoy, vallafotos, valladolidinquieta, love_valladolid, visitvalladolid, look_valladolid, megustavalladolid, asi_es_valladolid, pucela, megustapucela, arquitecturavalladolid, valladolidespaña
+
+Amazon Lightsail para hosting web
+
+# 19/05/2022
+Reunión:
+preparar ejemplo para la siguiente sesion
+herramientas de Business Intelligence
+Quick Sight
