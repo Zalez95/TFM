@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import json
 import boto3
 from instalooter.looters import HashtagLooter
 from instalooter.pbar import ProgressBar
@@ -34,55 +35,124 @@ class InstaProgressBar(ProgressBar):
             + "\t" + '{:.3f}'.format(perc) + "%", end="")
 
 
+class App:
+    instaUser = ""
+    instaPass = ""
+    awsAccessKeyId = ""
+    awsAccessKeySecret = ""
+    awsRegion = ""
+    awsBucket = ""
+    hashtag = ""
+    instaMediaLimit = None
+    s3fs = None
+
+    def run(self):
+        """ Downloads, stores and processes images with the requested
+            hashtag """
+        self.connectS3FS()
+        self.storeImages()
+        self.processImages()
+
+    def connectS3FS(self):
+        """ Connect to S3 storage """
+        try:
+            print("Trying to connect to " + self.awsBucket + "...")
+
+            self.s3fs = S3FS(
+                bucket_name=self.awsBucket,
+                region=self.awsRegion,
+                aws_access_key_id=self.awsAccessKeyId,
+                aws_secret_access_key=self.awsAccessKeySecret
+            )
+
+            print("Successfully connected to " + self.awsBucket)
+            return True
+        except Exception as e:
+            print("Failed to connect with AWS S3: " + str(e))
+            return False
+
+    def storeImages(self):
+        """ Retrieve images and json from instagram and store them in S3 """
+        try:
+            print("Trying to connect to Instagram...")
+
+            looter = HashtagLooter(self.hashtag, dump_json=True, jobs=12)
+            looter.login(self.instaUser, self.instaPass)
+
+            print("Logged in? " + str(looter.logged_in()))
+            mediaCount = looter.download_pictures(
+                self.s3fs, media_count=self.instaMediaLimit, new_only=True,
+                dlpbar_cls=InstaProgressBar)
+
+            looter.logout()
+
+            print("Successfully downloaded from Instagram " + str(mediaCount) + " pictures")
+            return True
+        except Exception as e:
+            print("Failed to download all the pictures: " + str(e))
+            if (looter.logged_in()):
+                looter.logout()
+            return False
+
+    def processImages(self):
+        """ Process images with Rekognition and store them in S3 """
+        try:
+            print("Trying to connect with Rekognition...")
+
+            rekognition_client = boto3.client(
+                service_name="rekognition",
+                region_name=self.awsRegion,
+                aws_access_key_id = self.awsAccessKeyId,
+                aws_secret_access_key = self.awsAccessKeySecret
+            )
+
+            # Note: images that were download prior to the current run
+            # but failed to retrieve its Rekognition JSON can also be
+            # processed in this step
+            filenames = self.s3fs.listdir("")
+            imagesToProcess = list(filter(lambda x: x[-4:] == ".jpg" and not self.s3fs.exists(x[:-4] + "_rek.json"), filenames))
+            imageCount = 0
+            imageSuccessCount = 0
+
+            for image in imagesToProcess:
+                imageCount += 1
+
+                perc = 100.0 * imageCount / float(len(imagesToProcess))
+                print("\r\033[KRekognition:\t" + str(imageCount) + "/" + str(len(imagesToProcess))
+                    + "\t" + '{:.3f}'.format(perc) + "%", end="")
+
+                response = rekognition_client.detect_faces(
+                    Image={"S3Object": {"Bucket": self.awsBucket, "Name": image}},
+                    Attributes=["ALL", "DEFAULT"])
+                if response:
+                    with self.s3fs.open(image[:-4] + "_rek.json", "w") as gcs_file:
+                        imageSuccessCount += 1
+                        gcs_file.write(json.dumps(response))
+                else:
+                    print("\nFailed to process the image " + image)
+
+            print("\nSuccessfully proccessed " + str(imageSuccessCount) + " images")
+            return True
+        except Exception as e:
+            print("\nFailed to process all the pictures: " + str(e))
+            return False
+
+
 def main(argv):
     if len(argv) < 2:
         print("Error: usage " + argv[0] + " <hashtag>")
         sys.exit()
 
-    user = input("Insta User: ")
-    password = input("Insta Password: ")
-    awsAccessKeyId = input("AWS Access Key ID: ")
-    awsAccessKeySecret = input("AWS Access Key Secret: ")
-    hashtag = argv[1]
-
-    s3fs = None
-    try:
-        s3fs = S3FS(
-            bucket_name="valltourisminstabucket",
-            aws_access_key_id=awsAccessKeyId,
-            aws_secret_access_key=awsAccessKeySecret
-        )
-    except errors.CreateFailed:
-        print("Failed to connect with AWS S3")
-        return
-
-    try:
-        looter = HashtagLooter(hashtag, jobs=12)
-        looter.login(user, password)
-
-        print("Logged in? " + str(looter.logged_in()))
-        mediaCount = looter.download_pictures(
-            s3fs, media_count=50, new_only=True, dlpbar_cls=InstaProgressBar)
-        print("Finished! Downloaded " + str(mediaCount) + " pictures")
-
-        looter.logout()
-    except (SystemError, ValueError, IOError):
-        print("Failed to connect with Instagram")
-        if (looter.logged_in()):
-            looter.logout()
-        return
-
-    rekognition_client = boto3.client(
-        service_name="rekognition",
-        region_name="eu-west-1",
-        aws_access_key_id = awsAccessKeyId,
-        aws_secret_access_key = awsAccessKeySecret
-    )
-    for filename in s3fs.listdir(""):
-        image = {"S3Object": {"Bucket": "valltourisminstabucket", "Name": filename}}
-        response = rekognition_client.detect_faces(Image=image, Attributes=["ALL", "DEFAULT"])
-
-        print(filename + ": " + str(response))
+    app = App()
+    app.awsRegion = "eu-west-1"
+    app.awsBucket = "valltourisminstabucket"
+    app.instaUser = input("Instagram User: ")
+    app.instaPass = input("Instagram Password: ")
+    app.awsAccessKeyId = input("AWS Access Key ID: ")
+    app.awsAccessKeySecret = input("AWS Access Key Secret: ")
+    app.hashtag = argv[1]
+    app.instaMediaLimit = 50
+    app.run()
 
 
 if __name__ == "__main__":
