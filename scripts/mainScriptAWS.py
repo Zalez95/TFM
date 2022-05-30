@@ -195,8 +195,7 @@ class App:
 		""" Checks if the DynamoDB tables exists """
 		tables = self.dynamodb.list_tables()
 		return tables and tables["TableNames"] and \
-			("looter" in tables["TableNames"]) and \
-			("rekognition" in tables["TableNames"])
+			("valltourisminsta" in tables["TableNames"])
 
 	def __createDBTables(self):
 		""" Creates the tables for the Instalooter and Rekognition JSON data in
@@ -222,59 +221,36 @@ class App:
 		try:
 			print("Trying to create the tables...")
 
-			# Instalooter JSON table
+			# valltourisminsta table
 			response = self.dynamodb.create_table(
-					TableName="looter",
-					KeySchema=[
-						{
-							"AttributeName" : "id",
-							"KeyType" : "HASH"  # Partition key
-						}
-					],
-					AttributeDefinitions=[
-						{
-							"AttributeName" : "id",
-							"AttributeType" : "S"
-						}
-					],
-					ProvisionedThroughput={
-						"ReadCapacityUnits" : 10,
-						"WriteCapacityUnits" : 10
+				TableName="valltourisminsta",
+				KeySchema=[
+					{
+						"AttributeName" : "id",
+						"KeyType" : "HASH"  # Partition key
+					},
+					{
+						"AttributeName" : "faceIndex",
+						"KeyType" : "RANGE"  # Sort key
 					}
-				)
-
-			print("DynamoDB looter table response: " + str(response))
-
-			# Rekognition JSON table
-			response = self.dynamodb.create_table(
-					TableName="rekognition",
-					KeySchema=[
-						{
-							"AttributeName" : "id",
-							"KeyType" : "HASH"  # Partition key
-						},
-						{
-							"AttributeName" : "faceIndex",
-							"KeyType" : "RANGE"  # Sort key
-						}
-					],
-					AttributeDefinitions=[
-						{
-							"AttributeName" : "id",
-							"AttributeType" : "S"
-						},
-						{
-							"AttributeName" : "faceIndex",
-							"AttributeType" : "N"
-						}
-					],
-					ProvisionedThroughput={
-						"ReadCapacityUnits" : 10,
-						"WriteCapacityUnits" : 10
+				],
+				AttributeDefinitions=[
+					{
+						"AttributeName" : "id",
+						"AttributeType" : "S"
+					},
+					{
+						"AttributeName" : "faceIndex",
+						"AttributeType" : "N"
 					}
-				)
+				],
+				ProvisionedThroughput={
+					"ReadCapacityUnits" : 10,
+					"WriteCapacityUnits" : 10
+				}
+			)
 
-			print("DynamoDB rekognition table response: " + str(response))
+			print("DynamoDB valltourisminsta table response: " + str(response))
 
 			print("Successfully created the tables")
 			return True
@@ -292,44 +268,22 @@ class App:
 			ids = list(map(lambda x: x[:-4], filter(lambda x: x[-4:] == ".jpg", filenames)))
 
 			for id in ids:
-				looterGetResponse = self.dynamodb.get_item(
-					TableName="looter",
-					Key={ "id" : { "S" : id } },
-					AttributesToGet=["id"]
-				)
-				rekognitionGetResponse = self.dynamodb.query(
-					TableName="rekognition",
+				queryResponse = self.dynamodb.query(
+					TableName="valltourisminsta",
 					Limit=1,
 					KeyConditionExpression="id = :id",
 					ExpressionAttributeValues={ ":id" : { "S" : id } }
 				)
 
-				if looterGetResponse and ("Item" not in looterGetResponse):
-					with self.s3fs.open(id + ".json", "r") as s3File:
-						looterJsonContent = json.loads(s3File.read())
+				if queryResponse and (queryResponse["Count"] == 0):
+					with self.s3fs.open(id + ".json", "r") as looterFile, \
+							self.s3fs.open(id + "_rek.json", "r") as rekognitionFile:
+						looterJsonContent = json.loads(looterFile.read())
+						rekJsonContent = json.loads(rekognitionFile.read())
 
 						description = ""
 						if (len(looterJsonContent["edge_media_to_caption"]["edges"]) > 0):
 							description = looterJsonContent["edge_media_to_caption"]["edges"][0]["node"]["text"]
-
-						self.dynamodb.put_item(
-							TableName="looter",
-							Item={
-								"id" : { "S" : id },
-								"timestamp" : { "S" : str(looterJsonContent["taken_at_timestamp"]) },
-								"shortCode" : { "S" : looterJsonContent["shortcode"] },
-								"displayUrl" : { "S" : looterJsonContent["display_url"] },
-								"description" : { "S" : description },
-								"likesCount" : { "N" : str(looterJsonContent["edge_liked_by"]["count"]) },
-								"commentsCount" : { "N" : str(looterJsonContent["edge_media_to_comment"]["count"]) }
-							}
-						)
-
-						print("Put " + id + " in looter table")
-
-				if rekognitionGetResponse and (rekognitionGetResponse["Count"] == 0):
-					with self.s3fs.open(id + "_rek.json", "r") as s3File:
-						rekJsonContent = json.loads(s3File.read())
 
 						for iFaceDetails in range(len(rekJsonContent["FaceDetails"])):
 							faceDetails = rekJsonContent["FaceDetails"][iFaceDetails]
@@ -337,10 +291,16 @@ class App:
 							emotions = { x["Type"] : x["Confidence"] for x in faceDetails["Emotions"] }
 
 							self.dynamodb.put_item(
-								TableName="rekognition",
+								TableName="valltourisminsta",
 								Item={
-									"id" : { "S": id },
-									"faceIndex" : { "N": str(iFaceDetails) },
+									"id" : { "S" : id },
+									"faceIndex" : { "N" : str(iFaceDetails) },
+									"timestamp" : { "S" : str(looterJsonContent["taken_at_timestamp"]) },
+									"shortCode" : { "S" : looterJsonContent["shortcode"] },
+									"displayUrl" : { "S" : looterJsonContent["display_url"] },
+									"description" : { "S" : description },
+									"likesCount" : { "N" : str(looterJsonContent["edge_liked_by"]["count"]) },
+									"commentsCount" : { "N" : str(looterJsonContent["edge_media_to_comment"]["count"]) },
 									"confidence" : { "N" : str(faceDetails["Confidence"]) },
 									"ageLow" : { "N" : str(faceDetails["AgeRange"]["Low"]) },
 									"ageHigh" : { "N" : str(faceDetails["AgeRange"]["High"]) },
@@ -360,7 +320,7 @@ class App:
 								}
 							)
 
-							print("Put " + id + "," + str(iFaceDetails) + " in rekognition table")
+							print("Put " + id + "," + str(iFaceDetails) + " in valltourisminsta table")
 
 			print("Successfully put items into DynamoDB")
 			return True

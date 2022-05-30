@@ -464,3 +464,149 @@ Reunión:
 preparar ejemplo para la siguiente sesion
 herramientas de Business Intelligence
 Quick Sight
+
+# 27/05/2022
+Tras evaluar las alternativas se decide alojar la BBDD en DynamoDB ya que se están empleando los servicios de AWS, y la alternativa de DocumentDB que sería útil para almacenar JSONs sin tener que preprocesarlos y que es compatible con MongoDB tiene un periodo de prueba de sólo 30 días, insuficiente para nosotros.
+
+Para crear la BBDD en DynamoDB solo hay que crear las tablas con el nombre que queramos. La idea inicial es tener 2 tablas, la primera para el json de instalooter a la que llamaríamos "looter". En esta introduciremos los siguientes atributos sacados del JSON original de instalooter:
+  * id
+  * timestamp
+  * shortCode
+  * displayUrl
+  * description
+  * likesCount
+  * commentsCount
+El atributo id se corresponde con el mismo id del JSON y que a su vez se corresponde con el nombre del JSON descargado. La idea es usar este string como una partition key. Por otro lado tendríamos la tabla con el JSON generado al procesar la imágen de instalooter mediante el servicio de Rekognition a la que llamríamos "rekognition". Este JSON tiene un array de "caras", de cada cara se pretende introducir la siguiente información sacada del JSON:
+  * confidence
+  * ageLow
+  * ageHigh
+  * gender
+  * eyeglasses
+  * sunglasses
+  * beard
+  * moustache
+  * happyConfidence
+  * surprisedConfidence
+  * fearConfidence
+  * sadConfidence
+  * angryConfidence
+  * disgustedConfidence
+  * confusedConfidence
+  * calmConfidence
+Además para indexar se pretende emplear el mismo id empleado en la tabla de "looter" como partition key, pero como el json tiene un array es posible que se de la situación de tener que introducir varios items en la tabla por cada json, con lo cual usar solo este valor como clave no funcionaría, habría que crear una clave compuesta con otro valor, en este caso se podría usar el indice en el array como sort key para generar la clave compuesta junto con el "id" anterior. El problema que tenemos al almacenar los datos de esta manera es que en DynamoDB no se pueden hacer Joins de tablas en las consultas tal y como haríamos en SQL de darse esta misma situación. Para solventar esta relación de one-to-many en DyanmoDB tenemos varias opciones (https://www.alexdebrie.com/posts/dynamodb-one-to-many/):
+* Duplicar los datos del json instalooter para cada cara obtenida mediante rekognition
+* Duplicar los datos del json instalooter para cada cara obtenida mediante rekognition, pero metiendo el json entero en un atributo en vez de generar atributos a partir de él
+* Generar una clave compuesta usando algún tipo de prefijo en el sort key
+
+Se ha decidido emplear la primera opción ya que permite sacar toda la información en una única consulta, pudiendo filtrar por todos los atributos si fuese necesario a diferencia de la segunda. El problema de la tercera opción es que DynamoDB tampoco soporta agregación de items, con lo cual si quisieramos sacar los datos de instalooter de cada cara, por ejemplo, tendríamos que hacer otra query por cada valor lo cual implicaría muchas consultas, pudiendo pudiendo ser un proceso extremadamente lento.
+
+Por lo tanto, para implementar la implementación de la base de datos se emplea una única tabla llamada "valltourisminsta" con clave de partición "id" cuyo valor es el id/nombre de fichero generado por instalooter, y como sort-key un valor númerico "faceIndex" que es el índice de la cara en el array de caras. De esta forma tenemos un índice compuesto que permite diferenciar entre las caras de rekognition, garantizando así que las entradas en la tabla sean únicas, pero además tambien podemos sacar todas las caras si en la consulta solo preguntamos por el id, y además podemos obtener la información de instalooter almacenada junto a las caras.
+
+Una vez creado la tabla y poblada con los datos de S3, se puede buscar en ellas desde el menu de explorar elementos usando filtros, o hacer consultas similares a SQL con el editor PartiQL de DynamoDB. Por ejemplo:
+```SQL
+SELECT *
+FROM valltourisminsta
+WHERE "moustache"=false AND "gender"='Male'
+```
+
+También se puede emplear boto3 para hacer queries sobre nuestra tabla, pero estos solo funcionan buscando por las claves de particion u ordenación, si se quiere emplear otro atributo hay que generar nuevos índices secundarios. Estos indices secundarios pueden ser globales o locales, los locales hay que hacerlos en el momento de crear la tabla mientras que los globales pueden crearse en cualquier momento. En ambos casos se pueden tener items repetidos para una misma clave secundaria. Otra opción es usar la función scan e ir filtrando por los atributos, pero esta funcion itera cada item con lo cual el rendimiento puede ser malo, aunque ahora con pocos datos puede dar igual.
+
+Ejemplo de creación de indice local secundario en python:
+```python
+					...
+					LocalSecondaryIndexes=[
+						{
+							"IndexName" : "gender",
+							"KeySchema" : [
+								{
+									"AttributeName" : "id",
+									"KeyType" : "HASH"
+								},
+								{
+									"AttributeName": "gender",
+									"KeyType": "RANGE"
+								},
+							],
+							"Projection" : { "ProjectionType": "ALL" }
+						}
+					],
+					AttributeDefinitions=[
+						...
+						{
+							"AttributeName" : "gender",
+							"AttributeType" : "S"
+						}
+					],
+					...
+```
+
+# 29/05/2022
+Sobre los DashBoards:
+
+QuickSight solo es gratuito durante los primeros 30 días, después hay que pagar, además no se puede utilizar directamente contra una base de datos DynamoDB aunque el servicio también se de Amazon, sino que hay que emplear un conector para que pueda hacer consultas a DynamodDB traves de Amazon S3 con el otro servicio conocido como Amazon Athena y que no se encuentra en la capa gratuita de AWS.
+
+Otras alternativas que se han evaluado han sido:
+  * QLik -> lo conozco por la asignatura de Inteligencia de Negocio, parece que tampoco se puede usar directamente con DynamoDB, sino que hay que usar un conector ODBC de la empresa Simba que no es gratuito
+  * PowerBI, de microsoft. Al igual que el anterior, ofrece un periodo gratuito de prueba pero no tiene conectores con dynamodb, habría que usar el conector ODBC de Simba anteriormente comentado
+  * Tableau -> tiene un trial de 3 meses, existe version public gratuita. Para usar dynamodb habría que usar un conecto JDBC de Rockset o de algun otro tipo
+  * Viendo las opciones de software libre he encontrado Grafana, pero no tiene conector gratuito con DynamoDB
+
+Otra opción: Hacerlo a mano en una web estática haciendo peticiones a DynamoDB a través de Javascript y la API de AWS, y mostrarlo en tablas y gráficos con una librería como Chart.js como hacen en: https://medium.com/@rfreeman/serverless-dynamic-real-time-dashboard-with-aws-dynamodb-a1a7f8d3bc01  
+
+# 30/05/2022
+Prueba de la opción de Chart.js:
+
+Creamos un nuevo bucket en AWS S3 llamadao webvalltourisminstabucket (ubicación irlanda). En propiedades del bucket entramos en "Editar alojamiento de sitios web estáticos" y habilitamos el alojamiento web estático. Los documentos de índice y error serán index.html y error.html respectivamente. Después vamos a permisos del bucket y en "Editar el bloqueo de acceso público (configuración del bucket)" deshabilitamos "bloquear todo el acceso público", y en "Editar la propiedad del objeto" habilitamos las listas ACL.
+
+Subimos el index.html al bucket y los scripts de Chart.js (descargado de https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js) y valltourisminsta-chart-dashboard.js. Una vez subidos, vamos a permisos y en "Editar lista de control de acceso" habilitamos lectura del Objeto a "Todo el mundo" en cada uno de los ficheros.
+
+Una vez guardado, el acceso a la web estática se hará a través de la url http://webvalltourisminstabucket.s3-website-eu-west-1.amazonaws.com/
+
+Deberíamos ver el html con el navegador a lentrar a esa url.
+
+Ahora hay que configurar el acceso desde JS a la base de datos de DynamoDB. para ello vamos a usar AWS Cognito, servicio que se incluye dentro de la capa gratuita de AWS hasta 50K MAU. Para ello en la consola de AWS buscamos Cognito y damos a "Administrar grupos de identidades" y creamos uno nuevo llamado "VallTourismInsta" y le damos a "Habilitar el acceso a identidades sin autenticar". Creamos el grupo y después sale una página para identificar los roles IAM del nuevo grupo de identidades, en los roles permitidos a las identidades sin autenticar le damos los siguientes roles para que puedan leer de las tablas:
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "mobileanalytics:PutEvents",
+                "cognito-sync:*"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Sid": "DynamoDBAccess",
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:DescribeStream",
+                "dynamodb:DescribeTable",
+                "dynamodb:GetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:ListStreams",
+                "dynamodb:Query",
+                "dynamodb:Scan"
+            ],
+            "Resource": [
+                "arn:aws:dynamodb:eu-west-1:689913683648:table/valltourisminsta"
+            ]
+        }
+    ]
+}
+```
+Después aceptamos y podemos generar un "código de muestra" JS con el que poder acceder a las tablas. Al darle muestra:
+```javascript
+// Inicializar el proveedor de credenciales de Amazon Cognito
+AWS.config.region = 'eu-west-1'; // Región
+AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+    IdentityPoolId: 'eu-west-1:bda8761f-9ad7-41b2-aa1d-8c09e00dfa22',
+});
+```
+
+Que se puede meter en nuestro código javascript para acceder a nuestras tablas de dynamodb.
