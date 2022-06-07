@@ -77,7 +77,7 @@ def main(argv):
             if (looter.logged_in()):
                 looter.logout()
     else:
-        print("Error: Wrong argument: " + option)
+        print("Error: Wrong argument: " + option1)
 
 
 if __name__ == "__main__":

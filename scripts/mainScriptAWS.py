@@ -125,13 +125,31 @@ class App:
 		return True
 
 	def disconnect(self):
-		looter = HashtagLooter(hashtag="", session=self.looterSession)
-		looter.logout()
+		try:
+			print("Trying to disconnect from Instagram...")
 
-		self.rekognition = None
-		self.looterSession = None
-		self.s3fs = None
-		self.dynamodb = None
+			looter = HashtagLooter(hashtag="", session=self.looterSession)
+			looter.logout()
+
+			print("Successfully disconnected from Instagram")
+		except Exception as e:
+			print("Failed to disconnect from Instagram: " + str(e))
+			return False
+
+		try:
+			print("Trying to disconnect from AWS...")
+
+			self.rekognition = None
+			self.looterSession = None
+			self.s3fs = None
+			self.dynamodb = None
+
+			print("Successfully disconnected from AWS")
+		except Exception as e:
+			print("Failed to disconnect from AWS: " + str(e))
+			return False
+
+		return True
 
 	def run(self):
 		""" Downloads, stores and processes images with the requested
