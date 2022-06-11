@@ -610,3 +610,9 @@ AWS.config.credentials = new AWS.CognitoIdentityCredentials({
 ```
 
 Que se puede meter en nuestro código javascript para acceder a nuestras tablas de dynamodb.
+
+
+# 07/06/2022
+Durante la demo con el tutor el script creado falló, parece que no se podía logear en instagram con Instalooter. Tras revisar el error y el código del login de instaloader, parece que ha debido de haber algún cambio en la web de instagram que hace que haya empezado a fallar. Como no se sabe cuando esta librería se actualizará para arreglar este error, y viendo que los últimos commits tienen unos meses, empecé a mirar la alternativa de usar otra librería llamada Instaloader a pesar de haber implementado ya el script empleando la otra librería. Tras unas pruebas se pudo ver que la forma en que trabaja es bastante distinta, y no puedo emplearla directamente con Amazon S3 para comprobar si un post de instagram ya ha sido procesado y guardar directamente allí las nuevas imágenes/jsons. Por ello tras revisar el código del login decidí corregir el error de instalooter en un fork de la librería. Parece que el error consiste en un cambio en las urls y en como se gestionan las cookies donde se guarda el token para indicar que se está logeado o no en la página web. Tras implementar los cambios de forma similar a como lo hace instaloader, instalooter volvió a poder logearse en instagram (se ha hecho un pull requests de estos cambios, aunque todavía no se ha aceptado).
+
+Después del cambio anterior, se probó a usar este fork con mi script y este volvió a funcionar. Se grabo la demo para que la pudiera visualizar el tutor tal y como se quedó en la anterior reunión.
