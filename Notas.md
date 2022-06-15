@@ -316,15 +316,14 @@ Se va a intentar probar con Amazon AWS ya que parece que es un problema que suce
 # 25/04/2022
 Una vez registrado en AWS, creamos unas credenciales de acceso desde el menu de cuenta superior derecha > credenciales de seguridad > claves de acceso > Crear clave de acceso, y damos a descargar.
 
-Después vamos a crear una VM. Para ello en la pantalla inicial se da a "Lance una máquina virtual con EC2", la llamamos VallTourismInsta y elegimos Debian 10 de 64 bits, por defecto se emplea 1 CPU y 1GB de RAM que es la opción gratuita. Creamos claves de acceso "valltourisminsta" de tipo RSA .pem y 30 GBs de almacenamiento SSD (el máximo gratuito) y le damos a crear instancia.
-> Nota: La VM está en us-east-1 (Virginia del Norte, EEUU)
+Después vamos a crear una VM. Para ello en la pantalla inicial se da a "Lance una máquina virtual con EC2" con región Irlanda (eu-west-1) seleccionada, la llamamos VallTourismInsta y elegimos Debian 11 de 64 bits, por defecto se emplea 1 CPU y 1GB de RAM que es la opción gratuita (t2.micro), también cambiamos el almacenamiento de 8 a 30 GBs de almacenamiento SSD (el máximo gratuito). Le damos a permitir acceso con HTTPS para que genere una IP estática y creamos claves de acceso "VallTourismInsta" de tipo RSA .pem. Finalmente le damos a crear instancia.
 
 "Nivel gratuito: El primer año incluye 750 horas de uso de instancias t2.micro (o t3.micro en las regiones en las que t2.micro no esté disponible) en las AMI del nivel gratuito al mes, 30 GiB de almacenamiento de EBS, 2 millones de E/S, 1 GB de instantáneas y 100 GB de ancho de banda a Internet"
 
 Nos metemos con ssh mediante
 ```
-sudo chmod 600 valltourisminsta.pem
-ssh -i "valltourisminsta.pem" admin@ec2-35-173-128-55.compute-1.amazonaws.com
+sudo chmod 600 VallTourismInsta.pem
+ssh -i "VallTourismInsta.pem" admin@ec2-3-250-43-138.eu-west-1.compute.amazonaws.com
 ```
 
 Procedemos a instalar librerías:
@@ -335,11 +334,12 @@ sudo apt-get install wget
 wget https://bootstrap.pypa.io/get-pip.py
 sudo python3 get-pip.py
 sudo apt-get install virtualenv
+sudo apt-get install firefox-esr
+sudo apt-get install xauth x11-apps
+sudo apt-get install git
 virtualenv --python=python3 testvisual
 source testvisual/bin/activate
 pip3 install instaLooter
-sudo apt-get install firefox-esr
-sudo apt-get install xauth x11-apps
 ```
 Las de google no puesto que tenemos que usar las de AWS:
 ```
@@ -616,3 +616,47 @@ Que se puede meter en nuestro código javascript para acceder a nuestras tablas 
 Durante la demo con el tutor el script creado falló, parece que no se podía logear en instagram con Instalooter. Tras revisar el error y el código del login de instaloader, parece que ha debido de haber algún cambio en la web de instagram que hace que haya empezado a fallar. Como no se sabe cuando esta librería se actualizará para arreglar este error, y viendo que los últimos commits tienen unos meses, empecé a mirar la alternativa de usar otra librería llamada Instaloader a pesar de haber implementado ya el script empleando la otra librería. Tras unas pruebas se pudo ver que la forma en que trabaja es bastante distinta, y no puedo emplearla directamente con Amazon S3 para comprobar si un post de instagram ya ha sido procesado y guardar directamente allí las nuevas imágenes/jsons. Por ello tras revisar el código del login decidí corregir el error de instalooter en un fork de la librería. Parece que el error consiste en un cambio en las urls y en como se gestionan las cookies donde se guarda el token para indicar que se está logeado o no en la página web. Tras implementar los cambios de forma similar a como lo hace instaloader, instalooter volvió a poder logearse en instagram (se ha hecho un pull requests de estos cambios, aunque todavía no se ha aceptado).
 
 Después del cambio anterior, se probó a usar este fork con mi script y este volvió a funcionar. Se grabo la demo para que la pudiera visualizar el tutor tal y como se quedó en la anterior reunión.
+
+Para instalar este fork hay que ejecutar
+```
+pip3 install git+https://github.com/Zalez95/InstaLooter.git
+```
+
+
+# 11/06/2022
+Se quedó con el tutor en probar a usar algun dashboard a pesar de que tras revisar las alternativas anteriormente no parecía que hubiese algun candidato gratuito o libre debido a la falta de conectores con dynamodb. Tras revisar en la web he dado con el siguiente link:
+https://www.linkedin.com/pulse/using-aws-lambda-api-gateway-server-less-grafana-adapters-jonas-birm%C3%A9
+donde en resumidas cuentas, se usa AWS lambda para implementar un conector para grafana, creando básicamente un servidor REST en este servicio de AWS. Revisando la capa gratuita de AWS, Grafana no es gratuito en AWS, pero como Grafana es software libre, nada me impide instalarlo en la maquina virtual que se ha creado. También parece que lambda está incluido con hasta 1000000 de solicitudes al mes por si fuera necesario.
+
+Instalación de Grafana:
+```
+sudo apt-get install -y adduser libfontconfig1
+wget https://dl.grafana.com/enterprise/release/grafana-enterprise_9.0.0_amd64.deb
+sudo dpkg -i grafana-enterprise_9.0.0_amd64.deb
+sudo service grafana-server start
+```
+
+Grafana se ejecuta por defector en el puerto 3000, si se quiere entrar desde fuera hay que abrir el puerto. En el caso de una instancia EC2 como la que se está usando, hay que hacer lo siguiente:
+  Ir a EC2 > Grupos de Seguridad > pinchar en el grupo de seguridad de nuestra instancia > Editar Regla
+  Ahí añadimos una regla desde "Agregar regla", de tipo TCP personalizado con puerto 3000 y origen 0.0.0.0/0
+
+Despues podemos entrar desde http://3.250.43.138:3000/login con user: admin; pass: admin
+
+En el articulo se comentaba usar Grafana con un Web Service REST con el plugin SimpleJson, parece que este plugin está deprecado, pero existe otro conocido como JSON que parece que lo ha reemplazado.
+
+Para las pruebas iniciales se ha decidido levantar un servidor REST local en python empleando la API Bottle.
+```
+pip3 install bottle
+```
+
+Este servidor implementa las APIs REST: Get /, POST search, POST query, POST tagKeys, POST tagValues para poder recuperar los datos de DynamoDB tal y como se indica en la documentación del plugin https://github.com/simPod/GrafanaJsonDatasource
+
+Se ha apuntado a este servidor local y el plugin se ha conectado con éxito. Para conectarse tan solo ha habido que añadir un Data Sources con nombre VallTourismInstaREST, URL localhost:8080. Si le damos a "Save & test" deberia salir un tick diciendo que el data source funciona.
+
+Vamos a Create>Dashboard. En configuracion ponemos el nombre "VallTourismInstaDashboard", y empezamos a crearlo.
+
+Para poder filtrar se ha añadido un filtro desde Settings > Variables, llamado filter1, label "Filter 1", descripción "The Filter 1", tipo "Ad hoc filters" y "Data source" a "VallTourismInstaREST".
+
+
+https://www.youtube.com/watch?v=ijyeE-pXFk0
+https://play.grafana.org/d/OhR1ID6Mk/3-table?orgId=1

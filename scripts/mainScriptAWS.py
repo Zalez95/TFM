@@ -6,6 +6,7 @@ from instalooter.looters import HashtagLooter
 from instalooter.pbar import ProgressBar
 from fs_s3fs import S3FS
 from getpass import getpass
+from datetime import datetime
 import sys
 
 
@@ -313,7 +314,7 @@ class App:
 								Item={
 									"id" : { "S" : id },
 									"faceIndex" : { "N" : str(iFaceDetails) },
-									"timestamp" : { "S" : str(looterJsonContent["taken_at_timestamp"]) },
+									"dTime" : { "S" : datetime.fromtimestamp(looterJsonContent["taken_at_timestamp"]).isoformat() },
 									"shortCode" : { "S" : looterJsonContent["shortcode"] },
 									"displayUrl" : { "S" : looterJsonContent["display_url"] },
 									"description" : { "S" : description },
