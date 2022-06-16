@@ -660,3 +660,13 @@ Para poder filtrar se ha añadido un filtro desde Settings > Variables, llamado 
 
 https://www.youtube.com/watch?v=ijyeE-pXFk0
 https://play.grafana.org/d/OhR1ID6Mk/3-table?orgId=1
+
+
+# 16/06/2022
+Reunión:
+* Llenar BBDD
+* Dashboard está ok, mirar qué añadir más cuando haya más datos
+* Memoria:
+  * Enviar lo antes posible Estado del Arte para que vaya corrigiendo
+  * Añadir en "aportes" el hecho de haber hecho un fork/corrección de Instalooter
+  * Explicar el "conector" de Grafana con DynamoDB

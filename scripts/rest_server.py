@@ -64,9 +64,11 @@ def query(params):
 				FilterExpression += filter["key"]
 				FilterExpression += toDynamoDBOperator.get(filter["operator"], "=")
 				FilterExpression += ":filter" + str(i)
-				ExpressionAttributeValues[":filter" + str(i)] = {
-					columnTypes[columnNames.index(filter["key"])] : filter["value"]
-				}
+
+				filterTypeStr = columnTypes[columnNames.index(filter["key"])]
+				filterValue = (filter["value"] == "True") if (filterTypeStr == "BOOL") else filter["value"]
+				ExpressionAttributeValues[":filter" + str(i)] = { filterTypeStr : filterValue }
+
 				previousExpression = True
 
 	#FilterExpression += "gender = :gender AND ageLow < :ageLow"
