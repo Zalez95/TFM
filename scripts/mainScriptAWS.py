@@ -8,6 +8,9 @@ from fs_s3fs import S3FS
 from getpass import getpass
 from datetime import datetime
 import sys
+import os
+
+REKOGNITION_LIMIT = 5000
 
 
 class MyProgressBar(ProgressBar):
@@ -49,6 +52,7 @@ class App:
 	looterSession = None
 	rekognition = None
 	dynamodb = None
+	rekognitionImgCount = 0
 
 	def connect(self):
 		""" Connects to all the needed services """
@@ -114,6 +118,14 @@ class App:
 			self.looter.logout()
 			return False
 
+		# Retrieve the rekognitionImgCount value from S3
+		print("Trying to read rekognitionImgCount...")
+		with self.s3fs.open("rekognitionImgCount.txt", "r") as s3File:
+			s3File.seek(0)
+			lines = s3File.readlines()
+			self.rekognitionImgCount = int(lines[0]) if lines else 0
+			print("Successfully read rekognitionImgCount: " + str(self.rekognitionImgCount))
+
 		# Create DynamoDB tables if they don't exist
 		if not self.__checkDBTables():
 			print("Trying to create DynamoDB tables...")
@@ -126,6 +138,12 @@ class App:
 		return True
 
 	def disconnect(self):
+		# Write rekognitionImgCount to S3
+		print("Trying to write rekognitionImgCount...")
+		with self.s3fs.open("rekognitionImgCount.txt", "w") as s3File:
+			s3File.write(str(self.rekognitionImgCount))
+			print("Successfully written rekognitionImgCount: " + str(self.rekognitionImgCount))
+
 		try:
 			print("Trying to disconnect from Instagram...")
 
@@ -152,12 +170,7 @@ class App:
 
 		return True
 
-	def run(self):
-		""" Downloads, stores and processes images with the requested
-			hashtag """
-		return self.__storeImages() and self.__processImages() and self.__insertDBItems()
-
-	def __storeImages(self):
+	def downloadImages(self):
 		""" Retrieve images and JSONs from Instagram and stores them in S3 """
 		try:
 			print("Trying to download images from Instagram...")
@@ -175,7 +188,7 @@ class App:
 			print("Failed to download all the images: " + str(e))
 			return False
 
-	def __processImages(self):
+	def processImages(self):
 		""" Process images with Rekognition and stores them as JSONs in S3 """
 		try:
 			print("Trying to process the images...")
@@ -193,10 +206,15 @@ class App:
 				progressBar.update()
 				progressBar.printCurrent()
 
+				if (self.rekognitionImgCount > REKOGNITION_LIMIT):
+					raise Exception("Rekognition image count exceeded")
+
 				response = self.rekognition.detect_faces(
 					Image={ "S3Object" : { "Bucket" : self.awsBucket, "Name" : image } },
 					Attributes=["ALL", "DEFAULT"])
 				if response:
+					self.rekognitionImgCount += 1
+
 					with self.s3fs.open(image[:-4] + "_rek.json", "w") as s3File:
 						imageSuccessCount += 1
 						s3File.write(json.dumps(response))
@@ -204,7 +222,7 @@ class App:
 					print("\nFailed to process the image " + image)
 
 			progressBar.finish()
-			print("Successfully proccessed " + str(imageSuccessCount) + " images")
+			print("Successfully processed " + str(imageSuccessCount) + " images")
 			return True
 		except Exception as e:
 			print("\nFailed to process all the images: " + str(e))
@@ -277,69 +295,76 @@ class App:
 			print("Failed to create tables: " + str(e))
 			return False
 
-	def __insertDBItems(self):
+	def insertDBItems(self):
 		"""" Processes the JSONs stored in S3 and inserts their data into
 			DynamoDB """
 		try:
 			print("Trying to insert items into DynamoDB...")
 
 			filenames = self.s3fs.listdir("")
-			ids = list(map(lambda x: x[:-4], filter(lambda x: x[-4:] == ".jpg", filenames)))
+			idsS3 = set(map(lambda x: x[:-4], filter(lambda x: x[-4:] == ".jpg", filenames)))
 
-			for id in ids:
-				queryResponse = self.dynamodb.query(
+			scanResponse = self.dynamodb.scan(
+				TableName="valltourisminsta",
+				ProjectionExpression="id"
+			)
+			items = scanResponse['Items']
+			while ("LastEvaluatedKey" in scanResponse):
+				scanResponse = self.dynamodb.scan(
 					TableName="valltourisminsta",
-					Limit=1,
-					KeyConditionExpression="id = :id",
-					ExpressionAttributeValues={ ":id" : { "S" : id } }
+					ProjectionExpression="id",
+					ExclusiveStartKey=scanResponse['LastEvaluatedKey']
 				)
+				items = items + scanResponse['Items']
+			idsInserted = set(map(lambda x: x["id"]["S"], items))
 
-				if queryResponse and (queryResponse["Count"] == 0):
-					with self.s3fs.open(id + ".json", "r") as looterFile, \
-							self.s3fs.open(id + "_rek.json", "r") as rekognitionFile:
-						looterJsonContent = json.loads(looterFile.read())
-						rekJsonContent = json.loads(rekognitionFile.read())
+			idsToInsert = idsS3.difference(idsInserted)
+			for id in idsToInsert:
+				with self.s3fs.open(id + ".json", "r") as looterFile, \
+						self.s3fs.open(id + "_rek.json", "r") as rekognitionFile:
+					looterJsonContent = json.loads(looterFile.read())
+					rekJsonContent = json.loads(rekognitionFile.read())
 
-						description = ""
-						if (len(looterJsonContent["edge_media_to_caption"]["edges"]) > 0):
-							description = looterJsonContent["edge_media_to_caption"]["edges"][0]["node"]["text"]
+					description = ""
+					if (len(looterJsonContent["edge_media_to_caption"]["edges"]) > 0):
+						description = looterJsonContent["edge_media_to_caption"]["edges"][0]["node"]["text"]
 
-						for iFaceDetails in range(len(rekJsonContent["FaceDetails"])):
-							faceDetails = rekJsonContent["FaceDetails"][iFaceDetails]
+					for iFaceDetails in range(len(rekJsonContent["FaceDetails"])):
+						faceDetails = rekJsonContent["FaceDetails"][iFaceDetails]
 
-							emotions = { x["Type"] : x["Confidence"] for x in faceDetails["Emotions"] }
+						emotions = { x["Type"] : x["Confidence"] for x in faceDetails["Emotions"] }
 
-							self.dynamodb.put_item(
-								TableName="valltourisminsta",
-								Item={
-									"id" : { "S" : id },
-									"faceIndex" : { "N" : str(iFaceDetails) },
-									"dTime" : { "S" : datetime.fromtimestamp(looterJsonContent["taken_at_timestamp"]).isoformat() },
-									"shortCode" : { "S" : looterJsonContent["shortcode"] },
-									"displayUrl" : { "S" : looterJsonContent["display_url"] },
-									"description" : { "S" : description },
-									"likesCount" : { "N" : str(looterJsonContent["edge_liked_by"]["count"]) },
-									"commentsCount" : { "N" : str(looterJsonContent["edge_media_to_comment"]["count"]) },
-									"confidence" : { "N" : str(faceDetails["Confidence"]) },
-									"ageLow" : { "N" : str(faceDetails["AgeRange"]["Low"]) },
-									"ageHigh" : { "N" : str(faceDetails["AgeRange"]["High"]) },
-									"gender" : { "S" : faceDetails["Gender"]["Value"] },
-									"eyeglasses" : { "BOOL" : faceDetails["Eyeglasses"]["Value"] == True },
-									"sunglasses" : { "BOOL" : faceDetails["Sunglasses"]["Value"] == True },
-									"beard" : { "BOOL" : faceDetails["Beard"]["Value"] == True },
-									"moustache" : { "BOOL" : faceDetails["Mustache"]["Value"] == True },
-									"happyConfidence" : { "N" : str(emotions["HAPPY"]) },
-									"surprisedConfidence" : { "N" : str(emotions["SURPRISED"]) },
-									"fearConfidence" : { "N" : str(emotions["FEAR"]) },
-									"sadConfidence" : { "N" : str(emotions["SAD"]) },
-									"angryConfidence" : { "N" : str(emotions["ANGRY"]) },
-									"disgustedConfidence" : { "N" : str(emotions["DISGUSTED"]) },
-									"confusedConfidence" : { "N" : str(emotions["CONFUSED"]) },
-									"calmConfidence" : { "N" : str(emotions["CALM"]) }
-								}
-							)
+						self.dynamodb.put_item(
+							TableName="valltourisminsta",
+							Item={
+								"id" : { "S" : id },
+								"faceIndex" : { "N" : str(iFaceDetails) },
+								"dTime" : { "S" : datetime.fromtimestamp(looterJsonContent["taken_at_timestamp"]).isoformat() },
+								"shortCode" : { "S" : looterJsonContent["shortcode"] },
+								"displayUrl" : { "S" : looterJsonContent["display_url"] },
+								"description" : { "S" : description },
+								"likesCount" : { "N" : str(looterJsonContent["edge_liked_by"]["count"]) },
+								"commentsCount" : { "N" : str(looterJsonContent["edge_media_to_comment"]["count"]) },
+								"confidence" : { "N" : str(faceDetails["Confidence"]) },
+								"ageLow" : { "N" : str(faceDetails["AgeRange"]["Low"]) },
+								"ageHigh" : { "N" : str(faceDetails["AgeRange"]["High"]) },
+								"gender" : { "S" : faceDetails["Gender"]["Value"] },
+								"eyeglasses" : { "BOOL" : faceDetails["Eyeglasses"]["Value"] == True },
+								"sunglasses" : { "BOOL" : faceDetails["Sunglasses"]["Value"] == True },
+								"beard" : { "BOOL" : faceDetails["Beard"]["Value"] == True },
+								"moustache" : { "BOOL" : faceDetails["Mustache"]["Value"] == True },
+								"happyConfidence" : { "N" : str(emotions["HAPPY"]) },
+								"surprisedConfidence" : { "N" : str(emotions["SURPRISED"]) },
+								"fearConfidence" : { "N" : str(emotions["FEAR"]) },
+								"sadConfidence" : { "N" : str(emotions["SAD"]) },
+								"angryConfidence" : { "N" : str(emotions["ANGRY"]) },
+								"disgustedConfidence" : { "N" : str(emotions["DISGUSTED"]) },
+								"confusedConfidence" : { "N" : str(emotions["CONFUSED"]) },
+								"calmConfidence" : { "N" : str(emotions["CALM"]) }
+							}
+						)
 
-							print("Put " + id + "," + str(iFaceDetails) + " in valltourisminsta table")
+						print("Put " + id + "," + str(iFaceDetails) + " in valltourisminsta table")
 
 			print("Successfully put items into DynamoDB")
 			return True
@@ -359,20 +384,22 @@ def main(argv):
 		app = App()
 		app.awsRegion = "eu-west-1"
 		app.awsBucket = "valltourisminstabucket"
-		app.instaUser = input("Instagram User: ")
-		app.instaPass = getpass("Instagram Password: ")
-		app.awsAccessKeyId = input("AWS Access Key ID: ")
-		app.awsAccessKeySecret = getpass("AWS Access Key Secret: ")
-		app.instaMediaLimit = 50
+		app.instaUser = os.environ.get("INSTA_USER")
+		app.instaPass = os.environ.get("INSTA_PASS")
+		app.awsAccessKeyId = os.environ.get("AWS_AKEY_ID")
+		app.awsAccessKeySecret = os.environ.get("AWS_AKEY_SECRET")
+		app.instaMediaLimit = 1000
 
 		if app.connect():
 			for iLine in range(len(lines)):
 				hashtag = lines[iLine].strip()
 				print("=== Processing hashtag " + str(iLine + 1) + "/" + str(len(lines)) + ": #" + hashtag + " ===")
 				app.hashtag = hashtag
-				app.run()
+				app.downloadImages()
 				print("=== Processed hashtag #" + hashtag + " ===")
 
+			app.processImages()
+			app.insertDBItems()
 			app.disconnect()
 
 

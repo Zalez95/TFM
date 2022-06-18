@@ -1,4 +1,5 @@
 import subprocess
+import os
 import time
 import math
 import json
@@ -6,11 +7,10 @@ import boto3
 from datetime import datetime
 from bottle import run, post, request, response, get, route
 
-
-awsAccessKeyId = "AKIA2BIQPL3AKI53QO5K"
-awsAccessKeySecret = "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"
+useTable = False
 awsRegion = "eu-west-1"
 toDynamoDBOperator = { "=":"=", "!=":"<>", ">":">", "<":"<", ">=":">=", "<=":"<=" }
+toGrafanaType = { "BOOL":"boolean", "N":"number", "S":"string" }
 
 
 dynamodb_client = None
@@ -59,96 +59,87 @@ def query(params):
 			if previousExpression:
 				FilterExpression += " AND "
 
-			filter = req_adhocFilters[i]
-			if ("key" in filter) and ("operator" in filter) and ("value" in filter):
-				FilterExpression += filter["key"]
-				FilterExpression += toDynamoDBOperator.get(filter["operator"], "=")
+			adhocFilter = req_adhocFilters[i]
+			if ("key" in adhocFilter) and ("operator" in adhocFilter) and ("value" in adhocFilter):
+				FilterExpression += adhocFilter["key"]
+				FilterExpression += toDynamoDBOperator.get(adhocFilter["operator"], "=")
 				FilterExpression += ":filter" + str(i)
 
-				filterTypeStr = columnTypes[columnNames.index(filter["key"])]
-				filterValue = (filter["value"] == "True") if (filterTypeStr == "BOOL") else filter["value"]
+				filterTypeStr = columnTypes[columnNames.index(adhocFilter["key"])]
+				filterValue = (adhocFilter["value"] == "True") if (filterTypeStr == "BOOL") else adhocFilter["value"]
 				ExpressionAttributeValues[":filter" + str(i)] = { filterTypeStr : filterValue }
 
 				previousExpression = True
 
-	#FilterExpression += "gender = :gender AND ageLow < :ageLow"
-	#ExpressionAttributeValues[":gender"] = { "S" : "Male" }
-	#ExpressionAttributeValues[":ageLow"] = { "N" : "18" }
 	#print(FilterExpression)
 	#print(ExpressionAttributeValues)
 
-	response = dynamodb_client.scan(
+	projectionExpression = "dTime"
+	for x in targetNames:
+		if x != "dTime":
+			projectionExpression += ", " + x
+
+	scanResponse = dynamodb_client.scan(
 		TableName="valltourisminsta",
 		Limit=req_maxDataPoints,
+		ProjectionExpression=projectionExpression,
 		FilterExpression=FilterExpression,
 		ExpressionAttributeValues=ExpressionAttributeValues
 	)
+	items = scanResponse["Items"]
+	while (len(items) < req_maxDataPoints) and ("LastEvaluatedKey" in scanResponse):
+		scanResponse = dynamodb_client.scan(
+			TableName="valltourisminsta",
+			Limit=req_maxDataPoints,
+			ProjectionExpression=projectionExpression,
+			FilterExpression=FilterExpression,
+			ExpressionAttributeValues=ExpressionAttributeValues,
+			ExclusiveStartKey=scanResponse['LastEvaluatedKey']
+		)
+		items = items + scanResponse['Items']
 
 	jsonResponseDict = None
-	if False:
+	if useTable:
+		targetNames2 = list(filter(lambda x: x != "dTime", targetNames))
+
 		jsonResponseDict = {
-			"columns":[
-				{"text":"id","type":"string"},
-				{"text":"faceIndex","type":"number"},
-				{"text":"tstamp","type":"string"},
-				{"text":"shortCode","type":"string"},
-				{"text":"displayUrl","type":"string"},
-				{"text":"description","type":"string"},
-				{"text":"likesCount","type":"number"},
-				{"text":"commentsCount","type":"number"},
-				{"text":"confidence","type":"number"},
-				{"text":"ageLow","type":"number"},
-				{"text":"ageHigh","type":"number"},
-				{"text":"gender","type":"string"},
-				{"text":"eyeglasses","type":"number"},
-				{"text":"sunglasses","type":"number"},
-				{"text":"beard","type":"number"},
-				{"text":"moustache","type":"number"},
-				{"text":"happyConfidence","type":"number"},
-				{"text":"surprisedConfidence","type":"number"},
-				{"text":"fearConfidence","type":"number"},
-				{"text":"sadConfidence","type":"number"},
-				{"text":"angryConfidence","type":"number"},
-				{"text":"disgustedConfidence","type":"number"},
-				{"text":"confusedConfidence","type":"number"},
-				{"text":"calmConfidence","type":"number"}
-			],
+			"columns":[],
 			"rows" : [],
 			"type" : "table"
 		}
-		for item in response["Items"]:
-			jsonResponseDict["rows"].append([
-				item["id"]["S"],
-				int(item["faceIndex"]["N"]),
-				int(item["tstamp"]["S"]),
-				item["shortCode"]["S"],
-				item["displayUrl"]["S"],
-				item["description"]["S"],
-				int(item["likesCount"]["N"]),
-				int(item["commentsCount"]["N"]),
-				float(item["confidence"]["N"]),
-				int(item["ageLow"]["N"]),
-				int(item["ageHigh"]["N"]),
-				item["gender"]["S"],
-				item["eyeglasses"]["BOOL"] == "true",
-				item["sunglasses"]["BOOL"] == "true",
-				item["beard"]["BOOL"] == "true",
-				item["moustache"]["BOOL"] == "true",
-				float(item["happyConfidence"]["N"]),
-				float(item["surprisedConfidence"]["N"]),
-				float(item["fearConfidence"]["N"]),
-				float(item["sadConfidence"]["N"]),
-				float(item["angryConfidence"]["N"]),
-				float(item["disgustedConfidence"]["N"]),
-				float(item["confusedConfidence"]["N"]),
-				float(item["calmConfidence"]["N"])
-			])
+
+		jsonResponseDict["columns"].append({ "text" : "Time", "type" : "time" })
+		for targetName in targetNames2:
+			typeDynamoDBStr = columnTypes[columnNames.index(targetName)]
+			jsonResponseDict["columns"].append({
+				"text" : targetName,
+				"type" : toGrafanaType[typeDynamoDBStr]
+			})
+
+		for item in items:
+			row = []
+
+			tstamp = time.mktime(datetime.strptime(item["dTime"]["S"], "%Y-%m-%dT%H:%M:%S").timetuple())
+			tstampMs = req_intervalMs * math.ceil(1000 * tstamp / req_intervalMs)
+			row.append(tstampMs)
+
+			for targetName in targetNames2:
+				typeDynamoDBStr = columnTypes[columnNames.index(targetName)]
+
+				if (typeDynamoDBStr == "N"):
+					row.append(float(item[targetName][typeDynamoDBStr]))
+				elif (typeDynamoDBStr == "S"):
+					row.append(item[targetName][typeDynamoDBStr])
+				elif (typeDynamoDBStr == "BOOL"):
+					row.append(item[targetName][typeDynamoDBStr] == "true")
+
+			jsonResponseDict["rows"].append(row)
 	else:
 		jsonResponseDict = []
 
 		for targetName in targetNames:
 			datapoints = []
-			for item in response["Items"]:
+			for item in items:
 				tstamp = time.mktime(datetime.strptime(item["dTime"]["S"], "%Y-%m-%dT%H:%M:%S").timetuple())
 				tstampMs = req_intervalMs * math.ceil(1000 * tstamp / req_intervalMs)
 
@@ -175,13 +166,21 @@ def tagKeys(params):
 def tagValues(params):
 	req_key = params["key"]
 
-	response = dynamodb_client.scan(
+	scanResponse = dynamodb_client.scan(
 		TableName="valltourisminsta",
-		AttributesToGet=[req_key]
+		ProjectionExpression=req_key
 	)
+	items = scanResponse['Items']
+	while ("LastEvaluatedKey" in scanResponse):
+		scanResponse = dynamodb_client.scan(
+			TableName="valltourisminsta",
+			ProjectionExpression=req_key,
+			ExclusiveStartKey=scanResponse['LastEvaluatedKey']
+		)
+		items = items + scanResponse['Items']
 
 	values = set()
-	for item in response["Items"]:
+	for item in items:
 		typeStr = list(item[req_key].keys())[0]
 		if (typeStr == "N"):
 			values.add(str(float(item[req_key]["N"])))
@@ -222,6 +221,9 @@ def process():
 
 
 if __name__ == '__main__':
+	awsAccessKeyId = os.environ.get("AWS_AKEY_ID")
+	awsAccessKeySecret = os.environ.get("AWS_AKEY_SECRET")
+
 	dynamodb_client = boto3.client(
 		service_name="dynamodb",
 		region_name=awsRegion,

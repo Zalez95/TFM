@@ -455,7 +455,7 @@ Se ha creado un ejemplo que crea una tabla e introduce un item con un json enter
 
 # 18/05/2022
 Hashtags posibles:
-Naturaleza_valladolid, estaes_valladolid, valladolidturismooficial, turismovalladolid, valladolidturismo, turismovalladolid, valladolidspain, valladolidfotos, valladolidenfotos, valladolid, todo_valladolid, total_valladolid, igersvalladolid, igervalladolid, catedraldevalladolid, paseandoporvalladolid, valladolidgram, instavalladolid, valladolidlove, valladolidlife, valladolidmola, megustavalladolid, fotosdevalladolid, valladolidhoy, vallafotos, valladolidinquieta, love_valladolid, visitvalladolid, look_valladolid, megustavalladolid, asi_es_valladolid, pucela, megustapucela, arquitecturavalladolid, valladolidespaña
+Naturaleza_valladolid, estaes_valladolid, valladolidturismooficial, turismovalladolid, valladolidturismo, turismovalladolid, valladolidspain, valladolidfotos, valladolidenfotos, valladolid, todo_valladolid, total_valladolid, igersvalladolid, igervalladolid, catedraldevalladolid, paseandoporvalladolid, valladolidgram, instavalladolid, valladolidlove, valladolidlife, valladolidmola, megustavalladolid, fotosdevalladolid, valladolidhoy, vallafotos, valladolidinquieta, love_valladolid, visitvalladolid, look_valladolid, ok_valladolid, megustavalladolid, asi_es_valladolid, pucela, megustapucela, arquitecturavalladolid, valladolidespaña, culturavalladolid, valladolidcapital, valladolidcampogrande, valladolidpaseozorrilla, iglesiadelaantiguavalladolid, igerspucela, rinconesdevalladolid, megustapucela
 
 Amazon Lightsail para hosting web
 
@@ -651,7 +651,7 @@ pip3 install bottle
 
 Este servidor implementa las APIs REST: Get /, POST search, POST query, POST tagKeys, POST tagValues para poder recuperar los datos de DynamoDB tal y como se indica en la documentación del plugin https://github.com/simPod/GrafanaJsonDatasource
 
-Se ha apuntado a este servidor local y el plugin se ha conectado con éxito. Para conectarse tan solo ha habido que añadir un Data Sources con nombre VallTourismInstaREST, URL localhost:8080. Si le damos a "Save & test" deberia salir un tick diciendo que el data source funciona.
+Se ha apuntado a este servidor local y el plugin se ha conectado con éxito. Para conectarse tan solo ha habido que añadir un Data Sources con nombre VallTourismInstaREST, URL localhost:8080 y timeout 60secs. Si le damos a "Save & test" deberia salir un tick diciendo que el data source funciona.
 
 Vamos a Create>Dashboard. En configuracion ponemos el nombre "VallTourismInstaDashboard", y empezamos a crearlo.
 
@@ -670,3 +670,17 @@ Reunión:
   * Enviar lo antes posible Estado del Arte para que vaya corrigiendo
   * Añadir en "aportes" el hecho de haber hecho un fork/corrección de Instalooter
   * Explicar el "conector" de Grafana con DynamoDB
+
+# 18/06/2022
+Se han movido las peticiones de usuario del script principal a variables de entorno declaradas en .bashrc
+```
+# ENV VARS
+export INSTA_USER="..."
+export INSTA_PASS="..."
+export AWS_AKEY_ID="..."
+export AWS_AKEY_SECRET="..."
+```
+
+También se ha puesto un límite para el número de imagenes que se pueden procesar con rekognition, de forma que no se supere las 5000 peticiones mensuales permitidas de forma gratuita. Este contador se mantiene en un fichero "rekognitionImgCount.txt" en Amazon S3, de forma que el script se pueda ejecutar multiples veces sin que se pierda este contador. Mensualmente este contador tendría que ser puesto a 0 ya sea cambiando su valor en el fichero o borrandolo, algo que podría ser implementado sencillamente con algun cron.
+
+Se ha empezado a llenar la BBDD
