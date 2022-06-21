@@ -1,22 +1,70 @@
 \capitulo{3}{Conceptos teóricos}
 
+En este apartado se presentan los distintos conceptos teóricos necesarios para la correcta comprensión del proyecto.
 
-Computer Vision\\
+\section{Red social}
+
+Existen múltiples definiciones de red social. La RAE define a las redes sociales como un \guillemotleft servicio de la sociedad de la información que ofrece a los usuarios una plataforma de comunicación a través de internet\guillemotright. Este servicio permite la comunicación de sus usuarios mediante mensajes, audio, imágenes o vídeos, lo que facilita la creación de comunidades con gustos similares.
+
+Por otro lado, el INTECO en su documento ``Estudio sobre la privacidad de los datos
+personales y la seguridad de la información en las redes sociales online'' define a las redes sociales como unos \guillemotleft servicios prestados a través de Internet que permiten a los usuarios generar un perfil público, en el que plasmar datos personales e
+información de uno mismo, disponiendo de herramientas que permiten interactuar
+con el resto de usuarios afines o no al perfil publicado\guillemotright.
+
+Sobre su utilidad, en \cite{ontsi_redes_sociales} el ONTSI afirma que las redes sociales sirven como una herramienta de \guillemotleft democratización de la información que transforma a las personas en receptores y en productores de contenidos\guillemotright.
+
+Hay múltiples tipos de redes sociales de acuerdo a distintos criterios de clasificación:
+\begin{itemize}
+    \item Según el nivel de integración, podemos tener redes sociales \textit{horizontales} donde no existe una temática definida o \textit{verticales} donde los temas de conversación están dirigidos hacia un tema en específico con el fin de juntar a un grupo de usuarios que tengan interés en dicho tipo de contenido, como podrían ser los foros especializados.
+    \item Según la finalidad, podríamos clasificar las redes sociales entre aquellas que son de \textit{ocio}, donde se busca el entretenimiento, ya sea hablando sobre algun tema como podría ser música, películas o videojuegos, o simplemente conversando de forma libre, y por otro lado podríamos tener redes \textit{profesionales} con el fín de promocionarse o la búsqueda de empleo.
+    \item Según su apertura podemos tener redes sociales \textit{públicas} donde cualquiera con acceso a internet puede comentar ya sea con o sin necesidad de registrarse, o redes \textit{privadas} donde el grupo de usuarios que puede acceder es cerrado.
+    \item Según el modo de funcionamiento, donde se pueden clasificar entre redes sociales de \textit{contenido} donde se busca compartir documentos, vídeos, imágenes... Las redes basadas en \textit{microblogging} donde el contenido compartido consiste normalmente en mensajes contenidos que facilitan el seguimiento por parte de los usuarios. Y por último aquellas basadas en \textit{perfiles} donde se busca compartir contenido personal o profesional mediante la creación de perfiles o fichas de usuario.
+\end{itemize}
+
+Las redes sociales se han popularizado mucho en los últimos años. De acuerdo con el artículo de wikipedia sobre las redes sociales, las más populares en la actualidad son las siguientes:
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        Nombre    & Número de usuarios (en millones) \\ \hline
+        Facebook  & 2910              \\ \hline
+        YouTube   & 2562              \\ \hline
+        WhatsApp  & 2000              \\ \hline
+        Instagram & 1478              \\ \hline
+        WeChat    & 1263              \\ \hline
+    \end{tabular}
+    \caption{Ránking de redes sociales a Enero de 2022}
+    \label{tab:socmed_ranking}
+\end{table}
+
+\subsection{Instagram}
+
+Instagram es una red social estadounidense, en la actualidad propiedad del grupo Meta, lanzada en Octubre de 2010. Originalmente se lanzo como aplicación exclusiva de los móviles iPhone, aunque en la actualidad tiene aplicaciones para otras plataformas móviles como Android, así como versión web accesible desde cualquier dispositivo. El objetivo principal de esta red social es compartir imágenes o vídeo entre usuarios, ya sea de forma pública o entre seguidores autorizados, aunque en la actualidad Instagram ofrece más servicios como la mensajería directa entre usuarios, subir contenido de duración limitada con \textit{Instagram Stories} o el streaming de vídeo mediante IGTV. Dentro de la clasificación anteriormente expuesta, Instagram sería una red horizontal, de ocio, pública y basada en contenido.
+
+Instagram permite el etiquetado de su contenido mediante el uso de \textit{hashtags}, con el fin de facilitar la búsqueda de contenido similar y el descubrimiento de cuentas de usuario que comparten publicaciones sobre dicho tema, permitiendo crear comunidades de personas con gustos afines.
+
+\section{Web scraping}
+
+El web scraping, o raspado web, es una técnica empleada para extraer datos de páginas web. Aunque esta acción puede ser llevada a cabo manualmente por un usuario, normalmente esta técnica se refiere a procesos automatizados mediante software como pueden ser \textit{bots} o \textit{crawlers}, los cuales hacen uso de protocolo HTTP para acceder a las páginas web simulando el comportamiento que haría una persona. Normalmente, este tipo de programas extraen, parsean y transforman la información mostrada por la página web (generalmente de forma no estructurada) para después almacenarla en hojas de cálculo o bases de datos. Existen múltiples técnicas para llevar a cabo web scrapping, aunque las más comunes consisten en llevar a cabo búsqueda de patrones o parsear los documentos HTML de las páginas web para buscar ciertas etiquetas.
+
+\section{Visión por computador}
+
+La visión por computador, también conocida como visión artificial, ...
+
+\section{Dashboard}
+
+Cuadro de mandos, permite obtener una visión integrada de los datos
+
+
+
+
+
 Análisis de Emociones\\
 Sistemas de Recomendación\\
-Crawler\\
-Instagram\\
-Dashboard/cuadro de mandos\\
 
 
-
-
-
-
-
-
-
-\subsection{Emociones y Computación afectiva}
+\section{Emociones y Computación afectiva}
 
 Las emociones son un conjunto de reacciones neurofisiológicas que sufre un individuo al ser expuesto a algún objeto, lugar, persona, suceso o idea. Las emociones son complejas, involucran múltiples componentes como el experiencia previa de los individuos, características subjetivas, procesos cognitivos, etc. En múltiples ocasiones las emociones son el origen de los cambios en la motivación y el comportamiento de los individuos. A lo largo de los últimos años se han desarrollado múltiples trabajos relacionados con la investigación de las emociones desde múltiples campos como puede ser la psicología, la medicina y las ciencias de la computación. Los trabajos relacionados con este último campo se engloban dentro de lo que se conoce como la Computación Afectiva, y entre sus objetivos se encuentran el desarrollo de sistemas capaces de de reconocer, interpretar, procesar y estimular las emociones de las personas \url{https://www.bbvaopenmind.com/tecnologia/mundo-digital/que-es-la-computacion-afectiva/} El objetivo detrás de esta interpretación de las emociones suele ser el poder adaptar el comportamiento de los programas para dar una respuesta adecuada a esas emociones.
 
@@ -26,43 +74,9 @@ Existen dos métodos principales a la hora de clasificar las emociones humanas:
     \item Categórica: Se emplean clases discretas que podrían ser feliz, triste, enfadado, etc. Y se emplea algún método de aprendizaje automático para llevar a cabo un modelo que permita clasificar entre las distintas categorías.
 \end{itemize}
 
-\subsection{Sentimiento y Análisis de Sentimiento}
+\section{Sentimiento y Análisis de Sentimiento}
 
 Análisis de Sentimiento consiste en el uso de biometría, procesamiento de lenguaje natural, análisis de voz, imágenes o vídeos, etc. con el fin de extraer, identificar y cuantificar estados afectivos o información subjetiva 
 \url{https://en.wikipedia.org/wiki/Sentiment_analysis}
 
 Esta información para múltiples propósitos como puede ser el fin de mejorar el servicio, la atención al cliente o el marketing de productos
-
-\subsection{Red Social}
-RAE: red social
-Servicio de la sociedad de la información que ofrece a los usuarios una plataforma de comunicación a través de internet para que estos generen un perfil con sus datos personales, facilitando la creación de comunidades con base en criterios comunes y permitiendo la comunicación de sus usuarios, de modo que pueden interactuar mediante mensajes, compartir información, imágenes o vídeos, permitiendo que estas publicaciones sean accesibles de forma inmediata por todos los usuarios de su grupo.
-
-
-\tablaSmall{Herramientas y tecnologías utilizadas en cada parte del proyecto}{l c c c c}{herramientasportipodeuso}
-
-
-
-
-{ \multicolumn{1}{l}{Herramientas} & App AngularJS & API REST & BD & Memoria \\}{ 
-HTML5 & X & & &\\
-CSS3 & X & & &\\
-BOOTSTRAP & X & & &\\
-JavaScript & X & & &\\
-AngularJS & X & & &\\
-Bower & X & & &\\
-PHP & & X & &\\
-Karma + Jasmine & X & & &\\
-Slim framework & & X & &\\
-Idiorm & & X & &\\
-Composer & & X & &\\
-JSON & X & X & &\\
-PhpStorm & X & X & &\\
-MySQL & & & X &\\
-PhpMyAdmin & & & X &\\
-Git + BitBucket & X & X & X & X\\
-Mik\TeX{} & & & & X\\
-\TeX{}Maker & & & & X\\
-Astah & & & & X\\
-Balsamiq Mockups & X & & &\\
-VersionOne & X & X & X & X\\
-} 
