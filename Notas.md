@@ -671,6 +671,7 @@ Reunión:
   * Añadir en "aportes" el hecho de haber hecho un fork/corrección de Instalooter
   * Explicar el "conector" de Grafana con DynamoDB
 
+
 # 18/06/2022
 Se han movido las peticiones de usuario del script principal a variables de entorno declaradas en .bashrc
 ```
@@ -684,3 +685,20 @@ export AWS_AKEY_SECRET="..."
 También se ha puesto un límite para el número de imagenes que se pueden procesar con rekognition, de forma que no se supere las 5000 peticiones mensuales permitidas de forma gratuita. Este contador se mantiene en un fichero "rekognitionImgCount.txt" en Amazon S3, de forma que el script se pueda ejecutar multiples veces sin que se pierda este contador. Mensualmente este contador tendría que ser puesto a 0 ya sea cambiando su valor en el fichero o borrandolo, algo que podría ser implementado sencillamente con algun cron.
 
 Se ha empezado a llenar la BBDD
+
+
+# 26/06/2022
+Movemos el servidor REST creado para el plugin de Grafana JSON a AWS API Gateway para obtener mejor rendimiento. Para ello vamos primero a crear las funciones lambda.
+
+En AWS Lambda vamos a Funciones > Crear Funcion
+La llamamos grafana_query con entorno x86_64 y Python 3.8, le damos a crear y pegamos el código de query. Después vamos a configuración > Variables de Entorno y pegamos las claves de AWS AWS_AKEY_ID y AWS_AKEY_SECRET. Le damos a deploy. Hacemos lo mismo con las funciones search, tag-keys y tag-values, y también añadimos una función grafana_helloworld con el código python por defecto
+
+
+Después vamos a crear las APIs REST
+Vamos Amazon API Gateway y creamos una API REST con nombre "valltourisminsta" y con descripción "Grafana API REST"
+
+Creamos los recursos query, search, tag-keys y tag-values que tendrán las rutas /query, /search, /tag-keys y /tag-values respectivamente. A cada recurso le añadimos un método POST que apunta a su correspondiente función de AWS Lambda. Por último añadimos un método GET a la ruta raíz / y apuntamos a la función lambda por grafana_helloworld
+
+Finalmente en Acciones le damos a "Implementar la API", en una nueva etapa que llamaremos "demo". Al aceptar nos devuelve el endpoint que tendremos que usar para acceder a las APIs: https://4233qyeevj.execute-api.eu-west-1.amazonaws.com/demo
+
+En Grafana cambiamos la URL de nuestro data source a "https://4233qyeevj.execute-api.eu-west-1.amazonaws.com/demo/"
