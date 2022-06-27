@@ -56,11 +56,32 @@ Además Amazon S3 permite regular el acceso a los datos mediante listas de contr
 
 \subsection{Amazon EC2}
 
-Amazon EC2, Elastic Compute Cloud por sus siglas en inglés, 
+Amazon EC2, Elastic Compute Cloud por sus siglas en inglés, es un servicio de AWS que permite crear instancias o máquinas virtuales en la nube con alta disponibilidad y a un coste asequible. EC2 permite elegir por un lado el hardware que más se adapte a nuestras necesidades, como arquitectura de CPU, modelo de CPU, memoria RAM, capacidad y tipo de almacenamiento, ancho de banda, etc. Y por otro el Software, con disponibilidad de distintos sistemas operativos como Microsoft Windows, Amazon Linux, Red Hat, Debian. Ubuntu, SUSE, etc.
+
+Una de las ventajas de usar EC2 es su flexibilidad que permite reducir costes adaptándose a las necesidades de cómputo del usuario, teniendo planes que permiten ejecutar el cómputo solo a ciertas horas, planes que permiten ajustarse a la demanda del usuario, planes para cierta cantidad de uso por hora constante, etc. Además, la capa gratuita de AWS ofrece hasta 750 horas de cómputo al mes durante el primer año.
+
+Cabe destacar que EC2 ofrece distintos tipos de instancias \cite{ec2_instances}:
+\begin{itemize}
+    \item Uso general: es la opción más equilibrada.
+    \item Optimizadas para informática: con procesadores de alto rendimiento.
+    \item Optimizadas para memoria: para aplicaciones que necesitan trabajar con muchos datos en memoria.
+    \item Informática acelerada: con aceleradores hardware como GPUs.
+    \item Optimizadas para almacenamiento: para aplicaciones que dependen mucho de la entrada/salida.
+\end{itemize}
 
 \subsection{DynamoDB}
 
-\subsection{Lambda}
+\subsection{AWS Lambda}
+
+AWS Lambda es un servicio de Amazon que permite ejecutar código ``sin servidor'', es decir, sin la necesidad de tener que gestionar una instancia o un clúster \cite{aws_lambda}. Lambda permite ejecutar código de forma nativa de múltiples lenguajes de programación, como puede ser Java, Node.js, Go, Ruby, Python, etc. Este servicio ejecuta nuestro código como respuesta a eventos, como por ejemplo la modificación de un fichero de S3, cambios en nuestra base de datos de DynamoDB, solicitudes HTTP, eventos temporales, etc. 
+
+Como se ha comentado, la principal característica y ventaja de Lambda es no tener que gestionar nuestro propio servidor, teniendo que llevar a cabo sus actualizaciones y demás inconvenientes. Pero además ofrece otras ventajas como puede ser la completa integración con otros servicios de AWS, el escalado automático, la alta disponibilidad, un tiempo de despliegue e inicio muy corto y un costo de operación reducido puesto que el modelo de Lambda es de pago por uso. Además, Amazon ofrece 1 millón de llamadas gratuitas al mes.
+
+\subsection{Amazon API Gateway}
+
+Amazon API Gateway es un servicio de Amazon que permite la publicación de APIs de forma sencilla \cite{aws_apigateway}. Este servicio facilita la creación, monitorización y mantenimiento de las APIs, lo que se traslada en una reducción del coste de horas que se tienen que dedicar a este tipo de tareas. Además este servicio ofrece alta disponibilidad y baja latencia. Las APIs que se pueden publicar en API Gateway pueden ser WebSocket o RESTful.
+
+Este servicio se puede integrar con otros servicios de AWS como Lambda para llamar a nuestros métodos fácilmente. Se trata de un servicio de pago por uso, pero Amazon ofrece 1 millón de llamadas a las APIs al mes de forma gratuita durante el primer año.
 
 \section{Grafana}
 
