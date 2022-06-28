@@ -71,6 +71,12 @@ Cabe destacar que EC2 ofrece distintos tipos de instancias \cite{ec2_instances}:
 
 \subsection{DynamoDB}
 
+DynamoDB es una base de datos NoSQL de alta disponibilidad de Amazon. Esta tecnología surgió debido a las necesidades particulares de Amazon, ya que esta empresa tiene cientos de servicios descentralizados con picos de demanda muy elevados. Para dar soporte a estas necesidades de escalabilidad y de alta disponibilidad Amazon ya había desarrollado con anterioridad otros sistemas de almacenamiento como S3, pero como existen muchos servicios de Amazon cuyos patrones de acceso son únicamente clave-valor, así que decidieron crear un sistema de almacenamiento en específico para este tipo de casos que tuviera menor latencia. Otros requisitos que tenía que cumplir este sistema era que tenía que poder ejecutarse sobre hardware básico (barato y extendido), e intentar cumplir con las propiedades ACID: Atomicidad, Consistencia, Aislamiento y Durabilidad. Como cumplir con todas estas propiedades suelen provocar que la disponibilidad no sea muy elevada, DynamoDB sacrifica ligeramente la propiedad de Consistencia.
+
+Para la distribución del conjunto de datos en distintos nodos, DynamoDB emplea una clave de particionamiento, que es implementada como una clave hash. Por otro lado, para garantizar la durabilidad de los datos esta herramienta los replica en varios nodos, y cualquier cambio en los datos se propaga de forma asíncrona ya que DynamoDB garantiza la consistencia de los datos de forma eventual.
+
+Para usar DynamoDB en AWS se dispone de Amazon DynamoDB, que es un servicio que nos permite utilizar esta base de datos NoSQL sin la necesidad de tener que gestionar y mantener nuestro propio servidor, ya que se ejecuta y almacena en la nube de Amazon. El coste de este servicio es bajo demanda, pero la capa gratuita de AWS nos permite utilizar hasta 25GBs de forma permantente.
+
 \subsection{AWS Lambda}
 
 AWS Lambda es un servicio de Amazon que permite ejecutar código ``sin servidor'', es decir, sin la necesidad de tener que gestionar una instancia o un clúster \cite{aws_lambda}. Lambda permite ejecutar código de forma nativa de múltiples lenguajes de programación, como puede ser Java, Node.js, Go, Ruby, Python, etc. Este servicio ejecuta nuestro código como respuesta a eventos, como por ejemplo la modificación de un fichero de S3, cambios en nuestra base de datos de DynamoDB, solicitudes HTTP, eventos temporales, etc. 
