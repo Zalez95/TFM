@@ -1,9 +1,62 @@
 \capitulo{5}{Aspectos relevantes del desarrollo del proyecto}
+\label{chap:aspectos_relevantes}
 
-Este apartado pretende recoger los aspectos más interesantes del desarrollo del proyecto, comentados por los autores del mismo.
-Debe incluir desde la exposición del ciclo de vida utilizado, hasta los detalles de mayor relevancia de las fases de análisis, diseño e implementación.
-Se busca que no sea una mera operación de copiar y pegar diagramas y extractos del código fuente, sino que realmente se justifiquen los caminos de solución que se han tomado, especialmente aquellos que no sean triviales.
-Puede ser el lugar más adecuado para documentar los aspectos más interesantes del diseño y de la implementación, con un mayor hincapié en aspectos tales como el tipo de arquitectura elegido, los índices de las tablas de la base de datos, normalización y desnormalización, distribución en ficheros3, reglas de negocio dentro de las bases de datos (EDVHV GH GDWRV DFWLYDV), aspectos de desarrollo relacionados con el WWW...
-Este apartado, debe convertirse en el resumen de la experiencia práctica del proyecto, y por sí mismo justifica que la memoria se convierta en un documento útil, fuente de referencia para los autores, los tutores y futuros alumnos.
+%Este apartado pretende recoger los aspectos más interesantes del desarrollo del proyecto, comentados por los autores del mismo.
+%Debe incluir desde la exposición del ciclo de vida utilizado, hasta los detalles de mayor relevancia de las fases de análisis, diseño e implementación.
+%Se busca que no sea una mera operación de copiar y pegar diagramas y extractos del código fuente, sino que realmente se justifiquen los caminos de solución que se han tomado, especialmente aquellos que no sean triviales.
+%Puede ser el lugar más adecuado para documentar los aspectos más interesantes del diseño y de la implementación, con un mayor hincapié en aspectos tales como el tipo de arquitectura elegido, los índices de las tablas de la base de datos, normalización y desnormalización, distribución en ficheros3, reglas de negocio dentro de las bases de datos (EDVHV GH GDWRV DFWLYDV), aspectos de desarrollo relacionados con el WWW...
+%Este apartado, debe convertirse en el resumen de la experiencia práctica del proyecto, y por sí mismo justifica que la memoria se convierta en un documento útil, fuente de referencia para los autores, los tutores y futuros alumnos.
 
+\section{Estudio preliminar}
+\begin{itemize}
+    \item Creación del entorno con virtualenv - pip3 para descarga de librerías python3
+    \item descarga con instalooter
+    
+    \item Pruebas iniciales con Google Cloud
+    
+Inicialmente por recomendación del tutor se trató de emplear los servicios de Google Cloud. Esta plataforma de Google Cloud provee diversos servicios junto con sus respectivas interfaces de programación compatibles con múltiples lenguajes de programación. Entre los servicios relevantes para el presente proyecto cabe destacar el almacenamiento en la nube con Cloud Storage, servicios de procesamiento de datos y creación de máquinas virtuales con Compute Engine, servicios de visión artificial mediante Cloud Vision, almacenamiento de bases de datos en Cloud SQL, etc.
+
+Todos los servicios de Google Cloud se pueden probar de forma gratuita con tan solo crearse una cuenta en la plataforma. Esto es debido a que Google ofrece un crédito de 300 USD para invertir libremente en su plataforma a toda cuenta recién creada durante un periodo de 3 meses, 400 USD si se demuestra ser alumno \cite{google_cloud}. Este crédito inicial se va gastando según se vaya haciendo uso de los servicios, y una vez consumido o pasado el periodo de 3 meses, Google empieza a cobrar por el uso de sus servicios. Debido al alcance de este proyecto y los precios que tienen los servicios de Google, el anterior límite de dinero no es preocupante, aunque el de tiempo si que podría llegar a ser lo.
+
+Como se ha comentado, para emplear los servicios de Google Cloud, Google pone a disposición de los usuarios APIs de forma gratuita para distintos lenguajes de programación, entre los cuales se encuentra Python. Mediante este lenguaje de scripting y la API de Cloud Vision \cite{api_google_vision}, se llevaron a cabo unas pruebas iniciales donde se pudo comprobar que la información que se puede obtener mediante el uso de la API de Google Cloud Vision si que incluye cierta capacidad de análisis de emociones, permitiendo obtener etiquetas de emociones como alegría, tristeza, enfado, sorpresa, etc. junto con su \textit{likelihood}, pero no incluye información como edad y género de las personas, capacidad que fue eliminada de este servicio de forma bastante reciente \cite{archive_google_gender}. Esto es un problema ya que se pretendía hacer uso de este tipo de información a la hora de recomendar publicaciones o lugares al usuario.
+
+Debido a las anteriores limitaciones de Cloud Vision, y el problema del límite de tiempo del periodo de prueba, se decidió explorar otras alternativas. A continuación se hace un pequeño resumen de los servicios ofrecidos por las distintas alternativas valoradas y que posiblemente se puedan llegar a necesitar en el proyecto.
+
+\begin{landscape}
+\begin{table}[]
+    \centering
+    \resizebox{1.02\columnwidth}{0.55\textwidth}{%
+        \begin{tabular}{|p{0.12\textwidth}|p{0.2\textwidth}|p{0.15\textwidth}|p{0.15\textwidth}|p{0.15\textwidth}|p{0.21\textwidth}|p{0.21\textwidth}|p{0.21\textwidth}|p{0.21\textwidth}|}
+        \hline
+        \multirow{2}{=}{Servicios} & \multirow{2}{=}{Límite de uso}	& \multicolumn{3}{|c|}{API de Visión Artificial}	& \multirow{2}{=}{Almacenamiento en bucket/blobs gratuito}	& \multirow{2}{=}{Almacenamiento en Base de Datos SQL}	& \multirow{2}{=}{Almacenamiento en Base de Datos NoSQL}	& \multirow{2}{=}{Máquinas Virtuales}	\\ \cline{3-5}
+        	&	& Límite de uso	& Análisis de Sentimiento	& Reconoci\-miento de edad y género &	&	&	&	\\ \hline
+        Google Cloud	& 300 USD durante 3 meses	& 1000 unidades al mes	& Si, con tags alegría, tristeza, enojo, sorpresa	& No	& Si, con 5 Gbs al mes en Google Cloud Storage	& Si, con motor de base de datos MySQL, PostgreSQL y SQL Server	& Si, bases de datos documentales como Cloud Datastore, Cloud Firestore... y clave/valor con MongoDB, Bigtable...	& Si, Máquina virtual en Compute Engine empleando el saldo inicial	\\ \hline
+        Microsoft Azure	& 12 meses para servicios gratuitos + 200 USD para servicios no gratuitos durante 1 mes & Hasta 30.000 transacciones al mes & Si, con tags felicidad, tristeza, neutralidad, ira, desprecio, asco, sorpresa y temor	& Si	& Si, con 5 Gbs en Azure Blob Storage y 5 GBs en Azure File Storage 5 & Si, con Azure Database for MySQL (750 horas al mes), Azure Database for PostgreSQL (750 horas al mes) y SQL Database (250 Gbs)	& Si, Azure Cosmos DB (25 Gbs)	& Si, Máquina virtual B1S (1 núcleo, 1 GB RAM y 4GB de almacenamiento) con Linux 750 horas al mes	\\ \hline
+        Amazon Web Services (AWS)	& 12 meses para la capa gratuita	& 5000 imágenes al mes	& Si, con tags feliz, triste, enfado, confuso, disgustado, sorprendido, calma, miedo, desconocido & Si	& Si, con 5 Gbs al mes en Amazon S3	& Si, se puede usar RDS (750 horas al mes) con motor de base de datos MySQL, MariaDB, Oracle, PostgreSQL, SQL Server y Amazon Aurora & Si, bases de datos documentales con DocumentDB (compatible con MongoDB, solo 1 mes de prueba) y clave/valor con DynamoDB (25 GB gratuitos) & Si, Máquina virtual en EC2 (1 CPU, 1GB de RAM, 1 CPU y 1GB de RAM, 30 GBs SSD) con Linux 750 horas al mes \\ \hline
+        \end{tabular}%
+    }
+    \caption{Servicios en la Nube: Alternativas}
+    \label{tab:cloud_services}
+\end{table}
+\end{landscape}
+
+Cabe destacar que se seleccionaron estas alternativas en base a su popularidad, los servicios potencialmente necesarios, las restricciones de tiempo para probarlos y al requerimiento de que la plataforma usada fuera gratuita u ofreciese un periodo de prueba, ya sea para estudiantes o no, lo suficientemente extenso como para poder desarrollar el proyecto sin complicaciones. También hay que destacar que se intentó llevar a cabo pruebas con las distintas plataformas. Durante estas pruebas preliminares, con Microsoft Azure no se consiguió llegar a crear una máquina virtual de tipo \texttt{B1S} gratuita, puesto que siempre salían como no disponibles. Tras revisar la página de preguntas y respuestas de Microsoft parece que a mucha gente le ha sucedido lo mismo recientemente, el problema parece ser la alta demanda de este tipo de máquinas. Debido a este problema y la imposibilidad de obtener la edad y el género en los servicios de Google Vision, finalmente se decidió que lo mejor era emplear los servicios de \textbf{Amazon Web Services}.
+    
+    \item Repetir pruebas con AWS
+\end{itemize}
+
+\section{Script final y poblar base de datos}
+\begin{itemize}
+    \item Diseño tablas DynamoDB
+    \item Script de subida final
+    \item Máquina virtual
+    \item Pool estático de hashtags
+\end{itemize}
+
+\section{Presentación}
+\begin{itemize}
+    \item Alternativas y Grafana
+    \item Plugin JSON Conector con AWS Lambda
+    \item Diseño dashboard
+\end{itemize}
 
