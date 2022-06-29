@@ -691,7 +691,7 @@ Se ha empezado a llenar la BBDD
 Movemos el servidor REST creado para el plugin de Grafana JSON a AWS API Gateway para obtener mejor rendimiento. Para ello vamos primero a crear las funciones lambda.
 
 En AWS Lambda vamos a Funciones > Crear Funcion
-La llamamos grafana_query con entorno x86_64 y Python 3.8, le damos a crear y pegamos el código de query. Después vamos a configuración > Variables de Entorno y pegamos las claves de AWS AWS_AKEY_ID y AWS_AKEY_SECRET. Le damos a deploy. Hacemos lo mismo con las funciones search, tag-keys y tag-values, y también añadimos una función grafana_helloworld con el código python por defecto
+La llamamos grafana_query con entorno x86_64 y Python 3.8, le damos a crear y pegamos el código de query. Después vamos a configuración > Variables de Entorno y pegamos las claves de AWS AWS_AKEY_ID y AWS_AKEY_SECRET, y tambien en la "Configuración general" modificamos el "Tiempo de espera" de 3sec a 1min. Le damos a deploy. Hacemos lo mismo con las funciones search, tag-keys y tag-values, y también añadimos una función grafana_helloworld con el código python por defecto
 
 
 Después vamos a crear las APIs REST
