@@ -702,3 +702,9 @@ Creamos los recursos query, search, tag-keys y tag-values que tendrán las rutas
 Finalmente en Acciones le damos a "Implementar la API", en una nueva etapa que llamaremos "demo". Al aceptar nos devuelve el endpoint que tendremos que usar para acceder a las APIs: https://4233qyeevj.execute-api.eu-west-1.amazonaws.com/demo
 
 En Grafana cambiamos la URL de nuestro data source a "https://4233qyeevj.execute-api.eu-west-1.amazonaws.com/demo/"
+
+
+# 30/06/2022
+* Continuar con la memoria
+* Titulo: Héctor avisara:
+* Motivación: intereses similares a los mios, turismo...
