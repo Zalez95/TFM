@@ -12,6 +12,11 @@
     \item Creación del entorno con virtualenv - pip3 para descarga de librerías python3
     \item descarga con instalooter
     
+el cliente Instalooter permite descargar sólo las imágenes nuevas comprobando las que ya hay descargadas, para evitar que se repiten hay que descargar imagenes si o si. Se puede enviar la url a google vision api, pero teniendo en cuenta que ya las tenemos descargadas en local, y que posiblemente haya imágenes a las que google cloud no tenga acceso sin estar logeado, lo mejor es subirlas directamente a google cloud y procesarlas allí
+    
+Existe el problema de que instaLooter emplea el sistema de archivos para detectar si una imágen ya existe y por tanto, saber si una imágen es nueva o no. Esto es un problema ya que nos obliga a que el equipo que ejecute el script tenga que tener almacenadas todas las imágenes ya descargadas, lo que nos puede limitar ya que tenemos que tener almacenadas las imágenes por duplicado, tanto en este equipo como en Cloud Storage. Revisando el código fuente de instalooter parece que este permite que se le pase una instancia que herede de la interfaz fs.base.FS en vez de una ruta al sistema de archivos local, aunque esto no se encuentra documentado en su página web. Este objeto permite abstrarse del sistema de archivos local, y por ello, tal vez pueda ser ser reemplazado por un objeto que implemente las comunicaciones con Google Storage y así no tener que duplicar las imágenes. Gracias a GitHub he conseguido encontrar un proyecto [GCSFS](https://github.com/Othoz/gcsfs) que hace exactamente lo anterior y tras un pruebas he conseguido enviar una imágen de prueba al bucket de nuestro proyecto:
+    
+    
     \item Pruebas iniciales con Google Cloud
     
 Inicialmente por recomendación del tutor se trató de emplear los servicios de Google Cloud. Esta plataforma de Google Cloud provee diversos servicios junto con sus respectivas interfaces de programación compatibles con múltiples lenguajes de programación. Entre los servicios relevantes para el presente proyecto cabe destacar el almacenamiento en la nube con Cloud Storage, servicios de procesamiento de datos y creación de máquinas virtuales con Compute Engine, servicios de visión artificial mediante Cloud Vision, almacenamiento de bases de datos en Cloud SQL, etc.
@@ -50,6 +55,11 @@ Cabe destacar que se seleccionaron estas alternativas en base a su popularidad, 
     \item Diseño tablas DynamoDB
     \item Script de subida final
     \item Máquina virtual
+    
+iniciar sesión con firefox
+    
+    
+    
     \item Pool estático de hashtags
 \end{itemize}
 
