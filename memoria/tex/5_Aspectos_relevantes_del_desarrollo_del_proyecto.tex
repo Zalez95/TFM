@@ -1,5 +1,4 @@
 \capitulo{5}{Aspectos relevantes del desarrollo del proyecto}
-\label{chap:aspectos_relevantes}
 
 %Este apartado pretende recoger los aspectos más interesantes del desarrollo del proyecto, comentados por los autores del mismo.
 %Debe incluir desde la exposición del ciclo de vida utilizado, hasta los detalles de mayor relevancia de las fases de análisis, diseño e implementación.
@@ -7,7 +6,19 @@
 %Puede ser el lugar más adecuado para documentar los aspectos más interesantes del diseño y de la implementación, con un mayor hincapié en aspectos tales como el tipo de arquitectura elegido, los índices de las tablas de la base de datos, normalización y desnormalización, distribución en ficheros3, reglas de negocio dentro de las bases de datos (EDVHV GH GDWRV DFWLYDV), aspectos de desarrollo relacionados con el WWW...
 %Este apartado, debe convertirse en el resumen de la experiencia práctica del proyecto, y por sí mismo justifica que la memoria se convierta en un documento útil, fuente de referencia para los autores, los tutores y futuros alumnos.
 
+En este capítulo se explican las partes más relevantes del desarrollo del proyecto, así como los problemas surgidos y las decisiones tomadas al respecto. Este apartado se ha decidido dividir en 3 secciones: el estudio previo al desarrollo del proyecto, la implementación y llenado de la base de datos, y la presentación de los datos.
+
 \section{Estudio preliminar}
+\label{sect:estudio_preliminar}
+
+En esta fase inicial se decidió investigar las posibles herramientas a utilizar para el desarrollo del proyecto, así como desarrollar una serie de scripts para probar su funcionamiento y familiarizarse con sus interfaces de programación.
+
+El primer paso que se llevó a cabo en esta fase del proyecto fue crear un entorno de trabajo sobre el cual poder implementar el resto de scripts del proyecto. Como se indicó en el apartado \ref{sect:otras_herramientas}, para esta tarea se decidió emplear la herramienta \texttt{virtualenv}, que nos permite crear un entorno aislado para Python de modo que se puedan fijar las versiones de las librerías descargadas en este caso mediante \texttt{pip3} a cierta versión, algo muy importante en esta fase de pruebas.
+
+Una vez creado el entorno de trabajo, la primera tarea que se decidió abordar fue investigar las posibles herramientas a utilizar para llevar a cabo la descarga de datos de la página web de Instagram. Tras hacer varias pruebas con múltiples scrapers web encontrados en GitHub como \texttt{instagram-crawler}, \texttt{huaying-instagram-crawler}, etc. se decidió emplear \texttt{Instalooter}, el cual dispone tanto de una interfaz de programación para Python 3 como de un cliente de línea de comandos. El resto de scrapers encontrados no parecían funcionar en el momento en que se hizo la prueba, posiblemente debido a que la web de Instagram hubiese sido actualizada de forma reciente y éstos programas no hubiesen sido actualizados de acorde a los nuevos cambios.
+
+Como se comentó en la sección \ref{sect:instalooter}, Instalooter pone a disposición del usuario de varios \textit{looters}, \texttt{ProfileLooter} y \texttt{HashtagLooter}, para descargar las publicaciones relacionadas con un perfil de usuario o con un Hashtag respectivamente, y permite descargar tanto las vídeos, como imágenes como la descripción y meta-datos de las mismas en formato JSON. Una de las ventajas que tiene esta herramienta en comparación con otras es que permite comprobar si una publicación ha sido ya descargada o no para evitar repetirla, así su puede ejecutar la descarga de forma sucesiva sin riesgo de acabar con datos duplicados.
+
 \begin{itemize}
     \item Creación del entorno con virtualenv - pip3 para descarga de librerías python3
     \item descarga con instalooter

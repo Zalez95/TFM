@@ -5,14 +5,17 @@ Este apartado tiene el objetivo de enumerar y describir las múltiples herramien
 Primero cabe destacar que a lo largo del proyecto siempre se ha tratado de usar el lenguaje de programación Python. La decisión de usar este lenguaje de programación se basa en que es un lenguaje que conozco, con el que he trabajado con anterioridad, y que considero sencillo y especialmente útil para llevar a cabo prototipos de forma rápida. Además al ser un lenguaje muy popular en la actualidad, es muy fácil encontrar librerías y recursos en la web en caso de duda. La decisión de emplear este lenguaje de programación ha influido mucho a la hora de escoger el resto de herramientas que se exponen a continuación:
 
 \section{Instalooter}
+\label{sect:instalooter}
 
-El primer paso que se llevo a cabo para el desarrollo del proyecto fue investigar las posibles herramientas para llevar a cabo la descarga de datos de la página web de Instagram. Tras hacer varias pruebas con múltiples scrapers web encontrados en GitHub se decidió emplear Instalooter, el cual dispone tanto de una interfaz de programación para Python como de un cliente de línea de comandos. El resto de scrapers encontrados no parecían funcionar, posiblemente debido a que la web de Instagram hubiese sido actualizada recientemente en el momento en que hice la prueba, y éstos programas no hubiesen sido actualizados de acorde a estos cambios. La API de Instalooter pone a disposición del usuario de varios \textit{looters} ya sea para descargar las publicaciones llevadas a cabo por un usuario en su perfil o para descargar publicaciones relacionadas con un Hashtag, y permite descargar tanto las imágenes como la descripción y meta-datos de las mismas en formato JSON. Además, antes de descargar la información de una publicación Instalooter comprueba que no haya sido ya descargada, con lo que puede ejecutarse repetidamente sobre un perfil o un Hashtag sin peligro de obtener resultados duplicados.
+Instalooter es un scraper web empleado para descargar imágenes, vídeos y meta-datos de las publicaciones de Instagram. Esta herramienta es de código abierto, y se distribuye bajo la licencia GNU General Public License v3, pudiendo acceder al código fuente del proyecto a través de GitHub. Instalooter puede ser usado por un lado a través de un cliente de línea de comandos, y por otro mediante una interfaz de programación para Python 3.
+
+La API de Instalooter pone a disposición del usuario de varios \textit{looters} \cite{instalooter_api}, ya sea para descargar las publicaciones llevadas a cabo por un usuario en su perfil o para descargar publicaciones relacionadas con un Hashtag. Estos \textit{looters} permiten descargar tanto las imágenes como la descripción y meta-datos de las mismas en formato JSON. Además, antes de descargar la información de una publicación Instalooter comprueba que no haya sido ya descargada, con lo que puede ejecutarse repetidamente sobre un perfil o un Hashtag sin peligro de obtener resultados duplicados.
 
 \section{Servicios en la Nube}
 
 Respecto al almacenamiento y procesamiento de los datos descargados de las publicaciones de Instagram, se trató desde un principio de usar computación en la nube. Esto es debido a la facilidad a la hora de escalar tanto la capacidad de almacenamiento como de computación en caso de que fuese necesario.
 
-Debido a los motivos esgrimidos en el apartado \autoref{chap:aspectos_relevantes} se decidió que lo mejor era emplear los servicios de \textbf{Amazon Web Services}. A continuación se describen los servicios de AWS que se han empleado para el desarrollo del presente proyecto.
+Debido a los motivos esgrimidos en el apartado \ref{sect:estudio_preliminar} se decidió que lo mejor era emplear los servicios de \textbf{Amazon Web Services}. A continuación se describen los servicios de AWS que se han empleado para el desarrollo del presente proyecto.
 
 \subsection{Amazon S3}
 Amazon S3, \textit{Simple Storage Service} por sus siglas en inglés, es un servicio de almacenamiento de objetos en la nube de Amazon. El almacenamiento en S3 permite almacenar cualquier tipo de objeto de forma escalable, con baja latencia y alta disponibilidad. El acceso a este servicio puede llevarse a cabo mediante la consola web de Amazon AWS, el SDK de AWS o mediante APIs REST.
@@ -82,6 +85,7 @@ Grafana es una herramienta multiplataforma de código abierto para la visualizac
 Grafana es extensible mediante plugins que permiten añadir funcionalidad así como conectores con distintos tipos de fuentes de datos. Al ser código abierto existe una gran comunidad detrás de Grafana que ayuda tanto al desarrollo y soporte de la herramienta en sí, como para la creación de nuevos plugins. En la actualidad hay conectores para múltiples fuentes de datos como pueden ser hojas de cálculo, bases de datos MySQL, Oracle, MongoDB, Splunk...
 
 \section{Otras herramientas}
+\label{sect:otras_herramientas}
 
 Además de las anteriores herramientas utilizadas para la descarga, almacenamiento y procesamiento de datos, se han utilizados otras herramientas y utilidades para llevar a cabo tanto la implementación de los programas como la realización de la memoria, entre las que cabe destacar:
 
