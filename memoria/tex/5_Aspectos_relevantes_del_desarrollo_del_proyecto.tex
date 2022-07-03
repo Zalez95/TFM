@@ -13,23 +13,47 @@ En este capítulo se explican las partes más relevantes del desarrollo del proy
 
 En esta fase inicial se decidió investigar las posibles herramientas a utilizar para el desarrollo del proyecto, así como desarrollar una serie de scripts para probar su funcionamiento y familiarizarse con sus interfaces de programación.
 
-El primer paso que se llevó a cabo en esta fase del proyecto fue crear un entorno de trabajo sobre el cual poder implementar el resto de scripts del proyecto. Como se indicó en el apartado \ref{sect:otras_herramientas}, para esta tarea se decidió emplear la herramienta \texttt{virtualenv}, que nos permite crear un entorno aislado para Python de modo que se puedan fijar las versiones de las librerías descargadas en este caso mediante \texttt{pip3} a cierta versión, algo muy importante en esta fase de pruebas.
+El primer paso que se llevó a cabo en esta fase del proyecto fue crear un entorno de trabajo sobre el cual poder implementar el resto de scripts del proyecto. Como se indicó en el apartado \ref{sect:otras_herramientas}, para esta tarea se decidió emplear la herramienta \texttt{virtualenv}, que nos permite crear un entorno aislado para Python de modo que se puedan fijar las versiones de las librerías descargadas en este caso mediante \texttt{pip3} a cierta versión, algo muy importante en esta fase de pruebas donde se va a probar múltiples herramientas.
 
 Una vez creado el entorno de trabajo, la primera tarea que se decidió abordar fue investigar las posibles herramientas a utilizar para llevar a cabo la descarga de datos de la página web de Instagram. Tras hacer varias pruebas con múltiples scrapers web encontrados en GitHub como \texttt{instagram-crawler}, \texttt{huaying-instagram-crawler}, etc. se decidió emplear \texttt{Instalooter}, el cual dispone tanto de una interfaz de programación para Python 3 como de un cliente de línea de comandos. El resto de scrapers encontrados no parecían funcionar en el momento en que se hizo la prueba, posiblemente debido a que la web de Instagram hubiese sido actualizada de forma reciente y éstos programas no hubiesen sido actualizados de acorde a los nuevos cambios.
 
 Como se comentó en la sección \ref{sect:instalooter}, Instalooter pone a disposición del usuario de varios \textit{looters}, \texttt{ProfileLooter} y \texttt{HashtagLooter}, para descargar las publicaciones relacionadas con un perfil de usuario o con un Hashtag respectivamente, y permite descargar tanto las vídeos, como imágenes como la descripción y meta-datos de las mismas en formato JSON. Una de las ventajas que tiene esta herramienta en comparación con otras es que permite comprobar si una publicación ha sido ya descargada o no para evitar repetirla, así su puede ejecutar la descarga de forma sucesiva sin riesgo de acabar con datos duplicados.
 
-\begin{itemize}
-    \item Creación del entorno con virtualenv - pip3 para descarga de librerías python3
-    \item descarga con instalooter
-    
-el cliente Instalooter permite descargar sólo las imágenes nuevas comprobando las que ya hay descargadas, para evitar que se repiten hay que descargar imagenes si o si. Se puede enviar la url a google vision api, pero teniendo en cuenta que ya las tenemos descargadas en local, y que posiblemente haya imágenes a las que google cloud no tenga acceso sin estar logeado, lo mejor es subirlas directamente a google cloud y procesarlas allí
-    
-Existe el problema de que instaLooter emplea el sistema de archivos para detectar si una imágen ya existe y por tanto, saber si una imágen es nueva o no. Esto es un problema ya que nos obliga a que el equipo que ejecute el script tenga que tener almacenadas todas las imágenes ya descargadas, lo que nos puede limitar ya que tenemos que tener almacenadas las imágenes por duplicado, tanto en este equipo como en Cloud Storage. Revisando el código fuente de instalooter parece que este permite que se le pase una instancia que herede de la interfaz fs.base.FS en vez de una ruta al sistema de archivos local, aunque esto no se encuentra documentado en su página web. Este objeto permite abstrarse del sistema de archivos local, y por ello, tal vez pueda ser ser reemplazado por un objeto que implemente las comunicaciones con Google Storage y así no tener que duplicar las imágenes. Gracias a GitHub he conseguido encontrar un proyecto [GCSFS](https://github.com/Othoz/gcsfs) que hace exactamente lo anterior y tras un pruebas he conseguido enviar una imágen de prueba al bucket de nuestro proyecto:
-    
-    
-    \item Pruebas iniciales con Google Cloud
-    
+Durante las pruebas con Instalooter se pudo descargar con éxito tanto las imágenes como los meta-datos de varias publicaciones de Instagram. El JSON generado por cada publicación mediante esta herramienta cuenta con la siguiente información:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|p{0.2\textwidth}|p{0.4\textwidth}|p{0.4\textwidth}|}
+    \hline
+    Nombre del Campo & Ejemplo & Descripción \\ \hline
+    \_\_typename & \texttt{``GraphImage''} & indica el tipo de publicación que se ha descargado, exactamente si es un vídeo o una imagen \\ \hline
+    comments \_disabled & \texttt{false} & Si los comentarios de la publicación se encuentran habilitados o no \\ \hline
+    dimensions & \texttt{\{``height'': 640,``width'': 640\}} & Anchura y altura de la imagen \\ \hline
+    display\_url & \texttt{``https://scontent-ams2-1.
+    cdninstagram.com/v/ t51.2885-15/...''} & URL de descarga de la imagen en Instagram, este link expira a los pocos días \\ \hline
+    edge\_liked\_by & \texttt{\{``count'': 73\}} & Número de ``likes'' de la publicación \\ \hline
+    edge\_media\_to \_caption & \texttt{\{``edges'': {[}\{``node'': \{ ``text'': ``El peso de una nube de color gris'' \}\}{]}\}} & comentario o descripción de la publicación generada por su autor \\ \hline
+    \end{tabular}
+\end{table}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|p{0.2\textwidth}|p{0.4\textwidth}|p{0.4\textwidth}|}
+    \hline
+    edge\_media\_to \_comment & \texttt{\{``count'': 1\}} & numero de comentarios de la publicación \\ \hline
+    id & \texttt{``1001662920005405392''} & número identificador de la publicación \\ \hline
+    is\_video & \texttt{false} & si la publicación contiene un video o no \\ \hline
+    owner & \texttt{\{``id'': ``216171681''\}} & identificador de la cuenta de instagram que hizo la publicación \\ \hline
+    shortcode & \texttt{``3mnx5jmkrQ''} & Shortcode de la publicación, se puede usar para obtener un link a la publicación de forma \\ \hline
+    taken\_at \_timestamp & \texttt{1433627546} & timestamp de la publicación \\ \hline
+    thumbnail\_src & \texttt{``https://scontent-ams2-1.
+    cdninstagram.com/v/ t51.2885-15/...'' }& URL del ``thumbnail'' de la imagen, este link expira a los pocos días \\ \hline
+    \end{tabular}
+    \caption{Contenido del JSON de Instalooter}
+    \label{tab:json_instalooter}
+\end{table}
+
+Después de comprobar que se puede descargar con éxito publicaciones de instagram, se procedió a comprobar si es posible extraer información de las imágenes descargadas. Para ello se trató desde un principio de recurrir a herramientas ya existentes de reconocimiento de imágenes, preferiblemente de servicios en la nube.
+
 Inicialmente por recomendación del tutor se trató de emplear los servicios de Google Cloud. Esta plataforma de Google Cloud provee diversos servicios junto con sus respectivas interfaces de programación compatibles con múltiples lenguajes de programación. Entre los servicios relevantes para el presente proyecto cabe destacar el almacenamiento en la nube con Cloud Storage, servicios de procesamiento de datos y creación de máquinas virtuales con Compute Engine, servicios de visión artificial mediante Cloud Vision, almacenamiento de bases de datos en Cloud SQL, etc.
 
 Todos los servicios de Google Cloud se pueden probar de forma gratuita con tan solo crearse una cuenta en la plataforma. Esto es debido a que Google ofrece un crédito de 300 USD para invertir libremente en su plataforma a toda cuenta recién creada durante un periodo de 3 meses, 400 USD si se demuestra ser alumno \cite{google_cloud}. Este crédito inicial se va gastando según se vaya haciendo uso de los servicios, y una vez consumido o pasado el periodo de 3 meses, Google empieza a cobrar por el uso de sus servicios. Debido al alcance de este proyecto y los precios que tienen los servicios de Google, el anterior límite de dinero no es preocupante, aunque el de tiempo si que podría llegar a ser lo.
@@ -57,12 +81,57 @@ Debido a las anteriores limitaciones de Cloud Vision, y el problema del límite 
 \end{landscape}
 
 Cabe destacar que se seleccionaron estas alternativas en base a su popularidad, los servicios potencialmente necesarios, las restricciones de tiempo para probarlos y al requerimiento de que la plataforma usada fuera gratuita u ofreciese un periodo de prueba, ya sea para estudiantes o no, lo suficientemente extenso como para poder desarrollar el proyecto sin complicaciones. También hay que destacar que se intentó llevar a cabo pruebas con las distintas plataformas. Durante estas pruebas preliminares, con Microsoft Azure no se consiguió llegar a crear una máquina virtual de tipo \texttt{B1S} gratuita, puesto que siempre salían como no disponibles. Tras revisar la página de preguntas y respuestas de Microsoft parece que a mucha gente le ha sucedido lo mismo recientemente, el problema parece ser la alta demanda de este tipo de máquinas. Debido a este problema y la imposibilidad de obtener la edad y el género en los servicios de Google Vision, finalmente se decidió que lo mejor era emplear los servicios de \textbf{Amazon Web Services}.
-    
-    \item Repetir pruebas con AWS
-\end{itemize}
 
-\section{Script final y poblar base de datos}
+Un vez tomada la decisión de la plataforma a utilizar, se procedió a hacer más pruebas con AWS. Para interactuar con cualquier servicio de Amazon Web Services, sobre todo si se hace a través de su SDK, es necesario obtener un identificador y su clave de acceso. Por lo tanto, una vez creada la cuenta lo primero que se hizo fue generar estas credenciales a través del servicio IAM (Identification and Access Management), en su apartado \textit{Credenciales de Seguridad}. Una vez generado, nos devolverá un CSV con dos valores, \texttt{AWSAccessKeyId} y \texttt{AWSSecretKey}, los cuales deberemos conservar para acceder posteriormente a los servicios.
+
+Después de generar las credenciales se procedió a probar el servicio de Amazon Rekognition, cuyos detalles ya se introdujeron en el apartado \ref{sect:rekognition}. Para poder analizar una imagen con Rekognition, primero ésta debe de estar subida a un bucket o contenedor de objetos de Amazon S3, por ello se procedió a generar un bucket de prueba y a subir una serie de imágenes a través de la consola web.
+
+Para llevar a cabo pruebas con Rekognition primero hubo que instalar el SDK de AWS para Python, el cual es conocido como \textbf{Boto3}. Su uso es muy sencillo puesto que se puede acceder a cualquier servicio con tan solo la función \texttt{boto3.client} empleando como parámetros: el nombre del servicio a usar, la región donde se ejecuta en el servicio que en el caso de este proyecto siempre se ha escogido ``eu-west-1'' (Irlanda), y el id y clave de acceso que anteriormente se obtuvieron mediante IAM. Durante las pruebas con Rekognition se pudo comprobar que mediante su servicio de reconocimiento facial se puede obtener un JSON con los siguientes detalles:
+
+\begin{table}[]
+    \centering
+    \begin{tabular}{|p{0.2\textwidth}|p{0.4\textwidth}|p{0.4\textwidth}|}
+    \hline
+    Nombre del Campo & Ejemplo & Descripción \\ \hline
+    BoundingBox & \texttt{\{``Width'': 0.0358, ``Height'': 0.0476, ``Left'': 0.3780, ``Top'': 0.6708\}} & coordenadas de la caja donde se ubica la cara \\ \hline
+    AgeRange & \texttt{\{``Low'': 49, ``High'': 57\}} & Rango de edad de la persona en años \\ \hline
+    Smile & \texttt{\{``Value'': false, ``Confidence'': 94.6054\}} & Si la persona se encuentra sonriendo o no \\ \hline
+    Eyeglasses & \texttt{\{``Value'': false, ``Confidence'': 97.4112\}} & Si la persona lleva o no gafas o no \\ \hline
+    Sunglasses & \texttt{\{``Value'': false, ``Confidence'': 99.9965\}} & Si la persona lleva o no gafas de sol o no \\ \hline
+    Gender & \texttt{\{``Value'': ``Female``, ``Confidence'': 68.2432\}} & Género de la persona \\ \hline
+    Beard & \texttt{\{``Value'': false, ``Confidence'': 62.0366\}} & Si la persona tiene barba o no \\ \hline
+    Mustache & \texttt{\{``Value'': false, ``Confidence'': 94.0625\}} & Si la persona tiene bigote o no \\ \hline
+    EyesOpen & \texttt{\{``Value'': false, ``Confidence'': 99.8537\}} & Si la persona tiene los ojos abiertos o no \\ \hline
+    MouthOpen & \texttt{\{``Value'': false, ``Confidence'': 93.5364\}} & Si la persona tiene la boca abierta o no \\ \hline
+    Emotions & \texttt{{[} \{``Type'': ``SAD``, ``Confidence'': 99.9044\}, \{``Type'': ``CALM``, ``Confidence'': 23.9581\}... \} {]}} & Un array con la confianza de las emociones expresadas por la persona basada en su expresión facial, los posibles valores son triste, calmado, sorprendido, aterrado, confundido, enfadado, feliz, disgustado. \\ \hline
+    Landmarks & \texttt{{[}\{``Type'': ``eyeLeft``, ``X'': 0.3885, ``Y'': 0.6877\},\{``Type'': ``eyeRight``, ``X'': 0.4037, ``Y'': 0.6898\}...{]}} & Coordenadas de las características de la cara (nariz, boca, etc.). \\ \hline
+    Pose & \texttt{\{``Roll'': 8.8927, ``Yaw'': 1.8882, ``Pitch'': 0.5692\}} & Pose (rotación) de la cara. \\ \hline
+    Quality & \texttt{\{``Brightness'': 63.9795, ``Sharpness'': 4.3748\}} & Indican el brillo y nitided de la imagen \\ \hline
+    Confidence & \texttt{99.8897} & Nivel de confianza en el que se encuentra una cara dentro de la caja. \\ \hline
+    \end{tabular}
+    \caption{Contenido del JSON de Rekognition para detección facial}
+    \label{tab:json_rekognition}
+\end{table}
+
+Una vez elegidas las herramientas a utilizar, comprobado su funcionamiento y los datos que se pueden obtener, se puede concluir que es posible llevar a cabo la descarga de datos de Instagram y el procesamiento de las imágenes.
+
+\section{Generación de la base de datos}
+
+En este apartado se explica la base de datos diseñada, y los scripts implementados para la descarga, procesado y almacenamiento de los datos generados mediante Instalooter y Rekognition de forma automática.
+
+Como se ha comentado en el apartado anterior, se va a emplear Instalooter para la descarga de publicaciones de Instagram. Desde un principio se decidió emplear una lista de hashtags de los cuales descargar publicaciones relacionadas con Valladolid, ya que estas suelen estar etiquetadas con hashtags relacionados a eventos o lugares de la ciudad. De esta lista se hablará posteriormente. Por lo tanto, en nuestros scripts de descarga se va a emplear el looter \texttt{HashtagLooter} para este cometido, limitando la descarga de publicaciones solo a imágenes.
+
+Una vez que se obtengan las publicaciones, antes de almacenar cualquier información en la base de datos se va a llevar a cabo el procesamiento de las imágenes mediante Rekognition para así tener la información completa. Pero como se comentó anteriormente, para ello primero las imágenes han de estar subidas a Amazon S3. Por lo tanto, primero se ha de conseguir subir las imágenes descargadas por Instalooter a Amazon S3 de forma automática. Esto inicialmente podría parece una tarea sencilla, solo tendríamos que descargar la imagen y meta-datos de una publicación de forma local, subirlo mediante boto3 a Amazon S3, y borrarlo del almacenamiento local. Pero como se comentó en la sección \ref{sect:instalooter}, Instalooter antes de descargar una publicación primero comprueba si ya existe en el directorio donde se pretende guardar, para así acelerar el proceso de \textit{scraping} y poder ejecutar Instalooter sobre un hashtag o perfil sucesivamente evitando tener publicaciones duplicadas. Esto es un problema ya que nos obliga a que el equipo que ejecute Instalooter tenga que mantener almacenadas todas las publicaciones ya descargadas, teniendo los datos duplicados en S3 y en el equipo, y dependiendo del volumen de publicaciones esto puede dar problemas de escalabilidad.
+
+Tras revisar el código fuente de Instalooter se pudo comprobar se puede pasar una objeto que herede de la interfaz \texttt{fs.base.FS} de \textit{PyFilesystem} en vez de una ruta al sistema de archivos local, aunque esto no se encuentra documentado en su página web. Este objeto permite abstraerse del sistema de archivos local, y por ello, se pensó que tal vez se podría usar un objeto implementase esta interfaz junto con las comunicaciones con Amazon S3, para así no tener que usar el almacenamiento local del equipo. Mediante el uso de este objeto, Instalooter descargaría directamente las publicaciones en un bucket, y podría comprobar en ese contenedor si la publicación ya existe.
+
+Gracias a GitHub se consiguió encontrar un proyecto que hace exactamente lo anterior llamado \href{https://github.com/PyFilesystem/s3fs}{S3FS}. Tras una serie de pruebas, se pudo comprobar que esta librería funciona, pudiendo acceder a un bucket de prueba y subir ficheros sin mayor problema. Después de estas pruebas también se intentó probar si la idea inicial de usar Instalooter junto con una instancia que implementase la interfaz de \textit{PyFilesystem} era correcta, y se pudo comprobar que se estaba en lo cierto, descargando las publicaciones al bucket sin duplicados.
+
+Con las imágenes ya guardadas en el bucket, el proceso de llevar a cabo el reconocimiento facial, fue relativamente simple. Solo hubo que iterar sobre las publicaciones almacenadas en el contenedor y guardar en el propio bucket el JSON generado por Rekognition, siempre comprobando antes que esa publicación no hubiese sido ya procesada mediante este servicio. De este modo, por cada publicación se tiene almacenado en Amazon S3 tres ficheros: la imagen de la publicación con el nombre \texttt{<id>.jpg}, el JSON con los meta-datos de la publicación llamado \texttt{<id>.json} y el JSON con la información generada por Rekognition llamado \texttt{<id>\_rek.json}, siendo \texttt{<id>} el id de la publicación devuelto por Instalooter.
+
 \begin{itemize}
+
+
     \item Diseño tablas DynamoDB
     \item Script de subida final
     \item Máquina virtual
