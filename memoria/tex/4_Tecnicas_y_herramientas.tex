@@ -17,10 +17,17 @@ Respecto al almacenamiento y procesamiento de los datos descargados de las publi
 
 Debido a los motivos esgrimidos en el apartado \ref{sect:estudio_preliminar} se decidió que lo mejor era emplear los servicios de \textbf{Amazon Web Services}. A continuación se describen los servicios de AWS que se han empleado para el desarrollo del presente proyecto.
 
+\subsection{Rekognition}
+\label{sect:rekognition}
+
+Rekognition es un servicio de AWS que permite analizar imágenes y vídeos mediante su tecnología de aprendizaje profundo. En el caso de Rekognition Image, este servicio de visión artificial permite llevar a cabo de forma sencilla tareas como la localización y extracción de texto de imágenes, reconocimiento facial y comparación de caras para saber si en dos imágenes aparece la misma persona, detección de objetos y escenas, análisis facial para reconocimiento de gestos o atributos, etc. Además junto con las posibles etiquetas que devuelve esta herramienta se incluye el \textit{likelihood} o la fiabilidad de la respuesta \cite{amazon_rekognition}. Cabe destacar que Rekognition se encuentra integrado con el resto de servicios de AWS como IAM para controlar el acceso y los permisos.
+
+Las posibles aplicaciones o casos de uso de este servicio son múltiples, como por ejemplo reconocer personas famosas, saber si las personas llevan puesto equipos de protección, detección de contenido inapropiado, etc. La principal ventaja de usar este servicio es su capacidad de escalado. Los precios de uso del servicio varían dependiendo del volumen de imágenes a procesar, siendo las primeras 5000 imágenes del mes gratuitas durante el periodo de prueba de 12 meses.
+
 \subsection{Amazon S3}
 Amazon S3, \textit{Simple Storage Service} por sus siglas en inglés, es un servicio de almacenamiento de objetos en la nube de Amazon. El almacenamiento en S3 permite almacenar cualquier tipo de objeto de forma escalable, con baja latencia y alta disponibilidad. El acceso a este servicio puede llevarse a cabo mediante la consola web de Amazon AWS, el SDK de AWS o mediante APIs REST.
 
-Cada objeto almacenado en S3 se ubica dentro de un recurso denominado ``bucket'' y puede llegar a ocupar hasta 5TBs \cite{amazon_s3}. Estos objetos se organizan mediante prefijos y se les puede añadir hasta 10 etiquetas clave-valor. Además, se puede habilitar que la modificación de los objetos almacenados en S3 pueda ser supervisada mediante sistemas de control de versiones así como habilitar Multi-Factor Athentication para evitar el borrado accidental. Cabe destacar también que los objetos pueden ser replicados en varias regiones para reducir la latencia de acceso si nuestra aplicación así lo requiere.
+Cada objeto almacenado en S3 se ubica dentro de un recurso denominado ``bucket'' o contenedor de objetos, y puede llegar a ocupar hasta 5TBs \cite{amazon_s3}. Estos objetos se organizan mediante prefijos y se les puede añadir hasta 10 etiquetas clave-valor. Además, se puede habilitar que la modificación de los objetos almacenados en S3 pueda ser supervisada mediante sistemas de control de versiones así como habilitar Multi-Factor Authentication para evitar el borrado accidental. Cabe destacar también que los objetos pueden ser replicados en varias regiones para reducir la latencia de acceso si nuestra aplicación así lo requiere.
 
 Amazon S3 tiene varias clases de almacenamiento. Dependiendo del caso de uso y la forma en que se va a acceder a los datos puede ser más conveniente usar una clase u otra con el fin de reducir la latencia y el coste de servicio de nuestra aplicación. Estas clases son las siguientes:
 \begin{itemize}
