@@ -46,6 +46,7 @@ class App:
 	awsAccessKeySecret = ""
 	awsRegion = ""
 	awsBucket = ""
+	dynamoDBTable = ""
 	hashtag = ""
 	instaMediaLimit = None
 	s3fs = None
@@ -209,17 +210,20 @@ class App:
 				if (self.rekognitionImgCount > REKOGNITION_LIMIT):
 					raise Exception("Rekognition image count exceeded")
 
-				response = self.rekognition.detect_faces(
-					Image={ "S3Object" : { "Bucket" : self.awsBucket, "Name" : image } },
-					Attributes=["ALL", "DEFAULT"])
-				if response:
-					self.rekognitionImgCount += 1
+				try:
+					response = self.rekognition.detect_faces(
+						Image={ "S3Object" : { "Bucket" : self.awsBucket, "Name" : image } },
+						Attributes=["ALL", "DEFAULT"])
+					if response:
+						self.rekognitionImgCount += 1
 
-					with self.s3fs.open(image[:-4] + "_rek.json", "w") as s3File:
-						imageSuccessCount += 1
-						s3File.write(json.dumps(response))
-				else:
-					print("\nFailed to process the image " + image)
+						with self.s3fs.open(image[:-4] + "_rek.json", "w") as s3File:
+							imageSuccessCount += 1
+							s3File.write(json.dumps(response))
+					else:
+						print("\nFailed to process the image " + image + ": No response")
+				except Exception as e:
+					print("\nFailed to process the image " + image + ": " + str(e))
 
 			progressBar.finish()
 			print("Successfully processed " + str(imageSuccessCount) + " images")
@@ -232,7 +236,7 @@ class App:
 		""" Checks if the DynamoDB tables exists """
 		tables = self.dynamodb.list_tables()
 		return tables and tables["TableNames"] and \
-			("valltourisminsta" in tables["TableNames"])
+			(self.dynamoDBTable in tables["TableNames"])
 
 	def __createDBTables(self):
 		""" Creates the tables for the Instalooter and Rekognition JSON data in
@@ -260,7 +264,7 @@ class App:
 
 			# valltourisminsta table
 			response = self.dynamodb.create_table(
-				TableName="valltourisminsta",
+				TableName=self.dynamoDBTable,
 				KeySchema=[
 					{
 						"AttributeName" : "id",
@@ -282,12 +286,12 @@ class App:
 					}
 				],
 				ProvisionedThroughput={
-					"ReadCapacityUnits" : 10,
-					"WriteCapacityUnits" : 10
+					"ReadCapacityUnits" : 120,
+					"WriteCapacityUnits" : 120
 				}
 			)
 
-			print("DynamoDB valltourisminsta table response: " + str(response))
+			print("DynamoDB " + self.dynamoDBTable + " table response: " + str(response))
 
 			print("Successfully created the tables")
 			return True
@@ -305,13 +309,13 @@ class App:
 			idsS3 = set(map(lambda x: x[:-4], filter(lambda x: x[-4:] == ".jpg", filenames)))
 
 			scanResponse = self.dynamodb.scan(
-				TableName="valltourisminsta",
+				TableName=self.dynamoDBTable,
 				ProjectionExpression="id"
 			)
 			items = scanResponse['Items']
 			while ("LastEvaluatedKey" in scanResponse):
 				scanResponse = self.dynamodb.scan(
-					TableName="valltourisminsta",
+					TableName=self.dynamoDBTable,
 					ProjectionExpression="id",
 					ExclusiveStartKey=scanResponse['LastEvaluatedKey']
 				)
@@ -320,51 +324,54 @@ class App:
 
 			idsToInsert = idsS3.difference(idsInserted)
 			for id in idsToInsert:
-				with self.s3fs.open(id + ".json", "r") as looterFile, \
-						self.s3fs.open(id + "_rek.json", "r") as rekognitionFile:
-					looterJsonContent = json.loads(looterFile.read())
-					rekJsonContent = json.loads(rekognitionFile.read())
+				try:
+					with self.s3fs.open(id + ".json", "r") as looterFile, \
+							self.s3fs.open(id + "_rek.json", "r") as rekognitionFile:
+						looterJsonContent = json.loads(looterFile.read())
+						rekJsonContent = json.loads(rekognitionFile.read())
 
-					description = ""
-					if (len(looterJsonContent["edge_media_to_caption"]["edges"]) > 0):
-						description = looterJsonContent["edge_media_to_caption"]["edges"][0]["node"]["text"]
+						description = ""
+						if (len(looterJsonContent["edge_media_to_caption"]["edges"]) > 0):
+							description = looterJsonContent["edge_media_to_caption"]["edges"][0]["node"]["text"]
 
-					for iFaceDetails in range(len(rekJsonContent["FaceDetails"])):
-						faceDetails = rekJsonContent["FaceDetails"][iFaceDetails]
+						for iFaceDetails in range(len(rekJsonContent["FaceDetails"])):
+							faceDetails = rekJsonContent["FaceDetails"][iFaceDetails]
 
-						emotions = { x["Type"] : x["Confidence"] for x in faceDetails["Emotions"] }
+							emotions = { x["Type"] : x["Confidence"] for x in faceDetails["Emotions"] }
 
-						self.dynamodb.put_item(
-							TableName="valltourisminsta",
-							Item={
-								"id" : { "S" : id },
-								"faceIndex" : { "N" : str(iFaceDetails) },
-								"dTime" : { "S" : datetime.fromtimestamp(looterJsonContent["taken_at_timestamp"]).isoformat() },
-								"shortCode" : { "S" : looterJsonContent["shortcode"] },
-								"displayUrl" : { "S" : looterJsonContent["display_url"] },
-								"description" : { "S" : description },
-								"likesCount" : { "N" : str(looterJsonContent["edge_liked_by"]["count"]) },
-								"commentsCount" : { "N" : str(looterJsonContent["edge_media_to_comment"]["count"]) },
-								"confidence" : { "N" : str(faceDetails["Confidence"]) },
-								"ageLow" : { "N" : str(faceDetails["AgeRange"]["Low"]) },
-								"ageHigh" : { "N" : str(faceDetails["AgeRange"]["High"]) },
-								"gender" : { "S" : faceDetails["Gender"]["Value"] },
-								"eyeglasses" : { "BOOL" : faceDetails["Eyeglasses"]["Value"] == True },
-								"sunglasses" : { "BOOL" : faceDetails["Sunglasses"]["Value"] == True },
-								"beard" : { "BOOL" : faceDetails["Beard"]["Value"] == True },
-								"moustache" : { "BOOL" : faceDetails["Mustache"]["Value"] == True },
-								"happyConfidence" : { "N" : str(emotions["HAPPY"]) },
-								"surprisedConfidence" : { "N" : str(emotions["SURPRISED"]) },
-								"fearConfidence" : { "N" : str(emotions["FEAR"]) },
-								"sadConfidence" : { "N" : str(emotions["SAD"]) },
-								"angryConfidence" : { "N" : str(emotions["ANGRY"]) },
-								"disgustedConfidence" : { "N" : str(emotions["DISGUSTED"]) },
-								"confusedConfidence" : { "N" : str(emotions["CONFUSED"]) },
-								"calmConfidence" : { "N" : str(emotions["CALM"]) }
-							}
-						)
+							self.dynamodb.put_item(
+								TableName=self.dynamoDBTable,
+								Item={
+									"id" : { "S" : id },
+									"faceIndex" : { "N" : str(iFaceDetails) },
+									"dTime" : { "S" : datetime.fromtimestamp(looterJsonContent["taken_at_timestamp"]).isoformat() },
+									"shortCode" : { "S" : looterJsonContent["shortcode"] },
+									"displayUrl" : { "S" : looterJsonContent["display_url"] },
+									"description" : { "S" : description },
+									"likesCount" : { "N" : str(looterJsonContent["edge_liked_by"]["count"]) },
+									"commentsCount" : { "N" : str(looterJsonContent["edge_media_to_comment"]["count"]) },
+									"confidence" : { "N" : str(faceDetails["Confidence"]) },
+									"ageLow" : { "N" : str(faceDetails["AgeRange"]["Low"]) },
+									"ageHigh" : { "N" : str(faceDetails["AgeRange"]["High"]) },
+									"gender" : { "S" : faceDetails["Gender"]["Value"] },
+									"eyeglasses" : { "BOOL" : faceDetails["Eyeglasses"]["Value"] == True },
+									"sunglasses" : { "BOOL" : faceDetails["Sunglasses"]["Value"] == True },
+									"beard" : { "BOOL" : faceDetails["Beard"]["Value"] == True },
+									"moustache" : { "BOOL" : faceDetails["Mustache"]["Value"] == True },
+									"happyConfidence" : { "N" : str(emotions["HAPPY"]) },
+									"surprisedConfidence" : { "N" : str(emotions["SURPRISED"]) },
+									"fearConfidence" : { "N" : str(emotions["FEAR"]) },
+									"sadConfidence" : { "N" : str(emotions["SAD"]) },
+									"angryConfidence" : { "N" : str(emotions["ANGRY"]) },
+									"disgustedConfidence" : { "N" : str(emotions["DISGUSTED"]) },
+									"confusedConfidence" : { "N" : str(emotions["CONFUSED"]) },
+									"calmConfidence" : { "N" : str(emotions["CALM"]) }
+								}
+							)
 
-						print("Put " + id + "," + str(iFaceDetails) + " in valltourisminsta table")
+							print("Put " + id + "," + str(iFaceDetails) + " in " + self.dynamoDBTable + " table")
+				except Exception as e:
+					print("Failed to insert item + " + id + " into DynamoDB: " + str(e))
 
 			print("Successfully put items into DynamoDB")
 			return True
@@ -384,11 +391,12 @@ def main(argv):
 		app = App()
 		app.awsRegion = "eu-west-1"
 		app.awsBucket = "valltourisminstabucket"
+		app.dynamoDBTable = "valltourisminsta"
 		app.instaUser = os.environ.get("INSTA_USER")
 		app.instaPass = os.environ.get("INSTA_PASS")
 		app.awsAccessKeyId = os.environ.get("AWS_AKEY_ID")
 		app.awsAccessKeySecret = os.environ.get("AWS_AKEY_SECRET")
-		app.instaMediaLimit = 1000
+		app.instaMediaLimit = 250
 
 		if app.connect():
 			for iLine in range(len(lines)):

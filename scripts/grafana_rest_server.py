@@ -1,4 +1,3 @@
-import subprocess
 import os
 import time
 import math
@@ -9,6 +8,7 @@ from bottle import run, post, request, response, get, route
 
 useTable = False
 awsRegion = "eu-west-1"
+tableName = "valltourisminsta"
 toDynamoDBOperator = { "=":"=", "!=":"<>", ">":">", "<":"<", ">=":">=", "<=":"<=" }
 toGrafanaType = { "BOOL":"boolean", "N":"number", "S":"string" }
 
@@ -46,33 +46,33 @@ def query(params):
 
 	previousExpression = False
 
-	FilterExpression = ""
-	ExpressionAttributeValues = {}
+	filterExpression = ""
+	expressionAttributeValues = {}
 	if req_range:
 		previousExpression = True
-		FilterExpression += "dTime BETWEEN :from AND :to"
-		ExpressionAttributeValues[":from"] = { "S" : req_range["from"] }
-		ExpressionAttributeValues[":to"] = { "S" : req_range["to"] }
+		filterExpression += "dTime BETWEEN :from AND :to"
+		expressionAttributeValues[":from"] = { "S" : req_range["from"] }
+		expressionAttributeValues[":to"] = { "S" : req_range["to"] }
 
 	if req_adhocFilters:
 		for i in range(len(req_adhocFilters)):
 			if previousExpression:
-				FilterExpression += " AND "
+				filterExpression += " AND "
 
 			adhocFilter = req_adhocFilters[i]
 			if ("key" in adhocFilter) and ("operator" in adhocFilter) and ("value" in adhocFilter):
-				FilterExpression += adhocFilter["key"]
-				FilterExpression += toDynamoDBOperator.get(adhocFilter["operator"], "=")
-				FilterExpression += ":filter" + str(i)
+				filterExpression += adhocFilter["key"]
+				filterExpression += toDynamoDBOperator.get(adhocFilter["operator"], "=")
+				filterExpression += ":filter" + str(i)
 
 				filterTypeStr = columnTypes[columnNames.index(adhocFilter["key"])]
 				filterValue = (adhocFilter["value"] == "True") if (filterTypeStr == "BOOL") else adhocFilter["value"]
-				ExpressionAttributeValues[":filter" + str(i)] = { filterTypeStr : filterValue }
+				expressionAttributeValues[":filter" + str(i)] = { filterTypeStr : filterValue }
 
 				previousExpression = True
 
-	#print(FilterExpression)
-	#print(ExpressionAttributeValues)
+	#print(filterExpression)
+	#print(expressionAttributeValues)
 
 	projectionExpression = "dTime"
 	for x in targetNames:
@@ -80,20 +80,20 @@ def query(params):
 			projectionExpression += ", " + x
 
 	scanResponse = dynamodb_client.scan(
-		TableName="valltourisminsta",
+		TableName=tableName,
 		Limit=req_maxDataPoints,
 		ProjectionExpression=projectionExpression,
-		FilterExpression=FilterExpression,
-		ExpressionAttributeValues=ExpressionAttributeValues
+		FilterExpression=filterExpression,
+		ExpressionAttributeValues=expressionAttributeValues
 	)
 	items = scanResponse["Items"]
 	while (len(items) < req_maxDataPoints) and ("LastEvaluatedKey" in scanResponse):
 		scanResponse = dynamodb_client.scan(
-			TableName="valltourisminsta",
+			TableName=tableName,
 			Limit=req_maxDataPoints,
 			ProjectionExpression=projectionExpression,
-			FilterExpression=FilterExpression,
-			ExpressionAttributeValues=ExpressionAttributeValues,
+			FilterExpression=filterExpression,
+			ExpressionAttributeValues=expressionAttributeValues,
 			ExclusiveStartKey=scanResponse['LastEvaluatedKey']
 		)
 		items = items + scanResponse['Items']
@@ -167,13 +167,13 @@ def tagValues(params):
 	req_key = params["key"]
 
 	scanResponse = dynamodb_client.scan(
-		TableName="valltourisminsta",
+		TableName=tableName,
 		ProjectionExpression=req_key
 	)
 	items = scanResponse['Items']
 	while ("LastEvaluatedKey" in scanResponse):
 		scanResponse = dynamodb_client.scan(
-			TableName="valltourisminsta",
+			TableName=tableName,
 			ProjectionExpression=req_key,
 			ExclusiveStartKey=scanResponse['LastEvaluatedKey']
 		)
@@ -231,7 +231,7 @@ def init():
 		aws_secret_access_key = awsAccessKeySecret
 	)
 
-	firstRow = dynamodb_client.scan(TableName="valltourisminsta", Limit=1)
+	firstRow = dynamodb_client.scan(TableName=tableName, Limit=1)
 	if (firstRow["Items"]):
 		globals()["columnNames"] = list(firstRow["Items"][0].keys())
 		globals()["columnTypes"] = list(map(lambda x: list(x.keys())[0], firstRow["Items"][0].values()))
