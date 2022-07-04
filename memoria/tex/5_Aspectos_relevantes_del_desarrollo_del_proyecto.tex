@@ -84,11 +84,9 @@ Cabe destacar que se seleccionaron estas alternativas en base a su popularidad, 
 
 Un vez tomada la decisión de la plataforma a utilizar, se procedió a hacer más pruebas con AWS. Para interactuar con cualquier servicio de Amazon Web Services, sobre todo si se hace a través de su SDK, es necesario obtener un identificador y su clave de acceso. Por lo tanto, una vez creada la cuenta lo primero que se hizo fue generar estas credenciales a través del servicio IAM (Identification and Access Management), en su apartado \textit{Credenciales de Seguridad}. Una vez generado, nos devolverá un CSV con dos valores, \texttt{AWSAccessKeyId} y \texttt{AWSSecretKey}, los cuales deberemos conservar para acceder posteriormente a los servicios.
 
-Después de generar las credenciales se procedió a probar el servicio de Amazon Rekognition, cuyos detalles ya se introdujeron en el apartado \ref{sect:rekognition}. Para poder analizar una imagen con Rekognition, primero ésta debe de estar subida a un bucket o contenedor de objetos de Amazon S3, por ello se procedió a generar un bucket de prueba y a subir una serie de imágenes a través de la consola web.
+Después de generar las credenciales se procedió a probar el servicio de Amazon Rekognition, cuyos detalles ya se introdujeron en el apartado \ref{sect:rekognition}. Para poder analizar una imagen con Rekognition, primero ésta debe de estar subida a un bucket o contenedor de objetos de Amazon S3, por ello se procedió a generar un bucket de prueba y a subir una serie de imágenes a través de la consola web. Por otro lado, para llevar a cabo pruebas con Rekognition hubo que instalar el SDK de AWS para Python, el cual es conocido como \texttt{Boto3}. Su uso a través de Python es muy sencillo, puesto que se puede acceder a cualquier servicio de AWS con tan solo usar la función \texttt{boto3.client} empleando como parámetros: el nombre del servicio a usar, la región donde se ejecuta en el servicio, que en el caso de este proyecto siempre se ha escogido ``eu-west-1'' (Irlanda), y el id y clave de acceso que anteriormente se obtuvieron mediante IAM. Durante las pruebas con Rekognition se pudo comprobar que mediante su funcionalidad de reconocimiento facial se puede obtener un JSON que contiene un array ``FaceDetails'' con un objeto por cara presente en la imagen. Cada uno de estos objetos cuenta con los siguientes detalles:
 
-Para llevar a cabo pruebas con Rekognition primero hubo que instalar el SDK de AWS para Python, el cual es conocido como \textbf{Boto3}. Su uso es muy sencillo puesto que se puede acceder a cualquier servicio con tan solo la función \texttt{boto3.client} empleando como parámetros: el nombre del servicio a usar, la región donde se ejecuta en el servicio que en el caso de este proyecto siempre se ha escogido ``eu-west-1'' (Irlanda), y el id y clave de acceso que anteriormente se obtuvieron mediante IAM. Durante las pruebas con Rekognition se pudo comprobar que mediante su servicio de reconocimiento facial se puede obtener un JSON con los siguientes detalles:
-
-\begin{table}[]
+\begin{table}[H]
     \centering
     \begin{tabular}{|p{0.2\textwidth}|p{0.4\textwidth}|p{0.4\textwidth}|}
     \hline
@@ -103,7 +101,7 @@ Para llevar a cabo pruebas con Rekognition primero hubo que instalar el SDK de A
     Mustache & \texttt{\{``Value'': false, ``Confidence'': 94.0625\}} & Si la persona tiene bigote o no \\ \hline
     EyesOpen & \texttt{\{``Value'': false, ``Confidence'': 99.8537\}} & Si la persona tiene los ojos abiertos o no \\ \hline
     MouthOpen & \texttt{\{``Value'': false, ``Confidence'': 93.5364\}} & Si la persona tiene la boca abierta o no \\ \hline
-    Emotions & \texttt{{[} \{``Type'': ``SAD``, ``Confidence'': 99.9044\}, \{``Type'': ``CALM``, ``Confidence'': 23.9581\}... \} {]}} & Un array con la confianza de las emociones expresadas por la persona basada en su expresión facial, los posibles valores son triste, calmado, sorprendido, aterrado, confundido, enfadado, feliz, disgustado. \\ \hline
+    Emotions & \texttt{{[} \{``Type'': ``SAD``, ``Confidence'': 99.9044\}, \{``Type'': ``CALM``, ``Confidence'': 23.9581\}... \} {]}} & Un array con la confianza de las emociones expresadas por la persona basada en su expresión facial. Los posibles valores son triste, calmado, sorprendido, aterrado, confundido, enfadado, feliz, disgustado. \\ \hline
     Landmarks & \texttt{{[}\{``Type'': ``eyeLeft``, ``X'': 0.3885, ``Y'': 0.6877\},\{``Type'': ``eyeRight``, ``X'': 0.4037, ``Y'': 0.6898\}...{]}} & Coordenadas de las características de la cara (nariz, boca, etc.). \\ \hline
     Pose & \texttt{\{``Roll'': 8.8927, ``Yaw'': 1.8882, ``Pitch'': 0.5692\}} & Pose (rotación) de la cara. \\ \hline
     Quality & \texttt{\{``Brightness'': 63.9795, ``Sharpness'': 4.3748\}} & Indican el brillo y nitided de la imagen \\ \hline
@@ -129,16 +127,101 @@ Gracias a GitHub se consiguió encontrar un proyecto que hace exactamente lo ant
 
 Con las imágenes ya guardadas en el bucket, el proceso de llevar a cabo el reconocimiento facial, fue relativamente simple. Solo hubo que iterar sobre las publicaciones almacenadas en el contenedor y guardar en el propio bucket el JSON generado por Rekognition, siempre comprobando antes que esa publicación no hubiese sido ya procesada mediante este servicio. De este modo, por cada publicación se tiene almacenado en Amazon S3 tres ficheros: la imagen de la publicación con el nombre \texttt{<id>.jpg}, el JSON con los meta-datos de la publicación llamado \texttt{<id>.json} y el JSON con la información generada por Rekognition llamado \texttt{<id>\_rek.json}, siendo \texttt{<id>} el id de la publicación devuelto por Instalooter.
 
+Una vez se ha obtenido toda la información necesaria y se ha almacenado en S3, para poder usarla de una forma más cómoda se decidió almacenarla en una base de datos. En este caso se decidió emplear Amazon DynamoDB, una base de datos documental (NoSQL). La decisión de emplear esta base de datos se debe a múltiples motivos. Primero, respecto al resto de bases de datos ofrecidas por AWS, ésta es la que ofrece más capacidad de almacenamiento de forma gratuita -25 GBs- y además para siempre, a diferencia de las bases de datos con DocumentDB que tan solo se puede usar por un mes, y de las bases de datos SQL que solo pueden ser usadas por 12 meses. Por otro lado, esta base de datos se caracteriza por su alta disponibilidad, y por su gran capacidad de escalar horizontalmente, algo que no suele ser posible en las bases de datos SQL.
+
+A la hora de diseñar la base de datos inicialmente se planteó tener dos tablas:
+\begin{enumerate}
+    \item La primera tabla contendría la información obtenida mediante Instalooter. Exactamente se plantearon los siguientes campos del JSON:
+    \begin{multicols}{2}
+    \begin{itemize}
+        \item id
+        \item timestamp
+        \item shortCode
+        \item displayUrl
+        \item description
+        \item likesCount
+        \item commentsCount
+    \end{itemize}
+    \end{multicols}
+    \item La segunda tabla contendría la información obtenida mediante Rekognition. Exactamente se plantearon almacenar por cada cara existente en el array ``FaceDetails'' del JSON los siguientes campos:
+    \begin{multicols}{2}
+    \begin{itemize}
+        \item confidence
+        \item ageLow
+        \item ageHigh
+        \item gender
+        \item eyeglasses
+        \item sunglasses
+        \item beard
+        \item moustache
+        \item happyConfidence
+        \item surprisedConfidence
+        \item fearConfidence
+        \item sadConfidence
+        \item angryConfidence
+        \item disgustedConfidence
+        \item confusedConfidence
+        \item calmConfidence
+    \end{itemize}
+    \end{multicols}
+    Además de los campos anteriores, a esta tabla se tendría que añadir primero un campo que actuara como identificador único por cada entrada en la tabla, y segundo el valor del id que se usó como nombre de fichero del JSON y que coincide con el id de Instalooter, para poder tener una clave foránea que apunte al campo id de la primera tabla.
+\end{enumerate}
+
+Este diseño sería correcto si trabajásemos con una base de datos SQL. El problema es que al trabajar con DynamoDB, a pesar de que el uso de esta base de datos es muy sencillo y ofrece muchas posibilidades, a su vez es algo limitado. A diferencia de las bases de datos SQL, en esta base de datos no es posible llevar a cabo ciertas operaciones complejas como \textit{join} de tablas, ni tampoco agregaciones. Está pensado únicamente para accesos clave-valor, y optimizar cierto tipos de consultas o patrones de acceso que pueda tener una aplicación. Otro detalle a comprender respecto a DynamoDB es la forma en que se identifican los elementos en las tablas. En DynamoDB existen dos tipos de claves primarias:
+\begin{enumerate}
+    \item Partition Key: Se emplea una clave de particionamiento para dividir el conjunto de datos. Sobre esta clave se aplica una función hash que determina el lugar donde se almacenará el elemento. El atributo que se emplee como Partition Key no puede repetirse, ha de ser único por cada elemento.
+    \item Partition Key + Sort Key: Es una clave compuesta por dos atributos, el atributo que forma parte de la Partition Key determina el lugar donde se almacenará el elemento, y todos los elementos que formen parte de una misma partición se guardarán ordenados en base al atributo que forma parte de la Sort Key. Con este tipo de clave compuesta, el atributo que forme parte de la Partition Key puede repetirse para varios elementos, pero la combinación de Partition Key y Sort Key ha de ser única.
+\end{enumerate}
+
+Teniendo en cuenta estos detalles sobre DynamoDB, para implementar la relación de \textit{one-to-many} de las tablas planteadas anteriormente, en DynamoDB existen varias opciones:
+\begin{enumerate}
+    \item Una única tabla con una clave primaria compuesta por el id de Instalooter como Partition Key y el índice de la cara en el array ``FaceDetails'' como Sort Key para garantizar que cada entrada de la tabla sea única. Los datos obtenidos con Instalooter irían duplicados por cada cara obtenida mediante Rekognition.
+    \item Una única tabla con una clave primaria compuesta por el id de Instalooter como Partition Key y el índice de la cara en el array ``FaceDetails'' como Sort Key para garantizar que cada entrada de la tabla sea única. Los datos obtenidos con Instalooter irían duplicados por cada cara obtenida mediante Rekognition, pero se metería el JSON de Instalooter entero en un atributo ``complejo'' en vez de generar atributos a partir de él.
+    \item Una única tabla con una clave primaria compuesta por el id de Instalooter como Partition Key, y una Sort Key generada a partir del índice de la cara en el array ``FaceDetails'' y un prefijo que indique si la entrada proviene de Instalooter o Rekognition.
+\end{enumerate}
+
+Cada opción tiene sus ventajas e inconvenientes. Las dos primeras opciones tienen el inconveniente de la duplicidad de datos, esto por un lado puede dar problemas de consistencia si se tienen que modificar datos aunque esto no aplicaría en nuestro caso puesto que no se planea alterar los contenidos de la base de datos, y por otro que tiene un mayor coste de almacenamiento. La segunda opción además tiene el inconveniente de no poder acceder a los atributos de Instalooter directamente en la consulta y que cada atributo de DynamoDB está limitado a 400KBs. La tercera opción tiene el inconveniente de que como no existen operaciones de agregación, no es posible usar esta tabla si queremos recuperar los datos de Instalooter junto con los de Rekognition en una misma consulta. Finalmente se decidió que la opción que más ventajas tenía en este caso era la primera opción, ya que se pueden acceder a todos los campos en una misma consulta. Por lo tanto, la tabla final, a la que se llamó \texttt{valltourisminsta}, tiene la siguiente forma:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|p{0.3\textwidth}|p{0.1\textwidth}|p{0.6\textwidth}|}
+    \hline
+	Nombre del campo & Tipo & Orígen \\ \hline
+	id & Cadena & Instalooter.id \\ \hline
+	faceIndex & Número & Índice de la cara en Rekognition.FaceDetails \\ \hline
+	dTime & Cadena & Instalooter.taken\_at\_timestamp, formateado como \texttt{YYYY-MM-DDTHH:MM:SS} \\ \hline
+	shortCode & Cadena & Instalooter.shortcode \\ \hline
+	displayUrl & Cadena & Instalooter.display\_url \\ \hline
+	description & Cadena & Instalooter.edge\_media\_to\_caption.edges{[}0{]}. node.text \\ \hline
+	likesCount & Número & Instalooter.edge\_liked\_by.count \\ \hline
+	commentsCount & Número & Instalooter.edge\_media\_to\_comment.count \\ \hline
+	confidence & Número & Rekognition.FaceDetails{[}*{]}.Confidence \\ \hline
+	ageLow & Número & Rekognition.FaceDetails{[}*{]}.AgeRange.Low \\ \hline
+	ageHigh & Número & Rekognition.FaceDetails{[}*{]}.AgeRange.High \\ \hline
+	gender & Cadena & Rekognition.FaceDetails{[}*{]}.Gender.Value \\ \hline
+	eyeglasses & Boolean & Rekognition.FaceDetails{[}*{]}.Eyeglasses.Value \\ \hline
+	sunglasses & Boolean & Rekognition.FaceDetails{[}*{]}.Sunglasses.Value \\ \hline
+	beard & Boolean & Rekognition.FaceDetails{[}*{]}.Beard.Value \\ \hline
+	moustache & Boolean & Rekognition.FaceDetails{[}*{]}.Mustache.Value \\ \hline
+	happyConfidence & Número & Rekognition.FaceDetails{[}*{]}.Emotions. HAPPY.Confidence \\ \hline
+	surprisedConfidence & Número & Rekognition.FaceDetails{[}*{]}.Emotions. SURPRISED.Confidence \\ \hline
+	fearConfidence & Número & Rekognition.FaceDetails{[}*{]}.Emotions. FEAR.Confidence \\ \hline
+	sadConfidence & Número & Rekognition.FaceDetails{[}*{]}.Emotions. SAD.Confidence \\ \hline
+	angryConfidence & Número & Rekognition.FaceDetails{[}*{]}.Emotions. ANGRY.Confidence \\ \hline
+	disgustedConfidence & Número & Rekognition.FaceDetails{[}*{]}.Emotions. DISGUSTED.Confidence \\ \hline
+	confusedConfidence & Número & Rekognition.FaceDetails{[}*{]}.Emotions. CONFUSED.Confidence \\ \hline
+	calmConfidence & Número & Rekognition.FaceDetails{[}*{]}.Emotions. CALM.Confidence \\ \hline
+    \end{tabular}
+    \caption{Diseño de la tabla \texttt{valltourisminsta}}
+    \label{tab:dynamodb_table}
+\end{table}
+
 \begin{itemize}
-
-
-    \item Diseño tablas DynamoDB
+    \item Poblar Base de Datos
     \item Script de subida final
     \item Máquina virtual
     
-iniciar sesión con firefox
-    
-    
+    iniciar sesión con firefox  -> apéndice
     
     \item Pool estático de hashtags
 \end{itemize}
