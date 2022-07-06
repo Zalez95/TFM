@@ -287,9 +287,30 @@ Sobre la lista de hashtags que se pasa al script como argumento, inicialmente se
 \end{itemize}
 \end{multicols}
 
-\section{Presentación}
+Tras ejecutar el script en varias ocasiones con los hashtags anteriores, se obtuvieron un total de...
+% TODO: base de datos
+
+\section{Visualización}
+
+Una vez se han obtenido los datos necesarios para el proyecto, para poder usarlos de forma más cómoda se decidió que era necesario implementar algún tipo de visualización. Esta visualización debería permitir filtrar los datos de forma sencilla de acuerda a criterios como edad o género, y permitir seleccionar aquellas publicaciones que tuvieran un sentimiento positivo. También debería poder llevarnos fácilmente hasta las publicaciones mostradas en Instagram.
+
+De acuerdo a las necesidades anteriores se llegó a la conclusión de que la forma más óptima de visualizar los datos era llevar a cabo algún tipo de cuadro de mandos. Para implementar un cuadro de mandos sobre una base de datos de DynamoDB se encontraron varias posibilidades:
+
+\begin{enumerate}
+    \item QLik: herramienta para crear dashboards con la que se ha trabajado anteriormente en este mismo máster, exactamente en la asignatura de Inteligencia de Negocio. No es una herramienta gratuita ni software libre, pero ofrece un periodo de prueba. El problema es que no se puede usar directamente con DynamoDB, sino que hay que usar un conector ODBC de la empresa Simba que no es gratuito.
+    \item Microsoft PowerBI: Al igual que en la herramienta anterior, no es gratuito pero ofrece un periodo de prueba. Tampoco tiene conectores con DynamoDB, habría que usar el conector ODBC de Simba anteriormente comentado.
+    \item Tableau: Ofrece un periodo de \textit{trial} de 3 meses, además existe una versión \textit{public} gratuita. Para usarlo junto con DynamoDB habría que usar el conector JDBC de Rockset que tampoco es gratuito (hay periodo de prueba pero no se indica durante cuanto tiempo).
+    \item Grafana: Es open source pero no tiene conector gratuito con DynamoDB. Parece que tiene plugins que permiten conectarlo con servicios REST de forma sencilla. Se podría crear un conector creando un servidor que implementara estas APIs REST para acceder a DynamoDB como se hace en \cite{grafana_lambda_api}.
+    \item Web estática junto con alguna librería para hacer gráficos: En esta opción habría que crear una página web estática manualmente y programar los gráficos en JavaScript mediante alguna librería como ChartJS o D3.js, conectándose con la base de datos a través del SDK de AWS para este lenguaje de programación. Un ejemplo de implementación se puede encontrar en \cite{web_chartjs}.
+\end{enumerate}
+
+Finalmente se decidió emplear Grafana aunque haya que implementar el conector, puesto que al ser open source no se tiene restricciones de tiempo de uso. Emplear una página web estática, aún usando librerías consume mucho tiempo, y el resto de herramientas también presentan el mismo problema a la hora de conectar con DynamoDB.
+
+Para ello hubo que instalar Grafana Enterprise en la misma maquina virtual que se usa también para la ejecución del script del apartado anterior. Grafana es una aplicación web que por defecto se ejecuta en el puerto 3000, es por ello que para acceder desde fuera de este equipo hubo que abrir el puerto añadiendo una regla TCP en los grupos de seguridad de Amazon EC2.
+
+
+
 \begin{itemize}
-    \item Alternativas y Grafana
     \item Plugin JSON Conector con AWS Lambda
     \item Diseño dashboard
 \end{itemize}
