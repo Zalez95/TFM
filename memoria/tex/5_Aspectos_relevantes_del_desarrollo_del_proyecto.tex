@@ -207,6 +207,12 @@ Cada opción tiene sus ventajas e inconvenientes. Las dos primeras opciones tien
 	surprisedConfidence & Número & Rekognition.FaceDetails{[}*{]}.Emotions. SURPRISED.Confidence \\ \hline
 	fearConfidence & Número & Rekognition.FaceDetails{[}*{]}.Emotions. FEAR.Confidence \\ \hline
 	sadConfidence & Número & Rekognition.FaceDetails{[}*{]}.Emotions. SAD.Confidence \\ \hline
+    \end{tabular}
+\end{table}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|p{0.3\textwidth}|p{0.1\textwidth}|p{0.6\textwidth}|}
+    \hline
 	angryConfidence & Número & Rekognition.FaceDetails{[}*{]}.Emotions. ANGRY.Confidence \\ \hline
 	disgustedConfidence & Número & Rekognition.FaceDetails{[}*{]}.Emotions. DISGUSTED.Confidence \\ \hline
 	confusedConfidence & Número & Rekognition.FaceDetails{[}*{]}.Emotions. CONFUSED.Confidence \\ \hline
@@ -216,15 +222,70 @@ Cada opción tiene sus ventajas e inconvenientes. Las dos primeras opciones tien
     \label{tab:dynamodb_table}
 \end{table}
 
+Una vez diseñada la base de datos que se empleará para almacenar las publicaciones, se procedió a implementarla. Para ello, al igual que con Rekognition, se empleó el SDK de Amazon Web Services, en este caso usando el servicio ``dynamodb'' de \texttt{boto3} y su función \texttt{create\_table} con los parámetros necesarios. Una vez creada, poblar la base de datos es muy sencillo, tan solo hay que obtener todas las publicaciones que estén almacenadas en S3 que tengan el JSON de Instalooter y de Rekognition, y que no se encuentren ya en la base de datos. Para ello, solo hay que listar los elementos que hay en el bucket mediante la librería S3FS que se usó junto con Instalooter para subir las publicaciones, parsear y extraer los campos que queramos de los JSONs, y mediante el servicio ``dynamodb'' de \texttt{boto3} llamar a la función \texttt{put\_item} para insertar cada elemento en la tabla \texttt{valltourisminsta}.
+
+Finalmente hay que decir que todos los pasos que se han explicado a lo largo de este apartado han sido implementados en un único script Python llamado \texttt{mainScriptAWS.py}. Este script se encuentra completamente automatizado, de forma que se puede ejecutar sin la intervención del usuario. Así, si fuese necesario se podría crear un \textit{cron} que ejecutase periódicamente el script. En resumen, el script ejecuta la siguiente secuencia:
+
+\begin{figure}[H]
+    \hspace*{-2cm}
+    \centering
+    \includegraphics[width=1.25\textwidth]{sequence.drawio.png}
+    \caption{Diagrama de secuencia de \texttt{mainScriptAWS.py}}
+    \label{fig:sequence_script}
+\end{figure}
+
+Como se puede ver en el diagrama anterior, el script tan solo toma como argumento la ruta del fichero que contiene la lista de hashtags a consultar en Instagram (un hashtag por línea). El resto de identificadores y credenciales para acceder a Instagram o a los servicios de AWS han de estar definidos como variables de entorno. Hablando del entorno de ejecución, se decidió ejecutar el script siempre desde una máquina virtual, con \texttt{virtualenv} y todas las librerías y SDKs instalados. Esta maquina virtual es una de las instancias que Amazon Web Services permite crear en su capa gratuita mediante su servicio EC2. Exactamente, la configuración escogida para esta instancia es la siguiente: 1 CPU \texttt{t2.micro}, 1 GB de RAM, 30 GBs de almacenamiento SSD, 100 GBs de ancho de banda con IP estática y el sistema operativo Debian 11 de 64 bits.
+
+Sobre la lista de hashtags que se pasa al script como argumento, inicialmente se decidió obtener un número cercano a 50 hashtags relacionados con Valladolid y el turismo en Valladolid. Esta lista habría que obtenerla manualmente buscando en Instagram hashtags populares dentro de este contexto así como las etiquetas de las publicaciones encontradas. La lista finalmente creada consta de los siguientes 44 hashtags:
+
+\begin{multicols}{3}
 \begin{itemize}
-    \item Poblar Base de Datos
-    \item Script de subida final
-    \item Máquina virtual
-    
-    iniciar sesión con firefox  -> apéndice
-    
-    \item Pool estático de hashtags
+	\item Naturaleza\_valladolid
+	\item estaes\_valladolid
+	\item valladolidturismooficial
+	\item turismovalladolid
+	\item valladolidturismo
+	\item turismovalladolid
+	\item valladolidspain
+	\item valladolidfotos
+	\item valladolidenfotos
+	\item valladolid
+	\item todo\_valladolid
+	\item total\_valladolid
+	\item igersvalladolid
+	\item igervalladolid
+	\item catedraldevalladolid
+	\item paseandoporvalladolid
+	\item valladolidgram
+	\item instavalladolid
+	\item valladolidlove
+	\item valladolidlife
+	\item valladolidmola
+	\item megustavalladolid
+	\item fotosdevalladolid
+	\item valladolidhoy
+	\item vallafotos
+	\item valladolidinquieta
+	\item love\_valladolid
+	\item visitvalladolid
+	\item look\_valladolid
+	\item ok\_valladolid
+	\item megustavalladolid
+	\item asi\_es\_valladolid
+	\item pucela
+	\item megustapucela
+	\item arquitecturavalladolid
+	\item valladolidespaña
+	\item culturavalladolid
+	\item valladolidcapital
+	\item valladolidcampogrande
+	\item valladolidpaseozorrilla
+	\item iglesiadelaantiguavalladolid
+	\item igerspucela
+	\item rinconesdevalladolid
+	\item megustapucela
 \end{itemize}
+\end{multicols}
 
 \section{Presentación}
 \begin{itemize}
@@ -232,4 +293,3 @@ Cada opción tiene sus ventajas e inconvenientes. Las dos primeras opciones tien
     \item Plugin JSON Conector con AWS Lambda
     \item Diseño dashboard
 \end{itemize}
-
