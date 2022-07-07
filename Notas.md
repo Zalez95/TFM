@@ -711,7 +711,7 @@ Reunión
 * Motivación: intereses similares a los mios, turismo...
 
 
-# 30/06/2022
+# 01/07/2022
 Prácticamente se han acabado los primero 5 apartados de la memoria, hay que empezar con el trabajo principal. Existen problemas de rendimiento en lambda cuando se hacen muchas búsquedas, posiblemente consecuencia de usar scan en vez de queries -> se aumentan las RCUs.
 
 Link: http://3.250.43.138:3000/d/K0aCHsjnk/valltourisminstadashboard?orgId=1&var-filter1=ageLow%7C%3E%7C18&var-filter1=gender%7C%3D%7CMale
