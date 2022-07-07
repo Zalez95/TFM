@@ -1,11 +1,5 @@
 \capitulo{5}{Aspectos relevantes del desarrollo del proyecto}
 
-%Este apartado pretende recoger los aspectos más interesantes del desarrollo del proyecto, comentados por los autores del mismo.
-%Debe incluir desde la exposición del ciclo de vida utilizado, hasta los detalles de mayor relevancia de las fases de análisis, diseño e implementación.
-%Se busca que no sea una mera operación de copiar y pegar diagramas y extractos del código fuente, sino que realmente se justifiquen los caminos de solución que se han tomado, especialmente aquellos que no sean triviales.
-%Puede ser el lugar más adecuado para documentar los aspectos más interesantes del diseño y de la implementación, con un mayor hincapié en aspectos tales como el tipo de arquitectura elegido, los índices de las tablas de la base de datos, normalización y desnormalización, distribución en ficheros3, reglas de negocio dentro de las bases de datos (EDVHV GH GDWRV DFWLYDV), aspectos de desarrollo relacionados con el WWW...
-%Este apartado, debe convertirse en el resumen de la experiencia práctica del proyecto, y por sí mismo justifica que la memoria se convierta en un documento útil, fuente de referencia para los autores, los tutores y futuros alumnos.
-
 En este capítulo se explican las partes más relevantes del desarrollo del proyecto, así como los problemas surgidos y las decisiones tomadas al respecto. Este apartado se ha decidido dividir en 3 secciones: el estudio previo al desarrollo del proyecto, la implementación y llenado de la base de datos, y la presentación de los datos.
 
 \section{Estudio preliminar}
@@ -287,8 +281,7 @@ Sobre la lista de hashtags que se pasa al script como argumento, inicialmente se
 \end{itemize}
 \end{multicols}
 
-Tras ejecutar el script en varias ocasiones con los hashtags anteriores, se obtuvieron un total de...
-% TODO: base de datos
+A la hora de ejecutar el script un detalle a tener en cuenta es el límite de publicaciones que podemos descargar y analizar en la capa gratuita. Al mes, en Rekognition se pueden analizar hasta 5000 imágenes, en DynamoDB se tiene un límite de 200 millones de solicitudes y en S3 existe un límite de 2000 solicitudes \textit{put}, siendo este último punto el mayor factor limitante. Debido a esto y el factor limitante de la fecha de entrega del proyecto, en la base de datos finalmente generada se descargaron un total de 3916 publicaciones de Instagram. Tras el análisis con Rekognition, a partir de estas publicaciones se extrajeron unas 5408 caras.
 
 \section{Visualización}
 
@@ -304,9 +297,9 @@ De acuerdo a las necesidades anteriores se llegó a la conclusión de que la for
     \item Web estática junto con alguna librería para hacer gráficos: En esta opción habría que crear una página web estática manualmente y programar los gráficos en JavaScript mediante alguna librería como ChartJS o D3.js, conectándose con la base de datos a través del SDK de AWS para este lenguaje de programación. Un ejemplo de implementación se puede encontrar en \cite{web_chartjs}.
 \end{enumerate}
 
-Finalmente se decidió emplear Grafana aunque haya que implementar el conector, puesto que al ser open source no se tiene restricciones de tiempo de uso. Emplear una página web estática, aún usando librerías consume mucho tiempo, y el resto de herramientas también presentan el mismo problema a la hora de conectar con DynamoDB.
+Finalmente se decidió emplear Grafana aunque haya que implementar el conector, puesto que al ser open source no se tiene restricciones de tiempo de uso. Crear una página web estática desde cero o usando librerías consume mucho tiempo, y el resto de herramientas para hacer cuadros de mando también presentan el mismo problema a la hora de conectar con DynamoDB.
 
-Para ello hubo que instalar Grafana Enterprise en la misma máquina virtual que se usa también para la ejecución del script del apartado anterior. Grafana es una aplicación web que por defecto se ejecuta en el puerto 3000, es por ello que para acceder desde fuera de este equipo hubo que abrir el puerto añadiendo una regla TCP en los grupos de seguridad de Amazon EC2. Una vez instalado Grafana y con el servicio corriendo, el siguiente paso es instalar el plugin \texttt{JSON} para conectarse con fuentes de datos (\textit{data sources}) a través de HTTP. Para que este plugin funcione, el servidor al que se conecte ha de implementar una API REST con las siguientes operaciones:
+Para crear el cuadro de mandos con Grafana hubo que instalar Grafana Enterprise. En este caso se decidió hacerlo en la misma máquina virtual que se usa también para la ejecución del script de la sección anterior. Grafana es una aplicación web que por defecto se ejecuta en el puerto 3000, es por ello que para acceder desde fuera de este equipo hubo que abrir el puerto añadiendo una regla TCP en los grupos de seguridad de Amazon EC2. Una vez instalado Grafana y con el servicio corriendo, el siguiente paso fue instalar el plugin \texttt{JSON} para conectarse con fuentes de datos (\textit{data sources}) a través de HTTP. Para que este plugin funcione, el servidor al que se conecte ha de implementar una API REST con las siguientes operaciones:
 
 \begin{itemize}
     \item \texttt{GET /} $\rightarrow$ Ha de devolver un código 200 OK si el servicio funciona correctamente.
@@ -316,7 +309,7 @@ Para ello hubo que instalar Grafana Enterprise en la misma máquina virtual que 
     \item \texttt{POST /tag-values} $\rightarrow$ Ha de devolver los posibles valores de una clave para llevar a cabo el filtrado, en nuestro caso se corresponde con los valores distintos que hay para una columna.
 \end{itemize}
 
-Para poder crear el conector entre Grafana y DynamoDB hubo que hacer un servidor web que implementara las anteriores APIs, en este caso mediante Python y el SDK de AWS \texttt{boto3}. Las pruebas iniciales se hicieron mediante un framework llamado \textit{bottle} para poder crear las APIs de forma local, y una vez que se comprobó que éstas funcionaban correctamente, se decidió implementar las APIs en Amazon Web Services para tener mejor rendimiento. Para implementar las APIs en AWS se usó sus servicios AWS Lambda y AWS API Gateway de la siguiente forma:
+Para poder crear el conector entre Grafana y DynamoDB hubo que hacer un servidor web que implementara las anteriores APIs, en este caso mediante Python 3 y el SDK de AWS \texttt{boto3}. Las pruebas iniciales se hicieron mediante un framework llamado \textit{bottle} para poder crear las APIs de forma local, y una vez que se comprobó que éstas funcionaban correctamente, se decidió implementar las APIs en Amazon Web Services para tener mejor rendimiento. Para implementar las APIs en AWS se usó sus servicios AWS Lambda y AWS API Gateway de la siguiente forma:
 
 \begin{figure}[H]
     \centering
@@ -335,8 +328,20 @@ AWS Lambda permite ejecutar código en la nube de Amazon sin tener que crear ins
     \label{fig:gateway_cap}
 \end{figure}
 
-Una vez que se crearon las APIs, el siguiente paso fue probarlas con Grafana. Para ello se generó un \textit{data source} de tipo JSON con la siguiente configuración
+Una vez que se crearon las APIs, el siguiente paso fue emplearlas con Grafana. Para ello se generó un \textit{data source} de tipo JSON que apuntaba a la URL del servicio de API Gateway. Una vez conectado con éxito se procedió a la implementación del cuadro de mandos.
 
-\begin{itemize}
-    \item Diseño dashboard
-\end{itemize}
+Para el diseño del dashboard se decidió emplear 3 columnas y 2 filas, ubicándose la información más relevante en la esquina superior izquierda puesto que está probado que las personas siguen un patrón en forma de Z a la hora visionar documentos o cuadros de mandos. El resultado final se puede ver en la figura \ref{fig:dashboard}.
+
+En la esquina superior izquierda se muestra una combinación de estadísticas generales de las publicaciones mostradas, entre las que se encuentra el número de publicaciones mostradas, el número de caras y la proporción de genero de las caras mediante un gráfico de tarta. A su derecha se encuentra una tabla con información condensada de cada publicación, con un enlace hacia la publicación en Instagram, su fecha, la confianza, el género y la edad. Después, en la esquina superior derecha se muestra el número de publicaciones por fecha en un histograma para así poder ver que días hubo más publicaciones.
+
+En la siguiente fila se muestra, a la izquierda la emoción predominante en todas las publicaciones, para ello se calcula el promedio de la confianza de cada emoción de todas las publicaciones y se muestra en un gráfico de tarta. A su derecha, el ``éxito'' de las publicaciones, en un histograma que muestra el promedio del número de comentarios y de likes que hubo cada día. Finalmente a su derecha se muestra la emoción promedio de las publicaciones por día.
+
+\begin{figure}[H]
+    \hspace*{-2.5cm}
+    \centering
+    \includegraphics[width=1.3\textwidth]{dashboard.png}
+    \caption{Cuadro de Mandos creado con Grafana}
+    \label{fig:dashboard}
+\end{figure}
+
+Cabe destacar que Grafana muestra en la parte superior los distintos filtros a aplicar, por un lado las fechas, y por otro los filtros \textit{adhoc}, que pueden ser añadidos o modificados dinámicamente. En la captura anterior se puede ver que se están mostrando los últimos 30 días, y que se tienen habilitados varios filtros, exactamente género masculino, edad superior a los 18 años y se ha intentado que no haya emociones negativas predominantemente, descartando aquellas publicaciones que tengan una confianza superior al 30\% aproximadamente en las emociones triste, enfadado y disgustado.
