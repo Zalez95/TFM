@@ -715,3 +715,18 @@ Reunión
 Prácticamente se han acabado los primero 5 apartados de la memoria, hay que empezar con el trabajo principal. Existen problemas de rendimiento en lambda cuando se hacen muchas búsquedas, posiblemente consecuencia de usar scan en vez de queries -> se aumentan las RCUs.
 
 Link: http://3.250.43.138:3000/d/K0aCHsjnk/valltourisminstadashboard?orgId=1&from=now-7d&to=now&var-filter1=gender%7C%3D%7CMale&var-filter1=ageLow%7C%3E%7C18.0&var-filter1=fearConfidence%7C%3C%7C30.72262954711914&var-filter1=disgustedConfidence%7C%3C%7C30.894670486450195&var-filter1=sadConfidence%7C%3C%7C30.618297576904297&var-filter1=angryConfidence%7C%3C%7C30.479755401611328
+
+
+# 08/07/2022
+Preguntas: titulo, información del tutor como departamento... cotutor?, anexos, link a dashboard?, código a entregar, otro ficheros más a entregar, viabilidad economica y legal
+
+Reunión:
+* Añadir LICENSE, completar README
+* Título: Automatización del proceso de adquisición de imágenes de redes sociales para sistemas de recomendación.
+* En el apartado 5 añadir links: poner url al repo y al dashboard. Añadir diagrama de componentes de la aplicacion.
+* Poner conclusiones en contraposicion a objetivos. Contribuciones: probar servicios...
+* Presentación 20-22
+* Apendices: A y D (no requisitos, no manual de usuario, sin apendice de diseño -> mover todo al apartado 5)
+* Apéndice A: Plan de proyecto -> si has usado control de versiones, metodologia: hablar de scrum (iteraciones cortas). En planificacion temporal->diagrama de gant. En estudio de viabilidad legal: Limitacion GDPR (puede preguntar en la defensa). En presupuesto, hardware y personal (costes sociales tablas de salarios) y licencias, beneficio industrial
+* Apéndice D: Documentación -> sin pruebas, sólo d1 d2 d4. Mostrar directorio del repo
+* Mandar email a Bruno por si es necesario subir código o solo link al repo
