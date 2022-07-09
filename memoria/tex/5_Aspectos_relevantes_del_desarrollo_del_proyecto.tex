@@ -317,26 +317,36 @@ Para crear el cuadro de mandos con Grafana hubo que instalar Grafana Enterprise.
     \item \texttt{POST /tag-values} $\rightarrow$ Ha de devolver los posibles valores de una clave para llevar a cabo el filtrado, en nuestro caso se corresponde con los valores distintos que hay para una columna.
 \end{itemize}
 
-Para poder crear el conector entre Grafana y DynamoDB hubo que hacer un servidor web que implementara las anteriores APIs, en este caso mediante Python 3 y el SDK de AWS \texttt{boto3}. Las pruebas iniciales se hicieron mediante un framework llamado \textit{bottle} para poder crear las APIs de forma local, y una vez que se comprobó que éstas funcionaban correctamente, se decidió implementar las APIs en Amazon Web Services para tener mejor rendimiento. Para implementar las APIs en AWS se usó sus servicios AWS Lambda y AWS API Gateway de la siguiente forma:
+Para poder crear el conector entre Grafana y DynamoDB hubo que hacer un servidor web que implementara las anteriores APIs, en este caso mediante Python 3 y el SDK de AWS \texttt{boto3}. Las pruebas iniciales se hicieron mediante un framework llamado \textit{bottle} para poder crear las APIs de forma local, y una vez que se comprobó que éstas funcionaban correctamente, se decidió implementar las APIs en Amazon Web Services para tener mejor rendimiento. Para implementar las APIs en AWS se usó sus servicios AWS Lambda, Amazon API Gateway y Amazon DynamoDB de la siguiente forma:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.0\textwidth]{gateway.png}
+    \includegraphics[width=0.9\textwidth]{gateway.png}
     \caption{Acceso a DynamoDB mediante APIs REST con API Gateway}
     \label{fig:gateway_schema}
+\end{figure}
+
+Siendo el diagrama de componentes del sistema completo el siguiente:
+
+\begin{figure}[H]
+    \hspace*{-1cm}
+    \centering
+    \includegraphics[width=1.2\textwidth]{memoria/img/component.drawio.png}
+    \caption{Diagrama de Componentes del sistema}
+    \label{fig:component_diag}
 \end{figure}
 
 AWS Lambda permite ejecutar código en la nube de Amazon sin tener que crear instancias de máquinas virtuales. En total se generaron 5 funciones para acceder a DynamoDB: \texttt{grafana\_query}, \texttt{grafana\_tagkeys}, \texttt{grafana\_helloworld}, \texttt{grafana\_tagvalues}, \texttt{grafana\_search}, implementando el acceso a DynamoDB y la lógica correspondiente. Todas estas funciones se ejecutan en un entorno Python 3.8 en equipos x86\_64, con un tiempo de ejecución de máximo 1 minuto. Por otro lado, API Gateway es el servicio que permite implementar de forma sencilla y escalable APIs RESTful o Websocket. En este caso las APIs REST se generaron como recursos que tienen asociado un método HTTP y un \textit{endpoint}, y que al ser accedidas ejecutan su correspondiente función de AWS Lambda:
 
 \begin{figure}[H]
-    \hspace*{-1cm}
+    \hspace*{-2cm}
     \centering
     \includegraphics[width=1.25\textwidth]{gateway_cap.png}
     \caption{Configuración de AWS API Gateway y AWS Lambda}
     \label{fig:gateway_cap}
 \end{figure}
 
-Una vez que se crearon las APIs, el siguiente paso fue emplearlas con Grafana. Para ello se generó un \textit{data source} de tipo JSON que apuntaba a la URL del servicio de API Gateway. Una vez conectado con éxito se procedió a la implementación del cuadro de mandos.
+Una vez que se crearon las APIs, el siguiente paso fue emplearlas con Grafana. Para ello se generó un \textit{data source} de tipo JSON que apuntaba a la URL del servicio de API Gateway. Tras conectar con éxito con la fuente de datos se procedió a la implementación del cuadro de mandos.
 
 Para el diseño del dashboard se decidió emplear 3 columnas y 2 filas, ubicándose la información más relevante en la esquina superior izquierda puesto que está probado que las personas siguen un patrón en forma de Z a la hora visionar documentos o cuadros de mandos. El resultado final se puede ver en la figura \ref{fig:dashboard}.
 
