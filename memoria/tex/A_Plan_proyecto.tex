@@ -2,7 +2,162 @@
 
 \section{Introducción}
 
+En este apartado se presenta la planificación temporal del proyecto empleando la metodología SCRUM junto con sus múltiples iteraciones, así como la viabilidad del proyecto desde el punto de vista legal y económico.
+
 \section{Planificación temporal}
+
+Como se ha indicado en el apartado anterior, para el desarrollo del proyecto se siguió la metodología \textit{SCRUM}, adaptándola a las necesidades y al tiempo disponible. Las características a destacar de esta metodología son las siguientes:
+
+\begin{itemize}
+    \item El proyecto se subdivide en múltiples tareas, que se abordan a lo largo de varias iteraciones denominadas \textit{sprints}.
+    \item Todos los \textit{sprints} tienen una duración prefijada, en este caso de 2 semanas.
+    \item Todo \textit{sprint} se inicia o finaliza con una reunión con el tutor del proyecto.
+\end{itemize}
+
+\subsection{Sprint 0}
+Durante el \textit{sprint 0} se abordaron las tareas requeridas para la inicialización del proyecto, así como la evaluación y la toma de decisión de las distintas herramientas que se pretendían utilizar durante el posterior desarrollo.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l}
+    \hline
+    \textbf{Tareas} \\ \hline
+    Creación del repositorio del proyecto \\
+    Creación del entorno de trabajo \\
+    Evaluación de la forma de extraer hashtags de Instagram \\
+    Evaluación de los distintos \textit{crawlers} y herramientas a utilizar \\
+    Registro y experimentación con las herramientas de Google Cloud \\ \hline
+    \end{tabular}
+    \caption{Tareas del \textit{sprint 0}}
+    \label{tab:tasks_sprint0}
+\end{table}
+
+\subsection{Sprint 1}
+Durante el \textit{sprint 1} se abordaron las tareas relacionadas con la descarga de publicaciones de Instagram y se inició el desarrollo de la memoria.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l}
+    \hline
+    \textbf{Tareas} \\ \hline
+    Creación de la máquina virtual \\
+    Implementación de la descarga de publicaciones mediante Instalooter \\
+    Subida de publicaciones a un \textit{blob} de Google Cloud \\
+    Pruebas de reconocimiento facial con Cloud Vision \\
+    Documentación sobre la metodología PRISMA para map-review \\
+    Inicio de la memoria en Overleaf \\ \hline
+    \end{tabular}
+    \caption{Tareas del \textit{sprint 1}}
+    \label{tab:tasks_sprint1}
+\end{table}
+
+\subsection{Sprint 2}
+Durante el \textit{sprint 2} se evaluaron las alternativas a Cloud Vision tras comprobar que no se podía extraer la edad ni el género. También se redactó la parte de trabajos relacionados o el estado del arte de la memoria.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l}
+    \hline
+    \textbf{Tareas} \\ \hline
+    Evaluación de las alternativas a Cloud Vision y Google Cloud \\
+    Pruebas con Microsoft Azure \\
+    Pruebas con Amazon Web Services \\
+    Elección de los artículos relacionados \\
+    Redacción del apartado de Trabajo relacionados \\ \hline
+    \end{tabular}
+    \caption{Tareas del \textit{sprint 2}}
+    \label{tab:tasks_sprint2}
+\end{table}
+
+\subsection{Sprint 3}
+Durante el \textit{sprint 3} se decidió emplear Amazon Web Services tras comprobar que era la mejor alternativa. Se llevaron a cabo los cambios en los scripts y se implementó la descarga de datos de reconocimiento facial.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l}
+    \hline
+    \textbf{Tareas} \\ \hline
+    Adaptación de los scripts para usar los servicios de Amazon \\
+    Implementación de la descarga de datos de reconocimiento facial \\
+    Evaluación de las posibles bases de datos a utilizar \\
+    Evaluación de las posibles visualizaciones a implementar \\ \hline
+    \end{tabular}
+    \caption{Tareas del \textit{sprint 3}}
+    \label{tab:tasks_sprint3}
+\end{table}
+
+\subsection{Sprint 4}
+
+Durante el \textit{sprint 4} se diseñó e implementó la base de datos en DynamoDB. También se tuvo que llevar a cabo una corrección en Instalooter después de que dejara de funcionar.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l}
+    \hline
+    \textbf{Tareas} \\ \hline
+    Diseño e implementación de la base de datos \\
+    Implementación de los scripts de subida de datos a DynamoDB \\
+    Hotfix de Instalooter \\
+    Evaluación de los posibles dashboards a utilizar \\ \hline
+    \end{tabular}
+    \caption{Tareas del \textit{sprint 4}}
+    \label{tab:tasks_sprint4}
+\end{table}
+
+\subsection{Sprint 5}
+
+Durante el \textit{sprint 5} se tomó la decisión de implementar un cuadro de mandos con Grafana, por ello se iniciaron las pruebas para crear un conector con DynamoDB, también se finalizó el script para poblar la base de datos.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l}
+    \hline
+    \textbf{Tareas} \\ \hline
+    Creación del script final de descarga y subida de datos a DynamoDB \\
+    Llenado de la base datos \\
+    Pruebas con Grafana \\
+    Desarrollo de un servidor local para conectar Grafana con DynamoDB \\ \hline
+    \end{tabular}
+    \caption{Tareas del \textit{sprint 5}}
+    \label{tab:tasks_sprint5}
+\end{table}
+
+\subsection{Sprint 6}
+
+Durante el \textit{sprint 6} se finalizó el conector de Grafana con DynamoDB, se implementó el cuadro de mandos final y se continuó con la redacción de la memoria.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l}
+    \hline
+    \textbf{Tareas} \\ \hline
+    Portado del conector de Grafana a AWS Lambda y Amazon API Gateway \\
+    Diseño e implementación final del Dashboard \\
+    Redacción del apartado de Objetivos del proyecto \\
+    Redacción del apartado de Conceptos teóricos \\
+    Redacción del apartado de Técnicas y herramientas \\ \hline
+    \end{tabular}
+    \caption{Tareas del \textit{sprint 6}}
+    \label{tab:tasks_sprint6}
+\end{table}
+
+\subsection{Sprint 7}
+
+Durante el \textit{sprint 7} se finalizó la memoria y se reorganizó el repositorio de cara a la entrega final.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l}
+    \hline
+    \textbf{Tareas} \\ \hline
+    Redacción del apartado de Introducción \\
+    Redacción del apartado de Aspectos relevantes del desarrollo del proyecto \\
+    Redacción del apartado de Conclusiones y líneas de trabajo futuras \\
+    Redacción de los apéndices \\ \hline
+    \end{tabular}
+    \caption{Tareas del \textit{sprint 7}}
+    \label{tab:tasks_sprint7}
+\end{table}
 
 \section{Estudio de viabilidad}
 
