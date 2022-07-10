@@ -16,6 +16,7 @@ Como se comentó en la sección \ref{sect:instalooter}, Instalooter pone a dispo
 Durante las pruebas con Instalooter se pudo descargar con éxito tanto las imágenes como los meta-datos de varias publicaciones de Instagram. El JSON generado por cada publicación mediante esta herramienta cuenta con la siguiente información:
 
 \begin{table}[H]
+    \hspace*{-1.5cm}
     \centering
     \begin{tabular}{|p{0.2\textwidth}|p{0.4\textwidth}|p{0.4\textwidth}|}
     \hline
@@ -177,6 +178,7 @@ Teniendo en cuenta estos detalles sobre DynamoDB, para implementar la relación 
 Cada opción tiene sus ventajas e inconvenientes. Las dos primeras opciones tienen el inconveniente de la duplicidad de datos, esto por un lado puede dar problemas de consistencia si se tienen que modificar datos aunque esto no aplicaría en nuestro caso puesto que no se planea alterar los contenidos de la base de datos, y por otro que tiene un mayor coste de almacenamiento. La segunda opción además tiene el inconveniente de no poder acceder a los atributos de Instalooter directamente en la consulta y que cada atributo de DynamoDB está limitado a 400KBs. La tercera opción tiene el inconveniente de que como no existen operaciones de agregación, no es posible usar esta tabla si queremos recuperar los datos de Instalooter junto con los de Rekognition en una misma consulta. Finalmente se decidió que la opción que más ventajas tenía en este caso era la primera opción, ya que se pueden acceder a todos los campos en una misma consulta. Por lo tanto, la tabla final, a la que se llamó \texttt{valltourisminsta}, tiene la siguiente forma:
 
 \begin{table}[H]
+    \hspace*{-1.5cm}
     \centering
     \begin{tabular}{|p{0.3\textwidth}|p{0.1\textwidth}|p{0.6\textwidth}|}
     \hline
@@ -231,6 +233,7 @@ Finalmente hay que decir que todos los pasos que se han explicado a lo largo de 
 Como se puede ver en el diagrama anterior, el script tan solo toma como argumento la ruta del fichero que contiene la lista de hashtags a consultar en Instagram (un hashtag por línea). El resto de identificadores y credenciales para acceder a Instagram o a los servicios de AWS han de estar definidos como variables de entorno.
 
 \section{Proceso de descarga de las publicaciones}
+\label{sect:descarga_publicaciones}
 
 Para llevar a cabo el proceso de descarga de publicaciones y el poblado de la base de datos se tuvo que ejecutar el script de la sección anterior en varias ocasiones. El entorno de ejecución desde el que puso en funcionamiento siempre fue una máquina virtual, con Python 3, \texttt{virtualenv} y todas las librerías y SDKs instalados. Esta maquina virtual es una de las instancias que Amazon Web Services permite crear en su capa gratuita mediante su servicio EC2. Exactamente, la configuración escogida para esta instancia es la siguiente: 1 CPU \texttt{t2.micro}, 1 GB de RAM, 30 GBs de almacenamiento SSD, 100 GBs de ancho de banda con IP estática y el sistema operativo Debian 11 de 64 bits.
 
@@ -292,6 +295,7 @@ Un detalle a destacar fue que, durante una de las ejecuciones del script, se det
 Como las últimas actualizaciones del repositorio de Instalooter fueron hace varios meses en el momento en que se hizo la comprobación, se decidió probar de nuevo otras librerías como \textit{Instaloader}, pero se llegó a la conclusión de que su uso era muy distinto a Instalooter y no ofrecía las ventajas de poder comprobar publicaciones ya descargadas y poder conectarlo de forma sencilla a los servicios en la nube. Es por ello que se decidió revisar el código fuente de la librería, y tras unas pruebas se consiguió dar con la fuente del error: un cambio en como se gestionaban las \textit{cookies} donde se guardan los \textit{tokens} empleados para logearse en la web. Como el cambio no era muy complicado se decidió corregirlo en un fork \url{https://github.com/Zalez95/InstaLooter.git} de la librería, y tras comprobar que funcionaba correctamente, se instaló mediante \texttt{pip3} en el entorno de la máquina virtual. Tras está corrección no volvió a dar problemas, y de hecho se hizo un \textit{pull request} a la librería original que en la actualidad está en proceso de revisión.
 
 \section{Visualización}
+\label{sect:grafana_visualizacion}
 
 Una vez se han obtenido los datos necesarios para el proyecto, para poder usarlos de forma más cómoda se decidió que era necesario implementar algún tipo de visualización. Esta visualización debería permitir filtrar los datos de forma sencilla de acuerda a criterios como edad o género, y permitir seleccionar aquellas publicaciones que tuvieran un sentimiento positivo. También debería poder llevarnos fácilmente hasta las publicaciones mostradas en Instagram.
 
@@ -355,7 +359,7 @@ En la esquina superior izquierda se muestra una combinación de estadísticas ge
 En la siguiente fila se muestra, a la izquierda la emoción predominante en todas las publicaciones, para ello se calcula el promedio de la confianza de cada emoción de todas las publicaciones y se muestra en un gráfico de tarta. A su derecha, el ``éxito'' de las publicaciones, en un histograma que muestra el promedio del número de comentarios y de likes que hubo cada día. Finalmente a su derecha se muestra la emoción promedio de las publicaciones por día.
 
 \begin{figure}[H]
-    \hspace*{-2.5cm}
+    \hspace*{-1.5cm}
     \centering
     \includegraphics[width=1.3\textwidth]{dashboard.png}
     \caption{Cuadro de Mandos creado con Grafana}
