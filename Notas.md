@@ -94,16 +94,16 @@ Al entrar en la URL especificada permite habilitar la cuenta de pago
 
 
 # 24/03/2022
-TODO:
-buscar hashtags por etiquetas en insta
-metodos para localizar hashtags en insta a partir de etiquetas.
-buscar como subir al bucket de google.cloud
-automatizar descarga y subida
-filtrar genero edad pero habilitar, localizacion imágen de instagram
-gestion de proyecto con github -> hacer repo
-mirar github pro -> student
-mirar tfm previos formato
-MAP-review trabajos previos, criterios para seleccionar trabajos
+Reunión:
+* buscar hashtags por etiquetas en insta
+* metodos para localizar hashtags en insta a partir de etiquetas.
+* buscar como subir al bucket de google.cloud
+* automatizar descarga y subida
+* filtrar genero edad pero habilitar, localizacion imágen de instagram
+* gestion de proyecto con github -> hacer repo
+* mirar github pro -> student
+* mirar tfm previos formato
+* MAP-review trabajos previos, criterios para seleccionar trabajos
 
 * github pro hecho, y creado repo privado para el TFM
 
@@ -231,9 +231,9 @@ scp scripts/* daniel_gonzalez_alonso@35.233.99.128:~/
 Y probamos a ejecutar los scripts de prueba:
 ```
 (testvisual) daniel_gonzalez_alonso@instance-1:~$ export GOOGLE_APPLICATION_CREDENTIALS="indigo-pod-344620-5cee76b95a93.json"
-(testvisual) daniel_gonzalez_alonso@instance-1:~$ ./testvisual/bin/python3 gcloudtest.py 
+(testvisual) daniel_gonzalez_alonso@instance-1:~$ ./testvisual/bin/python3 gcloudtest.py
 File happy.jpg uploaded to happy.jpg.
-(testvisual) daniel_gonzalez_alonso@instance-1:~$ ./testvisual/bin/python3 visiontest.py 
+(testvisual) daniel_gonzalez_alonso@instance-1:~$ ./testvisual/bin/python3 visiontest.py
 response:
 face_annotations {
   bounding_poly {
@@ -255,7 +255,7 @@ face_annotations {
     }
   }
 ...
-(testvisual) daniel_gonzalez_alonso@instance-1:~$ ./testvisual/bin/python3 gcsfstest.py 
+(testvisual) daniel_gonzalez_alonso@instance-1:~$ ./testvisual/bin/python3 gcsfstest.py
 File happy.jpg uploaded to happy.jpg.
 ```
 Los anteriores scripts que emplean las APIs de google funcionan sin problemas, pero instaLooter no funciona. Parece que el problema es que la maquina virtual no tiene ningún navegador instalado, así que se va a proceder a instalar firefox-esr para que instalooter pueda acceder a Instagram.
@@ -270,8 +270,8 @@ sudo apt-get install xauth x11-apps
 Se modifica "/etc/ssh/sshd_config" para habilitar "X11Forwarding yes" y reiniciamos. Después nos conectamos con "ssh -Y daniel_gonzalez_alonso@35.233.99.128" y con ejecutar el comando "firefox" este ya funciona, creando una ventana de firefox en nuestro equipo desde la que se puede entrar a Instagram. Al intentar entrar efectivamente se ve una ventana para aceptar las cookies, además al logearse sale una ventana advirtiendo de que se trata de un intento de logearse inusual, posiblemente para prevenir hackeos de cuentas y que hay que verificar el acceso mediante un código. Tras meter el código ya puedo entrar en la cuenta, y al probar los scripts de instalooter parece que funcionan:
 ```
 (testvisual) daniel_gonzalez_alonso@instance-1:~$ ./testvisual/bin/python3 instalootertest.py valladolid
-User: zalez_95
-Password: yLPf3O0NuyXa
+User: ***
+Password: ***
 Logged in? True
 
 Downloaded:	1/1	100.000%
@@ -359,10 +359,10 @@ Creamos un bucket de almacenamiento desde Servicios > Almacenamiento > S3, desde
 Probamos que funciona instalooter, para ello hay que conectarse con "ssh -Y" para poder logearnos por primera vez en instagram y solventar el problema ya visto en google cloud de la pantalla de cookies y del acceso inusual. Una vez logeado por primera vez, probamos todos los scripts creados que reemplazan los servicios de google por los de amazon, y parece que el resultado es satisfactorio:
 ```
 (testvisual) admin@ip-172-31-21-254:~$ ./instalooters3fstest.py valladolid
-Insta User: zalez_95
-Insta Password: yLPf3O0NuyXa
-AWS Access Key ID: AKIA2BIQPL3AKI53QO5K
-AWS Access Key Secret: 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
+Insta User: ***
+Insta Password: ***
+AWS Access Key ID: ***
+AWS Access Key Secret: ***
 ['happy.jpg']
 Logged in? True
 
@@ -370,10 +370,10 @@ Downloaded:	50/50	100.000%
 Finished! Downloaded 50 pictures
 
 (testvisual) admin@ip-172-31-21-254:~$ ./mainScriptAWS.py mane6
-Insta User: zalez_95
-Insta Password: yLPf3O0NuyXa
-AWS Access Key ID: AKIA2BIQPL3AKI53QO5K
-AWS Access Key Secret: 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
+Insta User: ***
+Insta Password: ***
+AWS Access Key ID: ***
+AWS Access Key Secret: ***
 Logged in? True
 
 Downloaded:	50/50	100.000%
