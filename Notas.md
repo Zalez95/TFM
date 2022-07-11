@@ -714,7 +714,7 @@ Reunión
 # 01/07/2022
 Prácticamente se han acabado los primero 5 apartados de la memoria, hay que empezar con el trabajo principal. Existen problemas de rendimiento en lambda cuando se hacen muchas búsquedas, posiblemente consecuencia de usar scan en vez de queries -> se aumentan las RCUs.
 
-Link: http://3.250.43.138:3000/d/K0aCHsjnk/valltourisminstadashboard?orgId=1&from=now-7d&to=now&var-filter1=gender%7C%3D%7CMale&var-filter1=ageLow%7C%3E%7C18.0&var-filter1=fearConfidence%7C%3C%7C30.72262954711914&var-filter1=disgustedConfidence%7C%3C%7C30.894670486450195&var-filter1=sadConfidence%7C%3C%7C30.618297576904297&var-filter1=angryConfidence%7C%3C%7C30.479755401611328
+Link: http://3.250.43.138:3000/d/K0aCHsjnk/valltourisminstadashboard?orgId=1&from=1654898400000&to=1656885599000&var-filter1=gender%7C%3D%7CMale&var-filter1=ageLow%7C%3E%7C18.0&var-filter1=fearConfidence%7C%3C%7C30.72262954711914&var-filter1=disgustedConfidence%7C%3C%7C30.894670486450195&var-filter1=sadConfidence%7C%3C%7C30.618297576904297&var-filter1=angryConfidence%7C%3C%7C30.479755401611328
 
 
 # 08/07/2022
