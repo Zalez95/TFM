@@ -109,6 +109,7 @@ Después de generar las credenciales se procedió a probar el servicio de Amazon
 Una vez elegidas las herramientas a utilizar, comprobado su funcionamiento y los datos que se pueden obtener, se puede concluir que es posible llevar a cabo la descarga de datos de Instagram y el procesamiento de las imágenes.
 
 \section{Diseño e implementación de la base de datos}
+\label{sect:dis_impl_bbdd}
 
 En este apartado se explica la base de datos diseñada, y los scripts implementados para la descarga, procesado y almacenamiento de los datos generados mediante Instalooter y Rekognition de forma automática.
 
@@ -125,6 +126,7 @@ Con las imágenes ya guardadas en el bucket, el proceso de llevar a cabo el reco
 Una vez se ha obtenido toda la información necesaria y se ha almacenado en S3, para poder usarla de una forma más cómoda se decidió almacenarla en una base de datos. En este caso se decidió emplear Amazon DynamoDB, una base de datos documental (NoSQL). La decisión de emplear esta base de datos se debe a múltiples motivos. Primero, respecto al resto de bases de datos ofrecidas por AWS, ésta es la que ofrece más capacidad de almacenamiento de forma gratuita -25 GBs- y además para siempre, a diferencia de las bases de datos con DocumentDB que tan solo se puede usar por un mes, y de las bases de datos SQL que solo pueden ser usadas por 12 meses. Por otro lado, esta base de datos se caracteriza por su alta disponibilidad, y por su gran capacidad de escalar horizontalmente, algo que no suele ser posible en las bases de datos SQL.
 
 A la hora de diseñar la base de datos inicialmente se planteó tener dos tablas:
+
 \begin{enumerate}
     \item La primera tabla contendría la información obtenida mediante Instalooter. Exactamente se plantearon los siguientes campos del JSON:
     \begin{multicols}{2}
@@ -163,6 +165,7 @@ A la hora de diseñar la base de datos inicialmente se planteó tener dos tablas
 \end{enumerate}
 
 Este diseño sería correcto si trabajásemos con una base de datos SQL. El problema es que al trabajar con DynamoDB, a pesar de que el uso de esta base de datos es muy sencillo y ofrece muchas posibilidades, a su vez es algo limitado. A diferencia de las bases de datos SQL, en esta base de datos no es posible llevar a cabo ciertas operaciones complejas como \textit{join} de tablas, ni tampoco agregaciones. Está pensado únicamente para accesos clave-valor, y optimizar cierto tipos de consultas o patrones de acceso que pueda tener una aplicación. Otro detalle a comprender respecto a DynamoDB es la forma en que se identifican los elementos en las tablas. En DynamoDB existen dos tipos de claves primarias:
+
 \begin{enumerate}
     \item Partition Key: Se emplea una clave de particionamiento para dividir el conjunto de datos. Sobre esta clave se aplica una función hash que determina el lugar donde se almacenará el elemento. El atributo que se emplee como Partition Key no puede repetirse, ha de ser único por cada elemento.
     \item Partition Key + Sort Key: Es una clave compuesta por dos atributos, el atributo que forma parte de la Partition Key determina el lugar donde se almacenará el elemento, y todos los elementos que formen parte de una misma partición se guardarán ordenados en base al atributo que forma parte de la Sort Key. Con este tipo de clave compuesta, el atributo que forme parte de la Partition Key puede repetirse para varios elementos, pero la combinación de Partition Key y Sort Key ha de ser única.

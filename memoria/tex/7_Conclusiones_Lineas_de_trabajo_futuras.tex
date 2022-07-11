@@ -7,11 +7,23 @@ En este apartado se presentan las conclusiones finalmente obtenidas del desarrol
 
 \section{Conclusiones}
 
+Del desarrollo del proyecto se han extraído múltiples conclusiones: 
 
-El desarrollo de la base de datos final ha estado más limitado de lo esperado debido al máximo número de elementos que se pueden meter en Amazon S3 en su capa gratuita.
-
-Los crawlers son muy sensibles a las actualizaciones de las páginas web, y teniendo en cuenta la popularidad de Instagram y la frecuencia de sus actualizaciones los fallos son comunes.
-
-Dentro de los objetivos personales planteados al inicio del proyecto cabe destacar que finalmente si que se ha conseguido explorar múltiples herramientas.
+\begin{itemize}
+    \item Primero y lo más importante, se considera que se ha conseguido cumplir los objetivos generales inicialmente planteados. Se ha conseguido descargar, almacenar y llevar a cabo el análisis de emoción sobre las publicaciones de Instagram mediante el uso de plataformas en la nube. También se ha conseguido desarrollar un cuadro de mandos para visualizar la información almacenada en la base de datos. Todo ello sin incurrir en ningún coste puesto que se ha desarrollado todo el proyecto mediante software libre o durante el periodo de prueba sin mayores complicaciones.
+    \item Dentro de los objetivos personales planteados al inicio del proyecto cabe destacar que finalmente si que se ha conseguido explorar múltiples herramientas, tanto de almacenamiento y procesamiento de datos como de visualización.
+    \item Sobre el desarrollo de la base de datos final, ésta ha estado más limitada de lo esperado debido al máximo número de operaciones de inserción de elementos de Amazon S3 en la capa gratuita de AWS.
+    \item Los \textit{crawlers} son muy sensibles a las actualizaciones de las páginas web, y teniendo en cuenta la popularidad de Instagram y la frecuencia de sus actualizaciones, los fallos son comunes incluso en las herramientas más utilizadas para la descarga de publicaciones.
+    \item A pesar de su gran facilidad de escalado, el uso de DynamoDB limita bastante las consultas que se pueden hacer incluso si lo comparamos con otras bases de datos NoSQL, faltando operaciones bastante básicas como la agregación. Además en la actualidad no existen muchas herramientas de visualización que permitan conectarse con esta base de datos, y menos aún que lo permitan gratuitamente.
+\end{itemize}
 
 \section{Líneas de trabajo futuras}
+
+Sobre los posibles cambios y mejoras que se podrían llevar a cabo en un futuro sobre este proyecto cabría destacar los siguientes:
+
+\begin{itemize}
+    \item Lo primero que se debería hacer es agrandar la base de datos, ya sea repitiendo los procedimientos que se han estado llevando a cabo para la adquisición de datos teniendo en cuenta el límite de operaciones de inserción en Amazon S3, o empezando a pagar por los servicios de Amazon para poder introducir más elementos mensualmente.
+    \item Debido al anterior límite de Amazon S3, a pesar de que el script de descarga y procesamiento de publicaciones que se ha desarrollado está completamente automatizado, éste no se está ejecutando periódicamente de forma automática. Como se indicó en la sección \ref{sect:dis_impl_bbdd}, una posibilidad muy fácil de implementar sería simplemente añadirlo a un \textit{cron} de Linux para que lo ejecute con la periodicidad deseada y que no requeriría de hacer ningún cambio en el script desarrollado. Otra opción posible sería portarlo a AWS Lambda, para poder así deshacernos de la instancia creada en EC2 para llevar a cabo este cometido, aunque esto posiblemente requeriría más trabajo e investigación sobre como generar eventos periódicamente que ejecuten el script.
+    \item Con el fin de mejorar el análisis de emoción de las publicaciones, se podría explotar el texto de la descripción de las mismas, que actualmente está siendo descargado pero no se está empleando para nada.
+    \item Se podría desarrollar una aplicación o una página web que fuese más \textit{user friendly} en vez de usar un cuadro de mandos, para así facilitar el acceso a las publicaciones. Esto además permitiría llevar a cabo consultas en DynamoDB optimizadas mediante el uso de índices secundarios, ya que actualmente con el dashboard de Grafana, como se permite filtrar por cualquier criterio, esto no se puede hacer. Por otro lado, en esta posible aplicación o web, se podría automatizar el proceso de extraer meta-datos del usuario en base a su perfil de Instagram en vez de tener que introducirlos manualmente. También se podría valorar emplear sus publicaciones para mejorar la precisión de las publicaciones recomendadas como se ha propuesto en varios de los trabajos relacionados.
+\end{itemize}
