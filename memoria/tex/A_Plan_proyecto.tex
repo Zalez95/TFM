@@ -164,6 +164,100 @@ Durante el \textit{sprint 7} se finalizó la memoria y se reorganizó el reposit
 
 \subsection{Viabilidad económica}
 
+En este apartado se describe el coste estimado del proyecto.
+
+\subsubsection{Costes de personal}
+
+Mediante el ``XVII Convenio colectivo estatal de empresas de consultoría y estudios'' publicado en el BOE Núm. 57 el 6 de marzo de 2018, podemos obtener los costes del personal. En este proyecto se ha empleado a un Analista Programador durante 4 meses. De acuerdo al anterior documento se puede concluir que el salario mensual a tiempo completo es de 1.916,15€. Como la dedicación ha sido parcial, el sueldo es de 958,07€.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{p{0.17\textwidth}lll|c}
+    \hline
+    \textbf{Tarea} & \textbf{Perfil} & \textbf{Salario mensual} & \textbf{Meses} & \textbf{Total} \\ \hline
+    Desarrollo del proyecto & Analista Programador & 958,07€ & 4 & 3.832,29€ \\ \hline
+    \end{tabular}
+    \caption{Costes de personal}
+    \label{tab:coste_personal}
+\end{table}
+
+\subsubsection{Costes de Hardware}
+
+Para el desarrollo del proyecto el único hardware necesario ha sido un \textbf{ordenador personal}, cuyo coste es de 1.139,86€.
+
+\subsubsection{Costes de uso de Amazon Web Services}
+
+Como se ha comentado con anterioridad, en el desarrollo del proyecto no se ha incurrido en ningún coste respecto al uso de Amazon Web Services puesto que se ha empleado su capa gratuita. Pero algunos de los servicios de esta capa gratuita están limitados a tan solo los 12 primeros meses. Es por ello que se ha decidido calcular cual sería el coste mensual del uso de esta plataforma bajo las mismas condiciones que las que se han empleado a lo largo del proyecto. Para ello se ha empleado la \href{https://calculator.aws/#/}{calculadora de coste} de AWS, empleando como región \texttt{eu-west-1} (Irlanda):
+
+\begin{itemize}
+    \item \textbf{Amazon EC2}: Empleando una máquina virtual \texttt{t2.micro} con Linux con 30GB de almacenamiento SSD, el coste por hora está a 0,0126 USD. En la capa gratuita, se permite usar hasta 750 horas al mes que son más o menos las que se llegaron a utilizar. Por ello en total el coste calculado al mes es de 9,80 USD.
+    \item \textbf{Amazon S3}: Los primeros 50 TB de almacenamiento al mes tienen un coste de 0,023 USD por GB, y en la capa gratuita se permite usar hasta 5GB. Por otro lado, 1000 solicitudes de operaciones PUT cuestan 0,005 USD, y como se ha comentado anteriormente, se usaron las 2000 operaciones de este tipo que se permiten en la capa gratuita. Además, 1000 solicitudes GET son 0,0004 USD, y en la capa gratuita se permite hasta 20000. Por lo tanto, el coste final es de 0,13 USD al mes.
+    \item \textbf{Amazon Rekognition}: El coste del primer millón de imágenes está actualmente a 0,001 USD por imagen. Como se han analizado 2000 imágenes al mes el coste estimado es de 2.00 USD.
+    \item \textbf{Amazon DynamoDB}: Se tiene 25 GBs gratuitos para siempre, y esto por ahora ha sido más que suficiente, por lo que no habría costes por el almacenamiento y las consultas en la base de datos.
+    \item \textbf{AWS Lambda}: Se tiene un millón de operaciones al mes (3,2 millones de segundos) gratuitas para siempre. Esto ha sido más que suficiente durante las pruebas llevadas cabo, con lo que no habría costes por las consultas llevadas a cabo por el cuadro de mandos.
+    \item \textbf{Amazon API Gateway}: Las primeras 333 millones de peticiones API de REST tienen un coste 3,50 USD por millón. Como en la capa gratuita se permite hasta un millón, el coste sería de 3,50 USD al mes.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{memoria/img/coste_aws.png}
+    \caption{Cálculo de coste con la calculadora de AWS}
+    \label{fig:coste_aws}
+\end{figure}
+
+Por lo tanto, mensualmente el coste estimado sería de 15,43 USD por usar los servicios de AWS. Como en la actualidad el tipo de cambio es de 1,00 USD = 1,00 EUR, el coste final sería el siguiente:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{cc|c}
+    \hline
+    \textbf{Coste mensual} & \textbf{Meses} & \textbf{Total} \\ \hline
+    15,43€ & 4 & 61,72€ \\ \hline
+    \end{tabular}
+    \caption{Costes de uso de AWS}
+    \label{tab:coste_aws}
+\end{table}
+
+\subsubsection{Beneficio industrial}
+
+Según el artículo 101.2 de la Ley 9/2017 de Contratos del Sector Público (LCSP) el beneficio industrial se calcula como el 6\% del coste total del proyecto sin aplicar el IVA. Por lo tanto el beneficio industrial generado es el siguiente:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{ll}
+    \hline
+    \textbf{Concepto}           & \textbf{Valor (€)} \\ \hline
+    Coste de personal           & 3.832,29€      \\
+    Costes de hardware          & 1.139,86€ \\
+    Costes de AWS               & 61,72€ \\ \hline
+    Subtotal                    & 5.033,87€ \\ \hline
+    Beneficio industrial (6\%)  & 302,03€ \\ \hline
+    \end{tabular}
+    \caption{Beneficio industrial}
+    \label{tab:beneficio_industrial}
+\end{table}
+
+\subsubsection{Coste total}
+
+El coste total tras contar todos los subapartados anteriores se puede ver en la siguiente tabla:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{ll}
+    \hline
+    \textbf{Concepto}           & \textbf{Valor (€)} \\ \hline
+    Coste de personal           & 3.832,29€      \\
+    Costes de hardware          & 1.139,86€ \\
+    Costes de AWS               & 61,72€ \\ \hline
+    Beneficio industrial (6\%)  & 302,03€ \\ \hline
+    Subtotal                    & 5.335,90€ \\
+    IVA (21\%)                  & 1.120,54€ \\ \hline
+    Total                       & 6.456,44€ \\ \hline
+    \end{tabular}
+    \caption{Beneficio industrial}
+    \label{tab:beneficio_industrial}
+\end{table}
+
 \subsection{Viabilidad legal}
 
 En esta sección se muestran las licencias empleadas por las distintas librerías y herramientas utilizadas a lo largo del proyecto, y se describe la licencia finalmente empleada para la publicación del mismo.
