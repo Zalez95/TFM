@@ -11,7 +11,7 @@ El primer paso que se llevó a cabo en esta fase del proyecto fue crear un entor
 
 Una vez creado el entorno de trabajo, la primera tarea que se decidió abordar fue investigar las posibles herramientas a utilizar para llevar a cabo la descarga de datos de la página web de Instagram. Tras hacer varias pruebas con múltiples scrapers web encontrados en GitHub como \texttt{instagram-crawler}, \texttt{huaying-instagram-crawler}, etc. se decidió emplear \texttt{Instalooter}, el cual dispone tanto de una interfaz de programación para Python 3 como de un cliente de línea de comandos. El resto de scrapers encontrados no parecían funcionar en el momento en que se hizo la prueba, posiblemente debido a que la web de Instagram hubiese sido actualizada de forma reciente y éstos programas no hubiesen sido actualizados de acorde a los nuevos cambios.
 
-Como se comentó en la sección \ref{sect:instalooter}, Instalooter pone a disposición del usuario de varios \textit{looters}, \texttt{ProfileLooter} y \texttt{HashtagLooter}, para descargar las publicaciones relacionadas con un perfil de usuario o con un Hashtag respectivamente, y permite descargar tanto las vídeos, como imágenes como la descripción y meta-datos de las mismas en formato JSON. Una de las ventajas que tiene esta herramienta en comparación con otras es que permite comprobar si una publicación ha sido ya descargada o no para evitar repetirla, así su puede ejecutar la descarga de forma sucesiva sin riesgo de acabar con datos duplicados.
+Como se comentó en la sección \ref{sect:instalooter}, Instalooter pone a disposición del usuario de varios \textit{looters}, \texttt{ProfileLooter} y \texttt{HashtagLooter}, para descargar las publicaciones relacionadas con un perfil de usuario o con un Hashtag respectivamente, y permite descargar tanto los vídeos, como las imágenes y la descripción y meta-datos de las mismas en formato JSON. Una de las ventajas que tiene esta herramienta en comparación con otras es que permite comprobar si una publicación ha sido ya descargada o no para evitar repetirla, así su puede ejecutar la descarga de forma sucesiva sin riesgo de acabar con datos duplicados.
 
 Durante las pruebas con Instalooter se pudo descargar con éxito tanto las imágenes como los meta-datos de varias publicaciones de Instagram. El JSON generado por cada publicación mediante esta herramienta cuenta con la siguiente información:
 
@@ -21,27 +21,27 @@ Durante las pruebas con Instalooter se pudo descargar con éxito tanto las imág
     \begin{tabular}{|p{0.2\textwidth}|p{0.4\textwidth}|p{0.4\textwidth}|}
     \hline
     Nombre del Campo & Ejemplo & Descripción \\ \hline
-    \_\_typename & \texttt{``GraphImage''} & indica el tipo de publicación que se ha descargado, exactamente si es un vídeo o una imagen \\ \hline
-    comments \_disabled & \texttt{false} & Si los comentarios de la publicación se encuentran habilitados o no \\ \hline
-    dimensions & \texttt{\{``height'': 640,``width'': 640\}} & Anchura y altura de la imagen \\ \hline
+    \_\_typename & \texttt{``GraphImage''} & Indica el tipo de publicación que se ha descargado, exactamente si es un vídeo o una imagen. \\ \hline
+    comments \_disabled & \texttt{false} & Si los comentarios de la publicación se encuentran habilitados o no. \\ \hline
+    dimensions & \texttt{\{``height'': 640,``width'': 640\}} & Anchura y altura de la imagen. \\ \hline
     display\_url & \texttt{``https://scontent-ams2-1.
-    cdninstagram.com/v/ t51.2885-15/...''} & URL de descarga de la imagen en Instagram, este link expira a los pocos días \\ \hline
-    edge\_liked\_by & \texttt{\{``count'': 73\}} & Número de ``likes'' de la publicación \\ \hline
-    edge\_media\_to \_caption & \texttt{\{``edges'': {[}\{``node'': \{ ``text'': ``El peso de una nube de color gris'' \}\}{]}\}} & comentario o descripción de la publicación generada por su autor \\ \hline
+    cdninstagram.com/v/ t51.2885-15/...''} & URL de descarga de la imagen en Instagram, este link expira a los pocos días. \\ \hline
+    edge\_liked\_by & \texttt{\{``count'': 73\}} & Número de ``likes'' de la publicación. \\ \hline
+    edge\_media\_to \_caption & \texttt{\{``edges'': {[}\{``node'': \{ ``text'': ``El peso de una nube de color gris'' \}\}{]}\}} & comentario o descripción de la publicación generada por su autor. \\ \hline
     \end{tabular}
 \end{table}
 \begin{table}[H]
     \centering
     \begin{tabular}{|p{0.2\textwidth}|p{0.4\textwidth}|p{0.4\textwidth}|}
     \hline
-    edge\_media\_to \_comment & \texttt{\{``count'': 1\}} & numero de comentarios de la publicación \\ \hline
-    id & \texttt{``1001662920005405392''} & número identificador de la publicación \\ \hline
-    is\_video & \texttt{false} & si la publicación contiene un video o no \\ \hline
-    owner & \texttt{\{``id'': ``216171681''\}} & identificador de la cuenta de instagram que hizo la publicación \\ \hline
-    shortcode & \texttt{``3mnx5jmkrQ''} & Shortcode de la publicación, se puede usar para obtener un link a la publicación de forma \\ \hline
-    taken\_at \_timestamp & \texttt{1433627546} & timestamp de la publicación \\ \hline
+    edge\_media\_to \_comment & \texttt{\{``count'': 1\}} & Número de comentarios de la publicación. \\ \hline
+    id & \texttt{``1001662920005405392''} & Número identificador de la publicación. \\ \hline
+    is\_video & \texttt{false} & Si la publicación contiene un video o no. \\ \hline
+    owner & \texttt{\{``id'': ``216171681''\}} & Identificador de la cuenta de instagram que hizo la publicación. \\ \hline
+    shortcode & \texttt{``3mnx5jmkrQ''} & Shortcode de la publicación, se puede usar para obtener un link permanente a la publicación. \\ \hline
+    taken\_at \_timestamp & \texttt{1433627546} & Timestamp de la publicación. \\ \hline
     thumbnail\_src & \texttt{``https://scontent-ams2-1.
-    cdninstagram.com/v/ t51.2885-15/...'' }& URL del ``thumbnail'' de la imagen, este link expira a los pocos días \\ \hline
+    cdninstagram.com/v/ t51.2885-15/...'' }& URL del ``thumbnail'' de la imagen, este link expira a los pocos días. \\ \hline
     \end{tabular}
     \caption{Contenido del JSON de Instalooter}
     \label{tab:json_instalooter}
@@ -51,7 +51,7 @@ Después de comprobar que se puede descargar con éxito publicaciones de instagr
 
 Inicialmente por recomendación del tutor se trató de emplear los servicios de Google Cloud. Esta plataforma de Google Cloud provee diversos servicios junto con sus respectivas interfaces de programación compatibles con múltiples lenguajes de programación. Entre los servicios relevantes para el presente proyecto cabe destacar el almacenamiento en la nube con Cloud Storage, servicios de procesamiento de datos y creación de máquinas virtuales con Compute Engine, servicios de visión artificial mediante Cloud Vision, almacenamiento de bases de datos en Cloud SQL, etc.
 
-Todos los servicios de Google Cloud se pueden probar de forma gratuita con tan solo crearse una cuenta en la plataforma. Esto es debido a que Google ofrece un crédito de 300 USD para invertir libremente en su plataforma a toda cuenta recién creada durante un periodo de 3 meses, 400 USD si se demuestra ser alumno \cite{google_cloud}. Este crédito inicial se va gastando según se vaya haciendo uso de los servicios, y una vez consumido o pasado el periodo de 3 meses, Google empieza a cobrar por el uso de sus servicios. Debido al alcance de este proyecto y los precios que tienen los servicios de Google, el anterior límite de dinero no es preocupante, aunque el de tiempo si que podría llegar a ser lo.
+Todos los servicios de Google Cloud se pueden probar de forma gratuita con tan solo crearse una cuenta en la plataforma. Esto es debido a que Google ofrece un crédito de 300 USD para invertir libremente en su plataforma a toda cuenta recién creada durante un periodo de 3 meses, 400 USD si se demuestra ser alumno \cite{google_cloud}. Este crédito inicial se va gastando según se vaya haciendo uso de los servicios, y una vez consumido o pasado el periodo de 3 meses, Google empieza a cobrar por el uso de sus servicios. Debido al alcance de este proyecto y los precios que tienen los servicios de Google, el anterior límite de dinero no es preocupante, aunque el de tiempo si que podría llegar a serlo.
 
 Como se ha comentado, para emplear los servicios de Google Cloud, Google pone a disposición de los usuarios APIs de forma gratuita para distintos lenguajes de programación, entre los cuales se encuentra Python. Mediante este lenguaje de scripting y la API de Cloud Vision \cite{api_google_vision}, se llevaron a cabo unas pruebas iniciales donde se pudo comprobar que la información que se puede obtener mediante el uso de la API de Google Cloud Vision si que incluye cierta capacidad de análisis de emociones, permitiendo obtener etiquetas de emociones como alegría, tristeza, enfado, sorpresa, etc. junto con su \textit{likelihood}, pero no incluye información como edad y género de las personas, capacidad que fue eliminada de este servicio de forma bastante reciente \cite{archive_google_gender}. Esto es un problema ya que se pretendía hacer uso de este tipo de información a la hora de recomendar publicaciones o lugares al usuario.
 
@@ -65,7 +65,7 @@ Debido a las anteriores limitaciones de Cloud Vision, y el problema del límite 
         \hline
         \multirow{2}{=}{Servicios} & \multirow{2}{=}{Límite de uso}	& \multicolumn{3}{|c|}{API de Visión Artificial}	& \multirow{2}{=}{Almacenamiento en bucket/blobs gratuito}	& \multirow{2}{=}{Almacenamiento en Base de Datos SQL}	& \multirow{2}{=}{Almacenamiento en Base de Datos NoSQL}	& \multirow{2}{=}{Máquinas Virtuales}	\\ \cline{3-5}
         	&	& Límite de uso	& Análisis de Sentimiento	& Reconoci\-miento de edad y género &	&	&	&	\\ \hline
-        Google Cloud	& 300 USD durante 3 meses	& 1000 unidades al mes	& Si, con tags alegría, tristeza, enojo, sorpresa	& No	& Si, con 5 Gbs al mes en Google Cloud Storage	& Si, con motor de base de datos MySQL, PostgreSQL y SQL Server	& Si, bases de datos documentales como Cloud Datastore, Cloud Firestore... y clave/valor con MongoDB, Bigtable...	& Si, Máquina virtual en Compute Engine empleando el saldo inicial	\\ \hline
+        Google Cloud	& 300 USD durante 3 meses (100 USD más si se es alumno)	& 1000 unidades al mes	& Si, con tags alegría, tristeza, enojo, sorpresa	& No	& Si, con 5 Gbs al mes en Google Cloud Storage	& Si, con motor de base de datos MySQL, PostgreSQL y SQL Server	& Si, bases de datos documentales como Cloud Datastore, Cloud Firestore... y clave/valor con MongoDB, Bigtable...	& Si, Máquina virtual en Compute Engine empleando el saldo inicial	\\ \hline
         Microsoft Azure	& 12 meses para servicios gratuitos + 200 USD para servicios no gratuitos durante 1 mes & Hasta 30.000 transacciones al mes & Si, con tags felicidad, tristeza, neutralidad, ira, desprecio, asco, sorpresa y temor	& Si	& Si, con 5 Gbs en Azure Blob Storage y 5 GBs en Azure File Storage 5 & Si, con Azure Database for MySQL (750 horas al mes), Azure Database for PostgreSQL (750 horas al mes) y SQL Database (250 Gbs)	& Si, Azure Cosmos DB (25 Gbs)	& Si, Máquina virtual B1S (1 núcleo, 1 GB RAM y 4GB de almacenamiento) con Linux 750 horas al mes	\\ \hline
         Amazon Web Services (AWS)	& 12 meses para la capa gratuita	& 5000 imágenes al mes	& Si, con tags feliz, triste, enfado, confuso, disgustado, sorprendido, calma, miedo, desconocido & Si	& Si, con 5 Gbs al mes en Amazon S3	& Si, se puede usar RDS (750 horas al mes) con motor de base de datos MySQL, MariaDB, Oracle, PostgreSQL, SQL Server y Amazon Aurora & Si, bases de datos documentales con DocumentDB (compatible con MongoDB, solo 1 mes de prueba) y clave/valor con DynamoDB (25 GB gratuitos) & Si, Máquina virtual en EC2 (1 CPU, 1GB de RAM, 1 CPU y 1GB de RAM, 30 GBs SSD) con Linux 750 horas al mes \\ \hline
         \end{tabular}%
@@ -86,20 +86,20 @@ Después de generar las credenciales se procedió a probar el servicio de Amazon
     \begin{tabular}{|p{0.2\textwidth}|p{0.4\textwidth}|p{0.4\textwidth}|}
     \hline
     Nombre del Campo & Ejemplo & Descripción \\ \hline
-    BoundingBox & \texttt{\{``Width'': 0.0358, ``Height'': 0.0476, ``Left'': 0.3780, ``Top'': 0.6708\}} & coordenadas de la caja donde se ubica la cara \\ \hline
-    AgeRange & \texttt{\{``Low'': 49, ``High'': 57\}} & Rango de edad de la persona en años \\ \hline
-    Smile & \texttt{\{``Value'': false, ``Confidence'': 94.6054\}} & Si la persona se encuentra sonriendo o no \\ \hline
-    Eyeglasses & \texttt{\{``Value'': false, ``Confidence'': 97.4112\}} & Si la persona lleva o no gafas o no \\ \hline
-    Sunglasses & \texttt{\{``Value'': false, ``Confidence'': 99.9965\}} & Si la persona lleva o no gafas de sol o no \\ \hline
-    Gender & \texttt{\{``Value'': ``Female``, ``Confidence'': 68.2432\}} & Género de la persona \\ \hline
-    Beard & \texttt{\{``Value'': false, ``Confidence'': 62.0366\}} & Si la persona tiene barba o no \\ \hline
-    Mustache & \texttt{\{``Value'': false, ``Confidence'': 94.0625\}} & Si la persona tiene bigote o no \\ \hline
-    EyesOpen & \texttt{\{``Value'': false, ``Confidence'': 99.8537\}} & Si la persona tiene los ojos abiertos o no \\ \hline
-    MouthOpen & \texttt{\{``Value'': false, ``Confidence'': 93.5364\}} & Si la persona tiene la boca abierta o no \\ \hline
+    BoundingBox & \texttt{\{``Width'': 0.0358, ``Height'': 0.0476, ``Left'': 0.3780, ``Top'': 0.6708\}} & Coordenadas de la caja donde se ubica la cara. \\ \hline
+    AgeRange & \texttt{\{``Low'': 49, ``High'': 57\}} & Rango de edad de la persona en años. \\ \hline
+    Smile & \texttt{\{``Value'': false, ``Confidence'': 94.6054\}} & Si la persona se encuentra sonriendo o no. \\ \hline
+    Eyeglasses & \texttt{\{``Value'': false, ``Confidence'': 97.4112\}} & Si la persona lleva o no gafas o no. \\ \hline
+    Sunglasses & \texttt{\{``Value'': false, ``Confidence'': 99.9965\}} & Si la persona lleva o no gafas de sol o no. \\ \hline
+    Gender & \texttt{\{``Value'': ``Female``, ``Confidence'': 68.2432\}} & Género de la persona. \\ \hline
+    Beard & \texttt{\{``Value'': false, ``Confidence'': 62.0366\}} & Si la persona tiene barba o no. \\ \hline
+    Mustache & \texttt{\{``Value'': false, ``Confidence'': 94.0625\}} & Si la persona tiene bigote o no. \\ \hline
+    EyesOpen & \texttt{\{``Value'': false, ``Confidence'': 99.8537\}} & Si la persona tiene los ojos abiertos o no. \\ \hline
+    MouthOpen & \texttt{\{``Value'': false, ``Confidence'': 93.5364\}} & Si la persona tiene la boca abierta o no. \\ \hline
     Emotions & \texttt{{[} \{``Type'': ``SAD``, ``Confidence'': 99.9044\}, \{``Type'': ``CALM``, ``Confidence'': 23.9581\}... \} {]}} & Un array con la confianza de las emociones expresadas por la persona basada en su expresión facial. Los posibles valores son triste, calmado, sorprendido, aterrado, confundido, enfadado, feliz, disgustado. \\ \hline
     Landmarks & \texttt{{[}\{``Type'': ``eyeLeft``, ``X'': 0.3885, ``Y'': 0.6877\},\{``Type'': ``eyeRight``, ``X'': 0.4037, ``Y'': 0.6898\}...{]}} & Coordenadas de las características de la cara (nariz, boca, etc.). \\ \hline
     Pose & \texttt{\{``Roll'': 8.8927, ``Yaw'': 1.8882, ``Pitch'': 0.5692\}} & Pose (rotación) de la cara. \\ \hline
-    Quality & \texttt{\{``Brightness'': 63.9795, ``Sharpness'': 4.3748\}} & Indican el brillo y nitided de la imagen \\ \hline
+    Quality & \texttt{\{``Brightness'': 63.9795, ``Sharpness'': 4.3748\}} & Indican el brillo y nitided de la imagen. \\ \hline
     Confidence & \texttt{99.8897} & Nivel de confianza en el que se encuentra una cara dentro de la caja. \\ \hline
     \end{tabular}
     \caption{Contenido del JSON de Rekognition para detección facial}
@@ -123,7 +123,7 @@ Gracias a GitHub se consiguió encontrar un proyecto que hace exactamente lo ant
 
 Con las imágenes ya guardadas en el bucket, el proceso de llevar a cabo el reconocimiento facial, fue relativamente simple. Solo hubo que iterar sobre las publicaciones almacenadas en el contenedor y guardar en el propio bucket el JSON generado por Rekognition, siempre comprobando antes que esa publicación no hubiese sido ya procesada mediante este servicio. De este modo, por cada publicación se tiene almacenado en Amazon S3 tres ficheros: la imagen de la publicación con el nombre \texttt{<id>.jpg}, el JSON con los meta-datos de la publicación llamado \texttt{<id>.json} y el JSON con la información generada por Rekognition llamado \texttt{<id>\_rek.json}, siendo \texttt{<id>} el id de la publicación devuelto por Instalooter.
 
-Una vez se ha obtenido toda la información necesaria y se ha almacenado en S3, para poder usarla de una forma más cómoda se decidió almacenarla en una base de datos. En este caso se decidió emplear Amazon DynamoDB, una base de datos documental (NoSQL). La decisión de emplear esta base de datos se debe a múltiples motivos. Primero, respecto al resto de bases de datos ofrecidas por AWS, ésta es la que ofrece más capacidad de almacenamiento de forma gratuita -25 GBs- y además para siempre, a diferencia de las bases de datos con DocumentDB que tan solo se puede usar por un mes, y de las bases de datos SQL que solo pueden ser usadas por 12 meses. Por otro lado, esta base de datos se caracteriza por su alta disponibilidad, y por su gran capacidad de escalar horizontalmente, algo que no suele ser posible en las bases de datos SQL.
+Una vez se ha obtenido toda la información necesaria y se ha almacenado en S3, para poder usarla de una forma más cómoda se decidió almacenarla en una base de datos. En este caso se decidió emplear Amazon DynamoDB, una base de datos documental (NoSQL). La decisión de emplear esta base de datos se debe a múltiples motivos. Primero, respecto al resto de bases de datos ofrecidas por AWS, ésta es la que ofrece más capacidad de almacenamiento de forma gratuita (25 GBs) y además para siempre, a diferencia de las bases de datos con DocumentDB que tan solo se puede usar por un mes, y de las bases de datos SQL que solo pueden ser usadas por 12 meses. Por otro lado, esta base de datos se caracteriza por su alta disponibilidad, y por su gran capacidad de escalar horizontalmente, algo que no suele ser posible en las bases de datos SQL.
 
 A la hora de diseñar la base de datos inicialmente se planteó tener dos tablas:
 
