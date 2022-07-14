@@ -3,17 +3,40 @@
 
 \include{header.tex}
 
-\title[Online Internet Traffic Monitoring System Using Spark Streaming]{Online Internet Traffic Monitoring System Using Spark Streaming}
-%\subtitle[]{}
+\title[Automatización del proceso de adquisición de imágenes de redes sociales para sistemas de recomendación]{Automatización del proceso de adquisición de imágenes de redes sociales para sistemas de recomendación}
 
-\author[Daniel González Alonso]{Daniel González Alonso}
-\institute[Université Laval]
+\author[Daniel González Alonso]{
+    Autor: Daniel González Alonso\\[1ex] 
+    Tutor: Ángel Manuel Guerrero Higueras}
+\institute[Universidad de Valladolid]
 {
-	 Máster Universitario en Inteligencia de Negocio \\
-	 y Big Data en Entornos Seguros \\
-	\medskip
-	{\emph{daniel.gonzalez.alonso@alumnos.uva.es}}
+    Máster Universitario en Inteligencia de Negocio \\[-4pt]
+    y Big Data en Entornos Seguros
+	%\medskip
+	%{\emph{daniel.gonzalez.alonso@alumnos.uva.es}}
 }
+
+
+
+\titlegraphic{%
+    \begin{center}
+        \includegraphics[height=2cm]{img/escudoUBU} \hspace{1cm}
+        \includegraphics[height=2cm]{img/escudoUVA} \hspace{1cm}
+        \includegraphics[height=2cm]{img/escudoULE} \vspace{1cm}
+    \end{center}}
+
+\setbeamertemplate{title page}{%
+    \begin{center}
+        \vspace{0.4cm}
+        {\textbf{\LARGE\inserttitle}}\\[0.8cm]
+        \fontfamily{ptm}\selectfont
+        {\insertauthor}\\[0.4cm]
+        {\scriptsize\insertinstitute}\\[0.25cm]
+        {\insertdate}\\[0.5cm]
+        \inserttitlegraphic
+    \end{center}}
+
+
 
 \begin{document}
 
@@ -21,13 +44,7 @@
 % Título
 %==============================================================================
 \begin{frame}[label=title, plain]
-    \vspace{0.4cm}
     \titlepage
-    \begin{center}
-    	\includegraphics[height=2cm]{img/escudoUBU} \hspace{1cm}
-    	\includegraphics[height=2cm]{img/escudoUVA} \hspace{1cm}
-    	\includegraphics[height=2cm]{img/escudoULE} \vspace{1cm}
-    \end{center}
 \end{frame}
 
 %==============================================================================
@@ -54,7 +71,7 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}[label=relat]{Spark Streaming}
+\begin{frame}[label=spark_streaming]{Spark Streaming}
     \begin{itemize}
         \item Hadoop es una plataforma que emplea un modelo MapReduce para procesar gran cantidad de datos.
         \item Para reducir el uso de la entrada/salida y con ello mejorar el rendimiento se creó Apache Spark.
