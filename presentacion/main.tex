@@ -1,0 +1,189 @@
+\documentclass[aspectratio=149]{beamer}
+% The values that it accepts are: 1610, 169, 149, 54, 43 and 32, which stand for the ratios 16:10, 16:9, 14:9, 5:4, 4:3 and 3:2, respectively.
+
+\include{header.tex}
+
+\title[Online Internet Traffic Monitoring System Using Spark Streaming]{Online Internet Traffic Monitoring System Using Spark Streaming}
+%\subtitle[]{}
+
+\author[Daniel González Alonso]{Daniel González Alonso}
+\institute[Université Laval]
+{
+	 Máster Universitario en Inteligencia de Negocio \\
+	 y Big Data en Entornos Seguros \\
+	\medskip
+	{\emph{daniel.gonzalez.alonso@alumnos.uva.es}}
+}
+
+\begin{document}
+
+%==============================================================================
+% Título
+%==============================================================================
+\begin{frame}[label=title, plain]
+    \vspace{0.4cm}
+    \titlepage
+    \begin{center}
+    	\includegraphics[height=2cm]{img/escudoUBU} \hspace{1cm}
+    	\includegraphics[height=2cm]{img/escudoUVA} \hspace{1cm}
+    	\includegraphics[height=2cm]{img/escudoULE} \vspace{1cm}
+    \end{center}
+\end{frame}
+
+%==============================================================================
+% TABLA DE CONTENIDOS
+%==============================================================================
+\begin{frame}[label=toc]{Tabla de contenidos}
+ \setlength{\leftskip}{5cm}%
+ \tableofcontents[subsectionstyle=hide]
+\end{frame}
+
+%==============================================================================
+% INTRODUCCION
+%==============================================================================
+\section{Introducción}
+\begin{frame}[label=intro]{Introducción}
+    \begin{itemize}
+        \item La monitorización y análisis de redes actualmente es un problema muy complejo debido a su tamaño y tráfico.
+        \item Los métodos convencionales hacen uso de servidores centrales. Problemas:
+        \begin{itemize}
+            \item Limitaciones de cómputo
+            \item Punto de fallo único.
+        \end{itemize}
+        \item Propuesta: Sistema de monitorización distribuido para el protocolo TCP empleando \textit{Spark Streaming}.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[label=relat]{Spark Streaming}
+    \begin{itemize}
+        \item Hadoop es una plataforma que emplea un modelo MapReduce para procesar gran cantidad de datos.
+        \item Para reducir el uso de la entrada/salida y con ello mejorar el rendimiento se creó Apache Spark.
+        \item Ambas plataforma fueron ideadas para analizar grandes cantidades de datos en Batch mediante MapReduce.
+        \item En la actualidad Spark ofrece la librería \textbf{Spark Streaming} para poder usarlo con streams de datos empleando una técnica conocida como \textit{micro-batching}.
+    \end{itemize}
+\end{frame}
+
+%==============================================================================
+% TRABAJOS RELACIONADOS
+%==============================================================================
+\section{Trabajos Relacionados}
+\begin{frame}[label=relat]{Trabajos Relacionados}
+    \begin{itemize}
+        \item Sistema BRO para detectar intrusos en redes mediante un motor de eventos, el cual podía customizarse empleando un lenguage de scripting. Problema: un solo hilo.
+        \item Gupta et al. propusieron un sistema para analizar redes en tiempo real mediante \textit{Spark Streaming}. Problema: solo funcionan mediante switchs programables.
+        \item Karimi et al. propusieron un sistema distribuido de análisis de tráfico que captura paquetes y guarda sus cabeceras en un CSV que se procesa periódicamente. Problema: el rendimiento puede degradarse.
+    \end{itemize}
+\end{frame}
+
+%==============================================================================
+% ARQUITECTURA
+%==============================================================================
+\section{Arquitectura del Sistema}
+\begin{frame}[label=arquitectura]{Arquitectura del Sistema de Monitorización}
+    \begin{columns}
+    \begin{column}{0.4\textwidth}
+        \begin{enumerate}
+            \item Collector
+            \item Sistema de Mensajería
+            \item Procesador de streams
+        \end{enumerate}
+    \end{column}
+    \begin{column}{0.7\textwidth}
+        \begin{figure}
+            \centering
+            \includegraphics[width=1.0\textwidth]{img/arquitectura.png}
+            \caption{Arquitectura del Sistema de Monitorización}
+            \label{fig:arch}
+        \end{figure}
+    \end{column}
+    \end{columns}
+\end{frame}
+
+%==============================================================================
+% MONITORIZACION DE MENSAJES TCP
+%==============================================================================
+\section{Monitorización de Mensajes TCP}
+
+\subsection{Métricas}
+\begin{frame}[label=metricas]{Métricas}
+    \begin{itemize}
+        \item Throughput: número y longitud de los segmentos TCP por segundo.
+        \item Ratio de retransmisón y out-of-order: Indica el ratio de mensajes que han llegado desordenados o que han sido retransmitidos. Si este ratio es malo, es un síntoma de mal rendimiento en la red.
+        \item RTT: es el tiempo que tarda la comunicación en viajar desde el origen al destino y su correspondiente respuesta ACK.
+    \end{itemize}
+\end{frame}
+
+\subsection{Sistema Propuesto}
+\begin{frame}[label=sistema]{Sistema Propuesto}
+    \begin{enumerate}
+        \item Preprocesamiento: Los Collectors capturan segmentos TCP de la red y almacenan de cada uno una tupla, generando el stream \texttt{DStream0}. Este después es preprocesado para generar nuevas tuplas que añaden el siguiente número de secuencia esperado, creando otro stream \texttt{DStream1}.
+        \item Cálculo de Throughput: de cada tupla de \texttt{DStream1} se calcula el número total de paquetes obtenidos entre un origen y un destino y la longitud total de los paquetes mediante \texttt{reduceByKey}. Esta información es almacenada en un nuevo stream \texttt{DStream2}.
+    \end{enumerate}
+\end{frame}
+\begin{frame}{Sistema Propuesto}
+    \begin{enumerate}
+        \setcounter{enumi}{2}
+        \item Retransmisión y out-of-order: A partir de \texttt{DStream1} se calcula el número de retransmisiones y de elementos desordenados mediante el siguiente algoritmo. El resultado se guarda en el stream \texttt{DStream3}.
+        \begin{columns}
+        \begin{column}{0.4\textwidth}
+        	\includegraphics[width=1.0\textwidth]{img/alg1_1.png}
+        \end{column}
+        \begin{column}{0.4\textwidth}
+        	\includegraphics[width=1.0\textwidth]{img/alg1_2.png}
+        \end{column}
+        \end{columns}
+    \end{enumerate}
+\end{frame}
+\begin{frame}{Sistema Propuesto}
+    \begin{columns}
+    \begin{column}{0.6\textwidth}
+        \begin{enumerate}
+            \setcounter{enumi}{3}
+            \item RTT: los segmentos TCP y los segmentos ACK se agrupan mediante \texttt{groupByKey}, lo que permite calcular el RTT mediante el siguiente algoritmo. El resultado obtenido se almacena en el stream \texttt{DStream4}.
+            \item Etapa final: se unen los datos obtenidos en el \texttt{DStream2}, \texttt{DStream3} y \texttt{DStream4} mediante una operación de \texttt{join} para poder mostrar los resultados al usuario.
+        \end{enumerate}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+        \begin{figure}
+            \centering
+            \includegraphics[width=1.0\textwidth]{img/alg2.png}
+            %\caption{Algoritmo RTT}
+            \label{fig:alg2}
+        \end{figure}
+    \end{column}
+    \end{columns}
+\end{frame}
+
+%==============================================================================
+% RESULTADOS
+%==============================================================================
+\section{Resultados}
+\begin{frame}[label=result]{Resultados}
+	\begin{figure}
+	    \centering
+	    \includegraphics[width=0.7\textwidth]{img/results.png}
+	    \caption{Resultados}
+	    \label{fig:results}
+	\end{figure}
+\end{frame}
+
+%==============================================================================
+% CONCLUSIONES
+%==============================================================================
+\section{Conclusiones}
+\begin{frame}[label=conclu]{Conclusiones}
+    \begin{itemize}
+        \item Los métodos convencionales que empleaban un único servidor para analizar el estados de las redes ya no son viables.
+        \item Los métodos actuales que emplean plataformas Big Data están más centrados en el procesamiento de los datos de forma offline.
+        \item En este estudio\cite{8268735} se ha propuesto y probado un sistema de monitorización de redes mediante el protocolo TCP empleando la plataforma Spark Streaming que ofrece un buen rendimiento y robustez.
+    \end{itemize}
+\end{frame}
+
+%==============================================================================
+% Bibliografía
+%==============================================================================
+\begin{frame}{Bibliografía}
+    \printbibliography
+\end{frame}
+
+\end{document}
