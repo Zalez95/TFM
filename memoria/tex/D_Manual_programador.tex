@@ -8,26 +8,59 @@ En este apartado se presenta la forma en que se estructura el proyecto final, el
 
 \section{Estructura de directorios}
 
-\dirtree{%
-.1 /.
-.2 images/.
-.3 aws\_cost\_calculator.png.
-.3 component.drawio.png.
-.3 dashboard.png.
-.3 gateway.png.
-.3 gateway\_flow.png.
-.3 lambda.png.
-.3 sequence.drawio.png.
-.2 scripts/.
-.3 lambda/.
-.4 query.py.
-.4 search.py.
-.4 tagkeys.py.
-.4 tagvalues.py.
-.3 mainScriptAWS.py.
-.3 hashtags.txt.
-.2 memoria.pdf.
-}
+En este apartado se presenta la estructura de directorios y el contenido final que tiene el repositorio generado durante el desarrollo del proyecto. Este repositorio se encuentra alojado en GitHub y es público, se puede acceder desde el enlace incluido en el apartado \ref{sect:acceso_proyecto}.
+
+La estructura base del repositorio se puede ver en el siguiente árbol:
+    
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{7cm}
+    \dirtree{%
+    .1 /.
+    .2 memoria/.
+    .2 presentacion/.
+    .2 scripts/.
+    .2 .gitignore.
+    .2 LICENSE.
+    .2 Notas.md.
+    .2 README.md.
+    }
+    \end{minipage}
+\end{figure}
+
+En resumidas cuentas, estos ficheros y directorios cumplen la siguiente función:
+
+\begin{itemize}
+    \item \texttt{/memoria/}: directorio donde se ubican todos los ficheros necesarios para compilar la memoria del proyecto, es decir, el PDF actual. La memoria, como se comentó en la sección \ref{sect:otras_herramientas}, ha sido generada mediante \LaTeX.
+    \item \texttt{/presentacion/}: directorio donde se ubican todos los ficheros necesarios para compilar la presentación del proyecto. Para ello también ha sido empleado \LaTeX.
+    \item \texttt{/scripts/}: directorio donde se ubican todos los scripts creados durante el desarrollo del proyecto. También se incluye algún otro fichero necesario para el funcionamiento de los mismos. El contenido de este directorio es el siguiente:
+    
+    \begin{figure}[H]
+        \centering
+        \begin{minipage}{7cm}
+        \dirtree{%
+        .1 /scripts/.
+        .2 lambda/.
+        .2 tests/.
+        .2 grafana\_json\_model.json.
+        .2 hashtags.txt.
+        .2 mainScriptAWS.py.
+        }
+        \end{minipage}
+    \end{figure}
+    
+    \begin{itemize}
+        \item \texttt{lambda}: scripts Python empleados en AWS Lambda para generar las APIs para acceder a la base de datos de DynamoDB desde Grafana.
+        \item \texttt{tests}: scripts de test generados durante el desarrollo del proyecto: los tests iniciales de los scrapers de Instagram, las pruebas con Google Cloud, las posteriores pruebas con AWS, la página web estática para probar la visualización de datos con JavaScript y el servidor REST de prueba para Grafana.
+        \item \texttt{grafana\_json\_model.json}: JSON que contiene el modelo del cuadro de mandos generado con Grafana.
+        \item \texttt{hashtags.txt}: fichero de hashtags que hay que pasar al script de descarga de publicaciones.
+        \item \texttt{mainScriptAWS.py}: fichero de descarga, procesado y almacenamiento de publicaciones en la base de datos de DynamoDB.
+    \end{itemize}
+    \item \texttt{/.gitignore}: fichero empleado para evitar subir ficheros no deseados al repositorio.
+    \item \texttt{/LICENSE}: licencia del proyecto, como se comentó anteriormente, la licencia final es GPL v3.0.
+    \item \texttt{/Notas.md}: fichero de notas tomadas durante el desarrollo del proyecto, podría decirse que es el \textit{cuaderno de bitácora} del proyecto.
+    \item \texttt{/README.md}: fichero de presentación del repositorio que se muestra al entrar en GitHub.
+\end{itemize}
 
 \section{Compilación, instalación y ejecución del proyecto}
 
