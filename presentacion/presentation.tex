@@ -81,6 +81,18 @@
 \end{frame}
 
 %==============================================================================
+% OBJETIVOS
+%==============================================================================
+\section{Objetivos}
+\begin{frame}[label=objetivos]{Objetivos}
+    \begin{itemize}
+        \item \textbf{Objetivos generales}: conocer el estado del arte, desarrollar el software necesario para la descarga de publicaciones, análisis de emoción sobre las publicaciones, hacer una visualización.
+        \item \textbf{Objetivos técnicos}: uso de herramientas en la nube para el alojamiento y procesamiento de datos, el proyecto no ha de suponer ningún coste, crear un cuadro de mandos para la visualización.
+        \item \textbf{Objetivos personales}: aprender a usar herramientas y servicios en la nube, mejorar mis conocimientos sobre almacenamiento y procesado de grandes cantidades de datos, poner en práctica mis conocimientos sobre cuadros de mando.
+    \end{itemize}
+\end{frame}
+
+%==============================================================================
 % TRABAJOS RELACIONADOS
 %==============================================================================
 \section{Trabajos Relacionados}
@@ -93,33 +105,36 @@
 \end{frame}
 
 %==============================================================================
-% ARQUITECTURA
+% TECNICAS Y HERRAMIENTAS
 %==============================================================================
-\section{Arquitectura del Sistema}
-\begin{frame}[label=arquitectura]{Arquitectura del Sistema de Monitorización}
-    \begin{columns}
-    \begin{column}{0.4\textwidth}
-        \begin{enumerate}
-            \item Collector
-            \item Sistema de Mensajería
-            \item Procesador de streams
-        \end{enumerate}
-    \end{column}
-    \begin{column}{0.7\textwidth}
-        \begin{figure}
-            \centering
-            \includegraphics[width=1.0\textwidth]{img/arquitectura.png}
-            \caption{Arquitectura del Sistema de Monitorización}
-            \label{fig:arch}
-        \end{figure}
-    \end{column}
-    \end{columns}
+\section{Técnicas y Herramientas}
+\begin{frame}[label=herramientas]{Técnicas y Herramientas}
+    \begin{itemize}
+        \item \textbf{Instalooter}
+        \item Servicios en la nube con \textbf{Amazon Web Services}:
+        \begin{itemize}
+            \item Rekognition
+            \item Amazon S3
+            \item Amazon EC2
+            \item DynamoDB
+            \item AWS Lambda
+            \item Amazon API Gateway
+        \end{itemize}
+        \item \textbf{Grafana}
+        \item Otras herramientas:
+        \begin{itemize}
+            \item \texttt{virtualenv}
+            \item Visual Studio Code
+            \item Git y GitHub
+            \item \LaTeX y Overleaf
+        \end{itemize}
+    \end{itemize}
 \end{frame}
 
 %==============================================================================
-% MONITORIZACION DE MENSAJES TCP
+% ASPECTOS RELEVANTES DEL DESARROLLO DEL PROYECTO
 %==============================================================================
-\section{Monitorización de Mensajes TCP}
+\section{Aspectos relevantes del desarrollo del proyecto}
 
 \subsection{Métricas}
 \begin{frame}[label=metricas]{Métricas}
@@ -172,27 +187,27 @@
 \end{frame}
 
 %==============================================================================
-% RESULTADOS
+% CONCLUSIONES Y LINEAS DE TRABAJO FUTURAS
 %==============================================================================
-\section{Resultados}
-\begin{frame}[label=result]{Resultados}
-	\begin{figure}
-	    \centering
-	    \includegraphics[width=0.7\textwidth]{img/results.png}
-	    \caption{Resultados}
-	    \label{fig:results}
-	\end{figure}
-\end{frame}
+\section{Conclusiones y Líneas de trabajo futuras}
 
-%==============================================================================
-% CONCLUSIONES
-%==============================================================================
-\section{Conclusiones}
+\subsection{Conclusiones}
 \begin{frame}[label=conclu]{Conclusiones}
     \begin{itemize}
-        \item Los métodos convencionales que empleaban un único servidor para analizar el estados de las redes ya no son viables.
-        \item Los métodos actuales que emplean plataformas Big Data están más centrados en el procesamiento de los datos de forma offline.
-        \item En este estudio\cite{8268735} se ha propuesto y probado un sistema de monitorización de redes mediante el protocolo TCP empleando la plataforma Spark Streaming que ofrece un buen rendimiento y robustez.
+        \item Se considera que se ha conseguido cumplir los objetivos generales inicialmente planteados.
+        \item La base base de datos final ha estado más limitada de lo esperado.
+        \item Los crawlers son muy sensibles a las actualizaciones de las páginas web.
+        \item Usar DynamoDB presenta algunas limitaciones, tanto por las consultas que se pueden hacer como por el soporte de otras herramientas para conectarse a esta base de datos.
+    \end{itemize}
+\end{frame}
+
+\subsection{Líneas de trabajo futuras}
+\begin{frame}[label=lineas]{Líneas de trabajo futuras}
+    \begin{itemize}
+        \item Agrandar la base de datos.
+        \item Ejecutar descarga de datos periódicamente de forma automática, ya sea mediante un cron o en AWS Lambda.
+        \item Explotar el texto de la descripción de las publicaciones.
+        \item Desarrollar una aplicación o una página web que sea más \textit{user friendly} en vez de usar un cuadro de mandos.
     \end{itemize}
 \end{frame}
 
