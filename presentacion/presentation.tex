@@ -61,22 +61,10 @@
 \section{Introducción}
 \begin{frame}[label=intro]{Introducción}
     \begin{itemize}
-        \item La monitorización y análisis de redes actualmente es un problema muy complejo debido a su tamaño y tráfico.
-        \item Los métodos convencionales hacen uso de servidores centrales. Problemas:
-        \begin{itemize}
-            \item Limitaciones de cómputo
-            \item Punto de fallo único.
-        \end{itemize}
-        \item Propuesta: Sistema de monitorización distribuido para el protocolo TCP empleando \textit{Spark Streaming}.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}[label=spark_streaming]{Spark Streaming}
-    \begin{itemize}
-        \item Hadoop es una plataforma que emplea un modelo MapReduce para procesar gran cantidad de datos.
-        \item Para reducir el uso de la entrada/salida y con ello mejorar el rendimiento se creó Apache Spark.
-        \item Ambas plataforma fueron ideadas para analizar grandes cantidades de datos en Batch mediante MapReduce.
-        \item En la actualidad Spark ofrece la librería \textbf{Spark Streaming} para poder usarlo con streams de datos empleando una técnica conocida como \textit{micro-batching}.
+        \item El turismo es una de las actividades económicas más importantes de España, pero con la pandemia de COVID-19 el sector turístico se vio gravemente afectado.
+        \item Para recuperar los niveles de turismo previos es necesario potenciar el turismo, y uno de los posibles medios que se pueden aprovechar son las redes sociales.
+        \item Instagram es muy popular en la actualidad, sobre todo para compartir lugares visitados y experiencias.
+        \item Las publicaciones mostradas en cada búsqueda se basan en la cadena de búsqueda, cuentas seguidas y popularidad. Una posible mejora es basarse en las características de la persona que hace la búsqueda.
     \end{itemize}
 \end{frame}
 
@@ -86,9 +74,9 @@
 \section{Objetivos}
 \begin{frame}[label=objetivos]{Objetivos}
     \begin{itemize}
-        \item \textbf{Objetivos generales}: conocer el estado del arte, desarrollar el software necesario para la descarga de publicaciones, análisis de emoción sobre las publicaciones, hacer una visualización.
-        \item \textbf{Objetivos técnicos}: uso de herramientas en la nube para el alojamiento y procesamiento de datos, el proyecto no ha de suponer ningún coste, crear un cuadro de mandos para la visualización.
-        \item \textbf{Objetivos personales}: aprender a usar herramientas y servicios en la nube, mejorar mis conocimientos sobre almacenamiento y procesado de grandes cantidades de datos, poner en práctica mis conocimientos sobre cuadros de mando.
+        \item \textbf{Objetivos generales}: conocer el estado del arte, desarrollar el software necesario para descargar y analizar las publicaciones, y hacer una visualización de los datos.
+        \item \textbf{Objetivos técnicos}: uso de herramientas en la nube para el alojamiento y procesamiento de datos, el proyecto no ha de suponer ningún coste, y se busca crear un cuadro de mandos para la visualización.
+        \item \textbf{Objetivos personales}: aprender a usar herramientas y servicios en la nube, mejorar mis conocimientos sobre almacenamiento y procesado de grandes cantidades de datos, y poner en práctica mis conocimientos sobre cuadros de mando.
     \end{itemize}
 \end{frame}
 
@@ -98,9 +86,21 @@
 \section{Trabajos Relacionados}
 \begin{frame}[label=relat]{Trabajos Relacionados}
     \begin{itemize}
-        \item Sistema BRO para detectar intrusos en redes mediante un motor de eventos, el cual podía customizarse empleando un lenguage de scripting. Problema: un solo hilo.
-        \item Gupta et al. propusieron un sistema para analizar redes en tiempo real mediante \textit{Spark Streaming}. Problema: solo funcionan mediante switchs programables.
-        \item Karimi et al. propusieron un sistema distribuido de análisis de tráfico que captura paquetes y guarda sus cabeceras en un CSV que se procesa periódicamente. Problema: el rendimiento puede degradarse.
+        \item Recomendación de contenido:
+        \begin{itemize}
+            \item Rastogi et al. \cite{sent_analysis_facebook_user_recom} emplea análisis de sentimiento en publicaciones de Facebook para mejorar los resultados de las recomendaciones de usuarios.
+            \item Khan et al. \cite{pers_tweet_recomendation} propone un sistema de recomendación de tweets dentro del dominio de la salud.
+        \end{itemize}
+        \item Recomendación de lugares:
+        \begin{itemize}
+            \item Xi Shao et al. \cite{8796367} presenta un sistema de recomendación de turismo personalizado denominado SMTM.
+            \item Shafqat et al. \cite{recom_mech_under_emph} propone un sistema de recomendación de turismo teniendo en cuenta lugares poco enfatizados.
+        \end{itemize}
+        \item Análisis sobre destinos turísticos:
+        \begin{itemize}
+            \item Paolanti et al. \cite {tourism_dest_rec_geolocation} comparan el rendimiento de múltiples métodos actuales de aprendizaje profundo sobre tweets relacionados con Cilento, Italia.
+            \item Borrajo-Millán et al. \cite{su13116015} llevan a cabo un análisis sobre el turismo en España y la percepción que tienen los turistas chinos.
+        \end{itemize}
     \end{itemize}
 \end{frame}
 
@@ -214,7 +214,7 @@
 %==============================================================================
 % Bibliografía
 %==============================================================================
-\begin{frame}{Bibliografía}
+\begin{frame}[allowframebreaks]{Referencias}
     \printbibliography
 \end{frame}
 
