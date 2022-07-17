@@ -8,35 +8,10 @@
 \author[Daniel González Alonso]{
     Autor: Daniel González Alonso\\[1ex] 
     Tutor: Ángel Manuel Guerrero Higueras}
-\institute[Universidad de Valladolid]
-{
+
+\institute[Universidad de Valladolid]{
     Máster Universitario en Inteligencia de Negocio \\[-4pt]
-    y Big Data en Entornos Seguros
-	%\medskip
-	%{\emph{daniel.gonzalez.alonso@alumnos.uva.es}}
-}
-
-
-
-\titlegraphic{%
-    \begin{center}
-        \includegraphics[height=2cm]{img/escudoUBU} \hspace{1cm}
-        \includegraphics[height=2cm]{img/escudoUVA} \hspace{1cm}
-        \includegraphics[height=2cm]{img/escudoULE} \vspace{1cm}
-    \end{center}}
-
-\setbeamertemplate{title page}{%
-    \begin{center}
-        \vspace{0.4cm}
-        {\textbf{\LARGE\inserttitle}}\\[0.8cm]
-        \fontfamily{ptm}\selectfont
-        {\insertauthor}\\[0.4cm]
-        {\scriptsize\insertinstitute}\\[0.25cm]
-        {\insertdate}\\[0.5cm]
-        \inserttitlegraphic
-    \end{center}}
-
-
+    y Big Data en Entornos Seguros}
 
 \begin{document}
 
@@ -136,54 +111,82 @@
 %==============================================================================
 \section{Aspectos relevantes del desarrollo del proyecto}
 
-\subsection{Métricas}
-\begin{frame}[label=metricas]{Métricas}
+\subsection{Estudio preliminar}
+\begin{frame}[label=preliminar]{Estudio preliminar}
     \begin{itemize}
-        \item Throughput: número y longitud de los segmentos TCP por segundo.
-        \item Ratio de retransmisón y out-of-order: Indica el ratio de mensajes que han llegado desordenados o que han sido retransmitidos. Si este ratio es malo, es un síntoma de mal rendimiento en la red.
-        \item RTT: es el tiempo que tarda la comunicación en viajar desde el origen al destino y su correspondiente respuesta ACK.
+        \item Se valoraron los distintos crawlers a utilizar para descargar publicaciones de instagram. Finalmente se seleccionó Instalooter.
+        \item Se hicieron pruebas con Google Cloud y Cloud Vision. Tras ver que no se podía recuperar ni la edad ni el genero se decidió valorar otras posibilidades, como MS Azure y AWS.
+        \item Se decidió usar AWS porque Rekognition permitía recuperar la información necesaria y porque con Azure no se podían crear máquinas virtuales por problemas de disponibilidad.
     \end{itemize}
 \end{frame}
 
-\subsection{Sistema Propuesto}
-\begin{frame}[label=sistema]{Sistema Propuesto}
-    \begin{enumerate}
-        \item Preprocesamiento: Los Collectors capturan segmentos TCP de la red y almacenan de cada uno una tupla, generando el stream \texttt{DStream0}. Este después es preprocesado para generar nuevas tuplas que añaden el siguiente número de secuencia esperado, creando otro stream \texttt{DStream1}.
-        \item Cálculo de Throughput: de cada tupla de \texttt{DStream1} se calcula el número total de paquetes obtenidos entre un origen y un destino y la longitud total de los paquetes mediante \texttt{reduceByKey}. Esta información es almacenada en un nuevo stream \texttt{DStream2}.
-    \end{enumerate}
+\subsection{Diseño e implementación de la base de datos}
+\begin{frame}[label=bbdd]{Diseño e implementación de la base de datos}
+    \begin{itemize}
+        \item Se creó un script que descargaba las publicaciones (imagen y metadatos) en Amazon S3, las procesa con Rekognition, y guarda el resultado final en una base de datos de DynamoDB.
+        \item La base de datos cuenta con una única tabla, cada entrada se corresponde con una cara e incluye tanto metadatos de Instalooter como la información obtenida con Rekognition.
+    \end{itemize}
+
+{\scriptsize
+\begin{table}[H]
+    \vspace{-0.4cm}
+    \centering
+    \begin{tabular}{|p{0.25\textwidth}|p{0.1\textwidth}|p{0.55\textwidth}|}
+    \hline
+	Nombre del campo & Tipo & Orígen \\ \hline
+	id & Cadena & Instalooter.id \\ \hline
+	faceIndex & Número & Índice de la cara en Rekognition.FaceDetails \\ \hline
+	dTime & Cadena & Instalooter.taken\_at\_timestamp, formateado como \texttt{YYYY-MM-DDTHH:MM:SS} \\ \hline
+	shortCode & Cadena & Instalooter.shortcode \\ \hline
+	... & & \\ \hline
+	confidence & Número & Rekognition.FaceDetails{[}*{]}.Confidence \\ \hline
+	ageLow & Número & Rekognition.FaceDetails{[}*{]}.AgeRange.Low \\ \hline
+	ageHigh & Número & Rekognition.FaceDetails{[}*{]}.AgeRange.High \\ \hline
+	gender & Cadena & Rekognition.FaceDetails{[}*{]}.Gender.Value \\ \hline
+	... & & \\ \hline
+    \end{tabular}
+    %\caption{Diseño de la tabla \texttt{valltourisminsta}}
+    \label{tab:dynamodb_table}
+\end{table}
+}
+
+
+
 \end{frame}
-\begin{frame}{Sistema Propuesto}
-    \begin{enumerate}
-        \setcounter{enumi}{2}
-        \item Retransmisión y out-of-order: A partir de \texttt{DStream1} se calcula el número de retransmisiones y de elementos desordenados mediante el siguiente algoritmo. El resultado se guarda en el stream \texttt{DStream3}.
-        \begin{columns}
-        \begin{column}{0.4\textwidth}
-        	\includegraphics[width=1.0\textwidth]{img/alg1_1.png}
-        \end{column}
-        \begin{column}{0.4\textwidth}
-        	\includegraphics[width=1.0\textwidth]{img/alg1_2.png}
-        \end{column}
-        \end{columns}
-    \end{enumerate}
+
+\subsection{Proceso de descarga de las publicaciones}
+\begin{frame}[label=descarga]{Proceso de descarga de las publicaciones}
+    \begin{itemize}
+        \item Para llevar a cabo el proceso de descarga de publicaciones se tuvo que ejecutar el script de la sección anterior en varias ocasiones desde una máquina virtual de EC2.
+        \item Para la descarga se emplea una la lista con 44 hashtags seleccionados manualmente.
+        \item Se descargaron un total de 3916 publicaciones de Instagram debido al límite de subida de Amazon S3. Mediante Rekognition se extrajeron unas 5408 caras.
+        \item En esta fase hubo que hacer una corrección a Instalooter porque dejó de funcionar.
+    \end{itemize}
 \end{frame}
-\begin{frame}{Sistema Propuesto}
-    \begin{columns}
-    \begin{column}{0.6\textwidth}
-        \begin{enumerate}
-            \setcounter{enumi}{3}
-            \item RTT: los segmentos TCP y los segmentos ACK se agrupan mediante \texttt{groupByKey}, lo que permite calcular el RTT mediante el siguiente algoritmo. El resultado obtenido se almacena en el stream \texttt{DStream4}.
-            \item Etapa final: se unen los datos obtenidos en el \texttt{DStream2}, \texttt{DStream3} y \texttt{DStream4} mediante una operación de \texttt{join} para poder mostrar los resultados al usuario.
-        \end{enumerate}
-    \end{column}
-    \begin{column}{0.5\textwidth}
+
+\subsection{Visualización}
+\begin{frame}[label=visualizacion1]{Visualización}
+    \begin{itemize}
+        \item Para llevar a cabo la visualización se valoraron varias herramientas:
+        \begin{itemize}
+            \item Web estática con ChartJS o D3JS: problema requiere mucho tiempo.
+            \item QLik, MS PowerBI, Tableau: problema no tienen conectores gratuitos con DynamoDB y tienen un periodo de prueba limitado.
+            \item Grafana: es open source pero tampoco tiene conector con DynamoDB.
+        \end{itemize}
+        \item Finalmente se decidió por Grafana que aunque no tiene conector, existen plugins que pueden ayudar a la implementación de un conector sencillo mediante APIs REST.
         \begin{figure}
             \centering
-            \includegraphics[width=1.0\textwidth]{img/alg2.png}
-            %\caption{Algoritmo RTT}
-            \label{fig:alg2}
+            \includegraphics[width=0.75\textwidth]{img/gateway_flow.png}
+            \label{fig:gate_flow}
         \end{figure}
-    \end{column}
-    \end{columns}
+    \end{itemize}
+\end{frame}
+\begin{frame}[label=visualizacion2]{Visualización}
+    \begin{figure}
+        \centering
+        \includegraphics[width=1.0\textwidth]{img/dashboard.png}
+        \label{fig:grafana}
+    \end{figure}
 \end{frame}
 
 %==============================================================================

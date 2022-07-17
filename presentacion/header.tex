@@ -1,4 +1,4 @@
-% Idioma y codificación en castellano
+% Idioma y codificacion en castellano
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[english, spanish, es-tabla]{babel}
@@ -16,16 +16,13 @@
 
 % Bibliografía
 \usepackage{biblatex}
-\addbibresource{bib/bibliografia.bib}
+\addbibresource{bibliografia.bib}
 
-%% Couleurs
-\definecolor{comments}{rgb}{0.5,0.55,0.6} % commentaires
-\definecolor{link}{rgb}{0,0.4,0.6}   % liens internes
-\definecolor{url}{rgb}{0.6,0,0}      % liens externes
-\definecolor{rouge}{rgb}{0.9,0,0.1}  % bandeau rouge UL
-\definecolor{or}{rgb}{1,0.8,0}       % bandeau or UL
+% Colores
+\definecolor{link}{rgb}{0,0.4,0.6}
+\definecolor{url}{rgb}{0.6,0,0}
 
-%% Hyperliens
+% Enlaces
 \hypersetup{
     colorlinks = false,
     linktocpage = true,
@@ -34,6 +31,25 @@
     citecolor = {citation},
     pdfpagemode = {UseOutlines},
     pdfstartview = {Fit}}
+
+% Titulo
+\titlegraphic{
+    \begin{center}
+        \includegraphics[height=2cm]{img/escudoUBU} \hspace{1cm}
+        \includegraphics[height=2cm]{img/escudoUVA} \hspace{1cm}
+        \includegraphics[height=2cm]{img/escudoULE} \vspace{1cm}
+    \end{center}}
+
+\setbeamertemplate{title page}{
+    \begin{center}
+        \vspace{0.4cm}
+        {\textbf{\LARGE\inserttitle}}\\[0.8cm]
+        \fontfamily{ptm}\selectfont
+        {\insertauthor}\\[0.4cm]
+        {\scriptsize\insertinstitute}\\[0.25cm]
+        {\insertdate}\\[0.5cm]
+        \inserttitlegraphic
+    \end{center}}
 
 %%% =========================
 %%%  Nouveaux environnements
