@@ -49,7 +49,7 @@
 \section{Objetivos}
 \begin{frame}[label=objetivos]{Objetivos}
     \begin{itemize}
-        \item \textbf{Objetivos generales}: conocer el estado del arte, desarrollar el software necesario para descargar y analizar las publicaciones, y hacer una visualización de los datos.
+        \item \textbf{Objetivos generales}: desarrollar el software necesario para descargar y analizar las publicaciones de forma automática, conocer el estado del arte, y hacer una visualización de los datos.
         \item \textbf{Objetivos técnicos}: uso de herramientas en la nube para el alojamiento y procesamiento de datos, el proyecto no ha de suponer ningún coste, y se busca crear un cuadro de mandos para la visualización.
         \item \textbf{Objetivos personales}: aprender a usar herramientas y servicios en la nube, mejorar mis conocimientos sobre almacenamiento y procesado de grandes cantidades de datos, y poner en práctica mis conocimientos sobre cuadros de mando.
     \end{itemize}
@@ -63,18 +63,18 @@
     \begin{itemize}
         \item Recomendación de contenido:
         \begin{itemize}
-            \item Rastogi et al. \cite{sent_analysis_facebook_user_recom} emplea análisis de sentimiento en publicaciones de Facebook para mejorar los resultados de las recomendaciones de usuarios.
-            \item Khan et al. \cite{pers_tweet_recomendation} propone un sistema de recomendación de tweets dentro del dominio de la salud.
+            \item Rastogi et al. \cite{sent_analysis_facebook_user_recom} emplea análisis de sentimiento en publicaciones de Facebook para mejorar las \textbf{recomendaciones de usuarios}.
+            \item Khan et al. \cite{pers_tweet_recomendation} propone un sistema de recomendación de tweets dentro del \textbf{dominio de la salud}.
         \end{itemize}
         \item Recomendación de lugares:
         \begin{itemize}
-            \item Xi Shao et al. \cite{8796367} presenta un sistema de recomendación de turismo personalizado denominado SMTM.
-            \item Shafqat et al. \cite{recom_mech_under_emph} propone un sistema de recomendación de turismo teniendo en cuenta lugares poco enfatizados.
+            \item Xi Shao et al. \cite{8796367} presenta un sistema de recomendación de turismo personalizado denominado \textbf{SMTM}.
+            \item Shafqat et al. \cite{recom_mech_under_emph} propone un sistema de recomendación de turismo teniendo en cuenta \textbf{lugares poco enfatizados}.
         \end{itemize}
         \item Análisis sobre destinos turísticos:
         \begin{itemize}
-            \item Paolanti et al. \cite {tourism_dest_rec_geolocation} comparan el rendimiento de múltiples métodos actuales de aprendizaje profundo sobre tweets relacionados con Cilento, Italia.
-            \item Borrajo-Millán et al. \cite{su13116015} llevan a cabo un análisis sobre el turismo en España y la percepción que tienen los turistas chinos.
+            \item Paolanti et al. \cite {tourism_dest_rec_geolocation} \textbf{comparan múltiples métodos} actuales de aprendizaje profundo sobre tweets relacionados con Cilento, Italia.
+            \item Borrajo-Millán et al. \cite{su13116015} llevan a cabo un análisis sobre el turismo en España y la \textbf{percepción que tienen los turistas chinos}.
         \end{itemize}
     \end{itemize}
 \end{frame}
@@ -126,32 +126,28 @@
         \item Se creó un script que descargaba las publicaciones (imagen y metadatos) en Amazon S3, las procesa con Rekognition, y guarda el resultado final en una base de datos de DynamoDB.
         \item La base de datos cuenta con una única tabla, cada entrada se corresponde con una cara e incluye tanto metadatos de Instalooter como la información obtenida con Rekognition.
     \end{itemize}
-
-{\scriptsize
-\begin{table}[H]
-    \vspace{-0.4cm}
-    \centering
-    \begin{tabular}{|p{0.25\textwidth}|p{0.1\textwidth}|p{0.55\textwidth}|}
-    \hline
-	Nombre del campo & Tipo & Orígen \\ \hline
-	id & Cadena & Instalooter.id \\ \hline
-	faceIndex & Número & Índice de la cara en Rekognition.FaceDetails \\ \hline
-	dTime & Cadena & Instalooter.taken\_at\_timestamp, formateado como \texttt{YYYY-MM-DDTHH:MM:SS} \\ \hline
-	shortCode & Cadena & Instalooter.shortcode \\ \hline
-	... & & \\ \hline
-	confidence & Número & Rekognition.FaceDetails{[}*{]}.Confidence \\ \hline
-	ageLow & Número & Rekognition.FaceDetails{[}*{]}.AgeRange.Low \\ \hline
-	ageHigh & Número & Rekognition.FaceDetails{[}*{]}.AgeRange.High \\ \hline
-	gender & Cadena & Rekognition.FaceDetails{[}*{]}.Gender.Value \\ \hline
-	... & & \\ \hline
-    \end{tabular}
-    %\caption{Diseño de la tabla \texttt{valltourisminsta}}
-    \label{tab:dynamodb_table}
-\end{table}
-}
-
-
-
+    {\scriptsize
+    \begin{table}[H]
+        \vspace{-0.4cm}
+        \centering
+        \begin{tabular}{|p{0.25\textwidth}|p{0.1\textwidth}|p{0.55\textwidth}|}
+        \hline
+    	Nombre del campo & Tipo & Orígen \\ \hline
+    	id & Cadena & Instalooter.id \\ \hline
+    	faceIndex & Número & Índice de la cara en Rekognition.FaceDetails \\ \hline
+    	dTime & Cadena & Instalooter.taken\_at\_timestamp, formateado como \texttt{YYYY-MM-DDTHH:MM:SS} \\ \hline
+    	shortCode & Cadena & Instalooter.shortcode \\ \hline
+    	... & & \\ \hline
+    	confidence & Número & Rekognition.FaceDetails{[}*{]}.Confidence \\ \hline
+    	ageLow & Número & Rekognition.FaceDetails{[}*{]}.AgeRange.Low \\ \hline
+    	ageHigh & Número & Rekognition.FaceDetails{[}*{]}.AgeRange.High \\ \hline
+    	gender & Cadena & Rekognition.FaceDetails{[}*{]}.Gender.Value \\ \hline
+    	... & & \\ \hline
+        \end{tabular}
+        %\caption{Diseño de la tabla \texttt{valltourisminsta}}
+        \label{tab:dynamodb_table}
+    \end{table}
+    }
 \end{frame}
 
 \subsection{Proceso de descarga de las publicaciones}
@@ -171,9 +167,9 @@
         \begin{itemize}
             \item Web estática con ChartJS o D3JS: problema requiere mucho tiempo.
             \item QLik, MS PowerBI, Tableau: problema no tienen conectores gratuitos con DynamoDB y tienen un periodo de prueba limitado.
-            \item Grafana: es open source pero tampoco tiene conector con DynamoDB.
+            \item Grafana: open source, pero tampoco tiene conector con DynamoDB.
         \end{itemize}
-        \item Finalmente se decidió por Grafana que aunque no tiene conector, existen plugins que pueden ayudar a la implementación de un conector sencillo mediante APIs REST.
+        \item Finalmente se decidió por \textbf{Grafana} que aunque no tiene conector, existen plugins que pueden ayudar a la implementación de un conector sencillo mediante APIs REST.
         \begin{figure}
             \centering
             \includegraphics[width=0.75\textwidth]{img/gateway_flow.png}
@@ -198,9 +194,23 @@
 \begin{frame}[label=conclu]{Conclusiones}
     \begin{itemize}
         \item Se considera que se ha conseguido cumplir los objetivos generales inicialmente planteados.
+        \begin{itemize}
+            \item[\rlap{$\square$}{\raisebox{2pt}{\large\hspace{1pt}\ding{51}}}]  Desarrollar el software necesario para descargar y analizar las publicaciones de forma automática.
+            \item[\rlap{$\square$}{\raisebox{2pt}{\large\hspace{1pt}\ding{51}}}] Conocer el estado del arte.
+            \item[\rlap{$\square$}{\raisebox{2pt}{\large\hspace{1pt}\ding{51}}}] Hacer visualización de los datos.
+        \end{itemize}
         \item La base base de datos final ha estado más limitada de lo esperado.
         \item Los crawlers son muy sensibles a las actualizaciones de las páginas web.
         \item Usar DynamoDB presenta algunas limitaciones, tanto por las consultas que se pueden hacer como por el soporte de otras herramientas para conectarse a esta base de datos.
+    \end{itemize}
+\end{frame}
+
+\subsection{Contribuciones}
+\begin{frame}[label=contribuciones]{Contribuciones}
+    \begin{itemize}
+        \item Script que automatiza la descarga, procesamiento y almacenamiento de publicaciones.
+        \item HotFix del crawler Instalooter (hay un \textit{pull request} actualmente en revisión).
+        \item ``Conector'' de Grafana con DynamoDB mediante AWS Lambda y Amazon API Gateway.
     \end{itemize}
 \end{frame}
 
